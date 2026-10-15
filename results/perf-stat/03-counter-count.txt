@@ -1,0 +1,135 @@
+$ perf stat -e {instructions:u,instructions:u,instructions:u,instructions:u,instructions:u} ./branchy sorted
+25701424840
+
+ Performance counter stats for './branchy sorted':
+
+        2587474184      instructions:u                                                        
+        2587474184      instructions:u                                                        
+        2587474184      instructions:u                                                        
+        2587474184      instructions:u                                                        
+        2587474184      instructions:u                                                        
+
+       0.172188886 seconds time elapsed
+
+       0.168770000 seconds user
+       0.002996000 seconds sys
+
+
+
+$ perf stat -e {instructions:u,instructions:u,instructions:u,instructions:u,instructions:u,instructions:u} ./branchy sorted
+25701424840
+
+ Performance counter stats for './branchy sorted':
+
+        2587474189      instructions:u                                                        
+        2587474189      instructions:u                                                        
+        2587474189      instructions:u                                                        
+        2587474189      instructions:u                                                        
+        2587474189      instructions:u                                                        
+                40      instructions:u                                                        
+
+       0.169245387 seconds time elapsed
+
+       0.164861000 seconds user
+       0.003994000 seconds sys
+
+
+
+$ perf stat -e {instructions:u,instructions:u,instructions:u,instructions:u,instructions:u,instructions:u,instructions:u} ./branchy sorted
+25701424840
+
+ Performance counter stats for './branchy sorted':
+
+     <not counted>      instructions:u                                                        
+     <not counted>      instructions:u                                                        
+     <not counted>      instructions:u                                                        
+     <not counted>      instructions:u                                                        
+     <not counted>      instructions:u                                                        
+     <not counted>      instructions:u                                                        
+   <not supported>      instructions:u                                                        
+
+       0.183878720 seconds time elapsed
+
+       0.178488000 seconds user
+       0.004981000 seconds sys
+
+
+
+$ perf stat -e {cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses} ./branchy sorted
+25701424840
+
+ Performance counter stats for './branchy sorted':
+
+         881992751      cycles                                                                
+        2595790595      instructions                     #    2.94  insn per cycle            
+         773775247      branches                                                              
+            190616      branch-misses                    #    0.02% of all branches           
+         408122368      L1-dcache-loads                                                       
+                 0      L1-dcache-load-misses                                                 
+
+       0.185586683 seconds time elapsed
+
+       0.179167000 seconds user
+       0.005965000 seconds sys
+
+
+
+$ perf stat -e {L1-dcache-load-misses,cycles,instructions,branches,branch-misses,L1-dcache-loads} ./branchy sorted
+25701424840
+
+ Performance counter stats for './branchy sorted':
+
+           7497244      L1-dcache-load-misses                                                 
+         864991217      cycles                                                                
+        2595537154      instructions                     #    3.00  insn per cycle            
+         773725523      branches                                                              
+            188010      branch-misses                    #    0.02% of all branches           
+                 0      L1-dcache-loads                                                       
+
+       0.180623615 seconds time elapsed
+
+       0.179194000 seconds user
+       0.001001000 seconds sys
+
+
+
+$ perf stat -e cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses ./branchy sorted
+25701424840
+
+ Performance counter stats for './branchy sorted':
+
+         825954737      cycles                                                                
+        2595358718      instructions                     #    3.14  insn per cycle            
+         773688759      branches                                                              
+            184201      branch-misses                    #    0.02% of all branches           
+         407759862      L1-dcache-loads                                                       
+                 0      L1-dcache-load-misses                                                 
+
+       0.173723294 seconds time elapsed
+
+       0.169249000 seconds user
+       0.003986000 seconds sys
+
+
+
+$ perf stat -e {cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses,dTLB-load-misses} ./branchy sorted
+25701424840
+
+ Performance counter stats for './branchy sorted':
+
+     <not counted>      cycles                                                                
+     <not counted>      instructions                                                          
+     <not counted>      branches                                                              
+     <not counted>      branch-misses                                                         
+     <not counted>      L1-dcache-loads                                                       
+     <not counted>      L1-dcache-load-misses                                                 
+   <not supported>      dTLB-load-misses                                                      
+
+       0.182954918 seconds time elapsed
+
+       0.180516000 seconds user
+       0.001994000 seconds sys
+
+
+The events in group usually have to be from the same PMU. Try reorganizing the group.
+

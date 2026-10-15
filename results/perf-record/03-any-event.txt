@@ -1,0 +1,43 @@
+$ perf stat -e cycles,instructions,L1-dcache-loads,L1-dcache-load-misses,LLC-load-misses,cache-misses ./sum2d
+1879048192
+
+ Performance counter stats for './sum2d':
+
+        2500223929      cycles                                                                
+         695548363      instructions                     #    0.28  insn per cycle            
+         152645257      L1-dcache-loads                                                       
+         120808563      L1-dcache-load-misses            #   79.14% of all L1-dcache accesses 
+   <not supported>      LLC-load-misses                                                       
+          45685249      cache-misses                                                          
+
+       0.537670248 seconds time elapsed
+
+       0.523296000 seconds user
+       0.013124000 seconds sys
+
+
+
+$ perf record -e cycles -o sum2d-cycles.data ./sum2d
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.088 MB sum2d-cycles.data (2271 samples) ]
+
+$ perf report --stdio -i sum2d-cycles.data --sort sym 2>&1 | grep -v '^$' | grep -v '^#' | head -6
+    94.92%  [.] sum_cols
+     1.76%  [k] kernel_init_pages
+     1.72%  [.] sum_rows
+     1.25%  [.] main
+     0.04%  [k] asm_sysvec_apic_timer_interrupt
+     0.04%  [k] get_page_from_freelist
+
+$ perf record -e L1-dcache-load-misses -o sum2d-L1-dcache-load-misses.data ./sum2d
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.088 MB sum2d-L1-dcache-load-misses.data (2264 samples) ]
+
+$ perf report --stdio -i sum2d-L1-dcache-load-misses.data --sort sym 2>&1 | grep -v '^$' | grep -v '^#' | head -6
+    89.02%  [.] sum_cols
+     3.55%  [.] sum_rows
+     3.50%  [.] main
+     3.50%  [k] kernel_init_pages
+     0.21%  [k] asm_sysvec_apic_timer_interrupt
+     0.09%  [k] __mod_zone_page_state
+

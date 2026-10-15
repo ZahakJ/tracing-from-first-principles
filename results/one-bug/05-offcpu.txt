@@ -1,0 +1,83 @@
+$ bpftrace offcpu.bt -c ./ingest     (top 3 stacks by off-CPU microseconds)
+    tracepoint:sched:sched_switch
+    /args.prev_pid == (int32)cpid/
+    {
+    	@ts[cpid] = nsecs;
+    }
+    
+    kprobe:finish_task_switch*
+    /pid == cpid && @ts[cpid]/
+    {
+    	$us = (nsecs - @ts[cpid]) / 1000;
+    	@off_us[kstack(12), ustack(4)] = sum($us);
+    	@total_off_us = sum($us);
+    	@switches = count();
+    	delete(@ts[cpid]);
+    }
+    
+    END
+    {
+    	printf("BEGIN to END: %d us\n", (nsecs - @t0) / 1000);
+    	clear(@ts); clear(@t0);
+    	print(@off_us, 3);
+    	clear(@off_us);
+    }
+
+[ASLR off for this run; '<-' annotations added by run.sh, not bpftrace]
+Attaching 4 probes...
+BEGIN to END: 3554982 us
+@off_us[
+        finish_task_switch.isra.0+5
+        __schedule+1121
+        schedule+39
+        io_schedule+70
+        bit_wait_io+17
+        __wait_on_bit+146
+        out_of_line_wait_on_bit+151
+        jbd2_write_superblock+278
+        jbd2_journal_update_sb_log_tail+158
+        __jbd2_update_log_tail+67
+        jbd2_cleanup_journal_tail+113
+        jbd2_log_do_checkpoint+52
+, 
+        0x7ffff7e523a7    <- libc.so.6+0x8f3a7
+        0x55555555528e    <- ./ingest+0x128e main
+        0x7ffff7decca8    <- libc.so.6+0x29ca8
+]: 5016
+@off_us[
+        finish_task_switch.isra.0+5
+        __schedule+1121
+        schedule+39
+        io_schedule+70
+        folio_wait_bit_common+349
+        folio_wait_writeback+55
+        __filemap_fdatawait_range+172
+        file_write_and_wait_range+128
+        ext4_sync_file+174
+        do_fsync+95
+        __x64_sys_fdatasync+22
+        do_syscall_64+170
+, 
+        0x7ffff7e523a7    <- libc.so.6+0x8f3a7
+        0x55555555528e    <- ./ingest+0x128e main
+        0x7ffff7decca8    <- libc.so.6+0x29ca8
+]: 15396
+@off_us[
+        finish_task_switch.isra.0+5
+        __schedule+1121
+        schedule+39
+        jbd2_log_wait_commit+183
+        ext4_sync_file+534
+        do_fsync+95
+        __x64_sys_fdatasync+22
+        do_syscall_64+170
+        entry_SYSCALL_64_after_hwframe+118
+, 
+        0x7ffff7e523a7    <- libc.so.6+0x8f3a7
+        0x55555555528e    <- ./ingest+0x128e main
+        0x7ffff7decca8    <- libc.so.6+0x29ca8
+]: 3050691
+@switches: 603
+@total_off_us: 3071133
+
+total off-CPU (bpftrace): 3.07 s;  real - user - sys (01 medians): 3.42 - 0.34 - 0.00 = 3.08 s

@@ -1,0 +1,9 @@
+$ ./paths-pg-nopie && gprof -b ./paths-pg-nopie gmon.out   (gcc -O2 -pg -no-pie)
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+100.17      1.10     1.10    10000     0.00     0.00  spin
+  0.00      1.10     0.00        1     0.00     1.09  fast_path
+  0.00      1.10     0.00        1     0.00     0.01  slow_path

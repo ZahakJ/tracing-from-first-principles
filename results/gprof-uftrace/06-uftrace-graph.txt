@@ -1,0 +1,12 @@
+$ uftrace graph | head -30
+# Function Call Graph for 'paths-pg' (session: 41a707fe634c63e2)
+========== FUNCTION CALL GRAPH ==========
+# TOTAL TIME   FUNCTION
+    1.121  s : (1) paths-pg
+    1.121  s : (1) main
+   11.971 ms :  +-(1) fast_path
+   11.412 ms :  | (9900) spin
+             :  | 
+    1.109  s :  +-(1) slow_path
+    1.109  s :    (100) spin
+

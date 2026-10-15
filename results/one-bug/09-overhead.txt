@@ -1,0 +1,15 @@
+wall time of each command, 3 runs, median (min max) in ms; slowdown = median / bare median
+(N=300 default; callgrind at N=30 against a bare N=30 run)
+
+command                                  median        min        max slowdown
+./ingest (bare)                          3419.0     3411.9     3423.8    1.00x
+strace -o /dev/null                      3445.5     3441.8     3453.4    1.01x
+strace -c                                3467.3     3466.8     3532.2    1.01x
+perf record -g                           4158.4     4152.5     4173.3    1.22x
+perf trace -s -o /dev/null               3654.2     3607.7     3696.4    1.07x
+bpftrace offcpu.bt                       3837.2     3828.6     3841.4    1.12x
+ltrace -c -o /dev/null                   3495.9     3494.6     3498.1    1.02x
+./ingest_pg (bare, -pg build)            3423.6     3423.4     3430.3    1.00x
+uftrace record ./ingest_pg               3488.0     3479.3     3499.9    1.02x
+./ingest -n 30 (bare)                     342.5      342.2      343.0    1.00x
+valgrind --tool=callgrind, -n 30          829.0      827.7      839.8    2.42x

@@ -1,0 +1,26 @@
+$ LD_PRELOAD=./sampler.so SAMPLES=samples.txt ./work
+3837611256
+$ head -4 samples.txt
+0x401307 ./work
+0x401307 ./work
+0x40130f ./work
+0x401307 ./work
+$ wc -l < samples.txt
+538
+
+samples per function (addresses inside ./work resolved with addr2line -f; others named by file):
+   435   80.9%  checksum
+    93   17.3%  (libc.so.6)
+     7    1.3%  make_record
+     2    0.4%  main
+     1    0.2%  store
+
+the hottest source lines inside ./work:
+    329 work.c:40
+    106 work.c:39 (discriminator 1)
+      7 work.c:29 (discriminator 4)
+      1 work.c:64 (discriminator 1)
+
+wall time, ms (median min max runs):
+work                 548.916 547.788 555.644 5
+work with sampler.so 549.384 548.539 551.417 5

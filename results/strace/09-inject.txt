@@ -1,0 +1,35 @@
+$ strace -e trace=write -e inject=write:error=ENOSPC:when=3 ./saver
+write(3, "record 1\n", 9)               = 9
+write(3, "record 2\n", 9)               = 9
+write(3, "record 3\n", 9)               = -1 ENOSPC (No space left on device) (INJECTED)
+write(3, "record 4\n", 9)               = 9
+write(3, "record 5\n", 9)               = 9
+write(1, "saved 5 records\n", 16saved 5 records
+)       = 16
++++ exited with 0 +++
+[exit status 0]
+$ wc -l saved.txt; cat saved.txt
+4 saved.txt
+record 1
+record 2
+record 4
+record 5
+
+$ strace -e trace=write -e inject=write:error=ENOSPC:when=3 ./saver_checked
+write(3, "record 1\n", 9)               = 9
+write(3, "record 2\n", 9)               = 9
+write(3, "record 3\n", 9)               = -1 ENOSPC (No space left on device) (INJECTED)
+write(2, "saver: record 3: No space left o"..., 41saver: record 3: No space left on device
+) = 41
+write(3, "record 4\n", 9)               = 9
+write(3, "record 5\n", 9)               = 9
+write(1, "saved 4 of 5 records\n", 21saved 4 of 5 records
+)  = 21
++++ exited with 1 +++
+[exit status 1]
+$ wc -l saved.txt
+4 saved.txt
+
+$ ./saver_checked    (no injection)
+saved 5 of 5 records
+[exit status 0]

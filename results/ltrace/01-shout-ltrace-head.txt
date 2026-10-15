@@ -1,0 +1,17 @@
+$ ltrace ./shout 20 2>&1 | head -15
+strtoul("20", nil, 10)                           = 20
+malloc(21)                                       = 0x560fb0ebc2a0
+strlen("hello world hello wo")                   = 20
+toupper('h')                                     = 'H'
+strlen("Hello world hello wo")                   = 20
+toupper('e')                                     = 'E'
+strlen("HEllo world hello wo")                   = 20
+toupper('l')                                     = 'L'
+strlen("HELlo world hello wo")                   = 20
+toupper('l')                                     = 'L'
+strlen("HELLo world hello wo")                   = 20
+toupper('o')                                     = 'O'
+strlen("HELLO world hello wo")                   = 20
+toupper(' ')                                     = ' '
+strlen("HELLO world hello wo")                   = 20
+[... 32 more lines]

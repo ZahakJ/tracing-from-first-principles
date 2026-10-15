@@ -1,0 +1,9 @@
+$ cat /proc/sys/kernel/yama/ptrace_scope
+1
+$ grep -E 'Seccomp|CapEff' /proc/self/status
+CapEff:	0000000000000000
+Seccomp:	2
+Seccomp_filters:	1
+$ sleep 3 & strace -p $!    (sleep is a sibling, not strace's child)
+strace: attach: ptrace(PTRACE_SEIZE, 841): Operation not permitted
+[exit status 1]

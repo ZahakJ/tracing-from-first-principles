@@ -1,0 +1,49 @@
+$ heaptrack -o /tmp/ht ./leaky
+heaptrack output will be written to "/tmp/ht.gz"
+starting application, this might take some time...
+handled 1000 requests, 120 errors
+heaptrack stats:
+	allocations:          	3002
+	leaked allocations:   	141
+	temporary allocations:	900
+Heaptrack finished! Now run the following to investigate the data:
+
+  heaptrack --analyze "/tmp/ht.gz"
+
+data file: /tmp/ht.gz  1230 bytes (compressed)
+
+$ heaptrack_print --print-leaks -f /tmp/ht.gz   # leak section and summary only
+[trimmed: the entry for libc's stdout buffer (_IO_file_doallocate, 4.10K, 33 lines) is dropped]
+MEMORY LEAKS
+25.60K leaked over 1000 calls from
+handle
+  at src/leaky.c:43
+  in /tmp/b/leaky
+25.60K leaked over 1000 calls from:
+    main
+      at src/leaky.c:67
+      in /tmp/b/leaky
+
+478B leaked over 1000 calls from
+xmalloc
+  at src/leaky.c:23
+  in /tmp/b/leaky
+478B leaked over 1000 calls from:
+    xstrdup
+      at src/leaky.c:32
+      in /tmp/b/leaky
+    handle
+      at src/leaky.c:42
+      in /tmp/b/leaky
+    main
+      at src/leaky.c:67
+      in /tmp/b/leaky
+
+
+[summary]
+total runtime: 0.05s.
+calls to allocation functions: 3002 (61265/s)
+temporary memory allocations: 900 (18367/s)
+peak heap memory consumption: 103.90K
+peak RSS (including heaptrack overhead): 4.62M
+total memory leaked: 30.17K

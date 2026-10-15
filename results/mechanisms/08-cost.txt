@@ -1,0 +1,11 @@
+ns per call: median min max runs
+none (just the call)             1.05 1.05 1.06 5
+flag (test a variable, off)      1.04 1.03 1.09 5
+ring (rdtsc -> memory)           7.11 7.07 7.18 5
+clock (clock_gettime -> memory)  17.32 17.16 17.36 5
+printf (text -> stdio -> file)   83.12 82.46 83.97 5
+write (text -> write() each)     963.5 956.85 968.49 5
+compiler hooks (enter+exit)      37.72 37.57 46.6 5
+breakpoint via ptrace            14636.5 14587.6 14694.4 5
+malloc+free, no shim             5.56 5.39 5.78 5
+malloc+free, with shim.so        5.96 5.88 6.21 5

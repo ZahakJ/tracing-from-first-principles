@@ -1,0 +1,23 @@
+/*
+ * jbd2off.bt: the same off-CPU accounting as offcpu.bt, but for the
+ * ext4 journal thread of /dev/vdd, while the -c program runs.
+ */
+tracepoint:sched:sched_switch
+/args.prev_comm == "jbd2/vdd-8"/
+{
+	@ts[args.prev_pid] = nsecs;
+}
+
+kprobe:finish_task_switch*
+/comm == "jbd2/vdd-8" && @ts[tid]/
+{
+	@off_us[kstack(10)] = sum((nsecs - @ts[tid]) / 1000);
+	delete(@ts[tid]);
+}
+
+END
+{
+	clear(@ts);
+	print(@off_us, 3);
+	clear(@off_us);
+}

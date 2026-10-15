@@ -1,0 +1,8 @@
+# Same programs as part 3, wall ms, 5 runs each: median min max n. Output to /tmp/strace-exp/out.
+# columns: input | bare median (min-max) | traced median (min-max) | extra ms | syscalls | extra us per syscall
+$ ./fastcat < in.4M > out    vs    strace -o /dev/null ./fastcat < in.4M > out
+in.4M | 2.7 (2.6-5.0) ms | 6.8 (6.2-7.0) ms | 4.1 ms | 129 | 31.74 us
+$ ./slowcat < in.128K > out    vs    strace -o /dev/null ./slowcat < in.128K > out
+in.128K | 193.7 (192.9-195.7) ms | 3746.0 (3733.3-3778.2) ms | 3552.4 ms | 262144 | 13.55 us
+# slowcat uses a 128 KiB input (262,144 copy syscalls) to keep the traced runs short.
+# extra us per syscall = (traced - bare) ms * 1000 / syscalls in the copy loop (fastcat: ~30 more startup syscalls, ignored)

@@ -1,0 +1,10 @@
+$ mkfs.ext4 -F -q -b 4096 -E lazy_itable_init=0,lazy_journal_init=0 /dev/vdd
+
+$ mount -t ext4 /dev/vdd /mnt
+
+/dev/vdd /mnt ext4 rw,relatime 0 0
+$ dumpe2fs -h /dev/vdd | grep -E 'Block size|Journal size|Default mount|features'
+Filesystem features:      has_journal ext_attr resize_inode dir_index orphan_file filetype needs_recovery extent 64bit flex_bg metadata_csum_seed sparse_super large_file huge_file dir_nlink extra_isize metadata_csum orphan_present
+Default mount options:    user_xattr acl
+Block size:               4096
+Journal features:         journal_64bit journal_checksum_v3

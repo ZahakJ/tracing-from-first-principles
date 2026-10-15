@@ -1,0 +1,80 @@
+THP: [always] madvise never
+compiler flags: gcc -O1 -Wall
+N = 8192 ints = 256 MiB matrix (L2 = 1 MiB, L3 = 96 MiB); sum done 4 times
+
+instructions:u of the whole run (perf stat -x, -e instructions:u ./sum2d X):
+  rows 1677992233
+  cols 1678029056
+
+wall ms, median min max n (whole process, 5 runs):
+  rows 111.221 96.041 178.493 5
+  cols 1925.29 1881.67 2050.16 5
+
+$ perf stat -e cycles,instructions,branches,branch-misses ./sum2d rows
+34225520640
+
+ Performance counter stats for './sum2d rows':
+
+         468855677      cycles                                                                
+        1688919639      instructions                     #    3.60  insn per cycle            
+         338039195      branches                                                              
+            218017      branch-misses                    #    0.06% of all branches           
+
+       0.106457839 seconds time elapsed
+
+       0.091288000 seconds user
+       0.014870000 seconds sys
+
+
+
+$ perf stat -e cycles,L1-dcache-loads,L1-dcache-load-misses,dTLB-load-misses ./sum2d rows
+34225520640
+
+ Performance counter stats for './sum2d rows':
+
+         470784002      cycles                                                                
+         347412215      L1-dcache-loads                                                       
+          25491276      L1-dcache-load-misses            #    7.34% of all L1-dcache accesses 
+             17325      dTLB-load-misses                                                      
+
+       0.098836776 seconds time elapsed
+
+       0.088716000 seconds user
+       0.009949000 seconds sys
+
+
+
+$ perf stat -e cycles,instructions,branches,branch-misses ./sum2d cols
+34225520640
+
+ Performance counter stats for './sum2d cols':
+
+        9985374605      cycles                                                                
+        1697088872      instructions                     #    0.17  insn per cycle            
+         339993614      branches                                                              
+            495533      branch-misses                    #    0.15% of all branches           
+
+       2.037521182 seconds time elapsed
+
+       2.027915000 seconds user
+       0.005981000 seconds sys
+
+
+
+$ perf stat -e cycles,L1-dcache-loads,L1-dcache-load-misses,dTLB-load-misses ./sum2d cols
+34225520640
+
+ Performance counter stats for './sum2d cols':
+
+        9346735437      cycles                                                                
+         489473633      L1-dcache-loads                                                       
+         420542443      L1-dcache-load-misses            #   85.92% of all L1-dcache accesses 
+          12759035      dTLB-load-misses                                                      
+
+       1.891365860 seconds time elapsed
+
+       1.880955000 seconds user
+       0.006979000 seconds sys
+
+
+

@@ -1,0 +1,32 @@
+=== callers-nofp, perf record -g
+samples 4552, stack reaches main: 0 (0.0%)
+  leaf checksum    3444 samples, reach main      0 (0.0%)
+  leaf cmp          883 samples, reach main      0 (0.0%)
+  most common stacks ending in cmp (root;...;leaf):
+     883  [unknown];cmp
+
+=== callers-fp, perf record --call-graph=fp
+samples 4528, stack reaches main: 3487 (77.0%)
+  leaf checksum    3414 samples, reach main   3414 (100.0%)
+  leaf cmp          916 samples, reach main      0 (0.0%)
+  most common stacks ending in cmp (root;...;leaf):
+     916  [unknown];cmp
+
+=== callers-fpleaf, perf record --call-graph=fp
+samples 4662, stack reaches main: 3585 (76.9%)
+  leaf checksum    3560 samples, reach main   3560 (100.0%)
+  leaf cmp          940 samples, reach main      0 (0.0%)
+  most common stacks ending in cmp (root;...;leaf):
+     940  [unknown];cmp
+
+=== callers-nofp, perf record --call-graph=dwarf
+samples 4504, stack reaches main: 4487 (99.6%)
+  leaf checksum    3458 samples, reach main   3458 (100.0%)
+  leaf cmp          883 samples, reach main    883 (100.0%)
+  most common stacks ending in cmp (root;...;leaf):
+     883  _start;__libc_start_call_main;main;sort_things;__GI___qsort_r;cmp
+
+offline unwinding cost for the dwarf file (wall ms, median min max n):
+  perf report --stdio > /dev/null : 346.125 345.444 346.89 3
+  perf script > /dev/null         : 347.365 344.46 353.472 3
+  same for the fp file (fp binary): 204.296 203.879 209.467 3 / 208.859 203.613 211.542 3

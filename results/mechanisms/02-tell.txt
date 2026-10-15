@@ -1,0 +1,19 @@
+$ ./work_tell 200000 2> tell.log
+1943194024
+$ head -6 tell.log
+171212157926415 make_record
+171212157946663 checksum
+171212157948897 store
+171212157951081 make_record
+171212157952654 checksum
+171212157954227 make_record
+$ wc -l -c tell.log
+  420000 11040000
+$ awk '{print $2}' tell.log | sort | uniq -c
+ 200000 checksum
+ 200000 make_record
+  20000 store
+
+wall time, ms (median min max runs):
+work 200000                      54.182 53.703 54.547 5
+work_tell 200000 2>/tmp/tell.log 508.513 505.705 524.998 5

@@ -1,0 +1,4 @@
+$ ./reader /tmp/ram/data64   (bare, 5 runs; reader's own elapsed ms)
+1056800 read() calls
+elapsed_ms 276.8
+elapsed ms median min max n: 278.4 277.3 280.6 5

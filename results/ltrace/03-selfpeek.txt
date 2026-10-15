@@ -1,0 +1,28 @@
+$ objdump -d -j .plt selfpeek | grep -A3 "<puts@plt>:"
+0000000000401030 <puts@plt>:
+  401030:	ff 25 ca 2f 00 00    	jmp    *0x2fca(%rip)        # 404000 <puts@GLIBC_2.2.5>
+  401036:	68 00 00 00 00       	push   $0x0
+  40103b:	e9 e0 ff ff ff       	jmp    401020 <_init+0x20>
+
+$ ./selfpeek
+calling puts once
+puts stub at 0x401030: ff 25 ca 2f
+calling puts again
+puts stub at 0x401030: ff 25 ca 2f
+
+$ ltrace ./selfpeek    (ltrace writes to stderr, the program to stdout)
+puts("calling puts once")                        = 18
+printf("puts stub at %p: %02x %02x %02x "..., 0x401030, 0xcc, 0x25, 0xca) = 35
+puts("calling puts again")                       = 19
+printf("puts stub at %p: %02x %02x %02x "..., 0x401030, 0xcc, 0x25, 0xca) = 35
+calling puts once
+puts stub at 0x401030: cc 25 ca 2f
+calling puts again
+puts stub at 0x401030: cc 25 ca 2f
++++ exited (status 0) +++
+
+$ ltrace -o /dev/null ./selfpeek
+calling puts once
+puts stub at 0x401030: cc 25 ca 2f
+calling puts again
+puts stub at 0x401030: cc 25 ca 2f

@@ -1,0 +1,59 @@
+$ perf record -e sched:sched_switch -g -o sw.data ./sleepy
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.002 MB sw.data (6 samples) ]
+
+(only the switches where the task blocked, state S or D; R means it was preempted while runnable)
+$ perf script -i sw.data 2>/dev/null | awk 'BEGIN{RS=""; ORS="
+
+"} /\] [SD] ==>/' | head -50
+sleepy    1515 [000]   239.959295: sched:sched_switch: sleepy:1515 [120] S ==> swapper/0:0 [120]
+	ffffffffa116d1fc __schedule+0xbac ([kernel.kallsyms])
+	ffffffffa116def7 schedule+0x27 ([kernel.kallsyms])
+	ffffffffa03c6926 anon_pipe_read+0x2f6 ([kernel.kallsyms])
+	ffffffffa03b78e5 vfs_read+0x3e5 ([kernel.kallsyms])
+	ffffffffa03b897f ksys_read+0xcf ([kernel.kallsyms])
+	ffffffffa115caba do_syscall_64+0xaa ([kernel.kallsyms])
+	ffffffff9fc0012f entry_SYSCALL_64_after_hwframe+0x76 ([kernel.kallsyms])
+	    7efe14f5f3a7 __internal_syscall_cancel+0x67 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+sleepy    1513 [002]   240.135062: sched:sched_switch: sleepy:1513 [120] S ==> swapper/2:0 [120]
+	ffffffffa116d1fc __schedule+0xbac ([kernel.kallsyms])
+	ffffffffa116def7 schedule+0x27 ([kernel.kallsyms])
+	ffffffffa117554b do_nanosleep+0x7b ([kernel.kallsyms])
+	ffffffffa00873e2 hrtimer_nanosleep+0xc2 ([kernel.kallsyms])
+	ffffffffa0092db4 common_nsleep+0x34 ([kernel.kallsyms])
+	ffffffffa0095571 __x64_sys_clock_nanosleep+0xf1 ([kernel.kallsyms])
+	ffffffffa115caba do_syscall_64+0xaa ([kernel.kallsyms])
+	ffffffff9fc0012f entry_SYSCALL_64_after_hwframe+0x76 ([kernel.kallsyms])
+	    7efe14f5f3a7 __internal_syscall_cancel+0x67 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+sleepy    1513 [002]   241.135169: sched:sched_switch: sleepy:1513 [120] S ==> swapper/2:0 [120]
+	ffffffffa116d1fc __schedule+0xbac ([kernel.kallsyms])
+	ffffffffa116def7 schedule+0x27 ([kernel.kallsyms])
+	ffffffffa03c6926 anon_pipe_read+0x2f6 ([kernel.kallsyms])
+	ffffffffa03b78e5 vfs_read+0x3e5 ([kernel.kallsyms])
+	ffffffffa03b897f ksys_read+0xcf ([kernel.kallsyms])
+	ffffffffa115caba do_syscall_64+0xaa ([kernel.kallsyms])
+	ffffffff9fc0012f entry_SYSCALL_64_after_hwframe+0x76 ([kernel.kallsyms])
+	    7efe14f5f3a7 __internal_syscall_cancel+0x67 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	  7ffd0e2d5fc800 [unknown] ([unknown])
+
+sleepy    1515 [000]   241.135190: sched:sched_switch: sleepy:1515 [120] S ==> swapper/0:0 [120]
+	ffffffffa116d1fc __schedule+0xbac ([kernel.kallsyms])
+	ffffffffa116def7 schedule+0x27 ([kernel.kallsyms])
+	ffffffffa117554b do_nanosleep+0x7b ([kernel.kallsyms])
+	ffffffffa00873e2 hrtimer_nanosleep+0xc2 ([kernel.kallsyms])
+	ffffffffa0092db4 common_nsleep+0x34 ([kernel.kallsyms])
+	ffffffffa0095571 __x64_sys_clock_nanosleep+0xf1 ([kernel.kallsyms])
+	ffffffffa115caba do_syscall_64+0xaa ([kernel.kallsyms])
+	ffffffff9fc0012f entry_SYSCALL_64_after_hwframe+0x76 ([kernel.kallsyms])
+	    7efe14f5f3a7 __internal_syscall_cancel+0x67 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+sleepy    1513 [002]   241.935309: sched:sched_switch: sleepy:1513 [120] S ==> swapper/2:0 [120]
+	ffffffffa116d1fc __schedule+0xbac ([kernel.kallsyms])
+	ffffffffa116def7 schedule+0x27 ([kernel.kallsyms])
+	ffffffff9ff73b8a do_wait+0x5a ([kernel.kallsyms])
+	ffffffff9ff74397 kernel_wait4+0xe7 ([kernel.kallsyms])
+	ffffffff9ff74517 __do_sys_wait4+0xd7 ([kernel.kallsyms])
+	ffffffffa115caba do_syscall_64+0xaa ([kernel.kallsyms])
+

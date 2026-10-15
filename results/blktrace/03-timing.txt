@@ -1,0 +1,5 @@
+writer without any tracing, 7 runs each: median min max n (us)
+buffered write(): 3.9 3.7 6.2 7
+fsync write(): 5 4 16.5 7
+fsync fsync(): 5161.1 5099.6 15342.3 7
+direct write(): 57.7 45.9 61.7 7

@@ -1,0 +1,27 @@
+#!/bin/sh
+# PID 1 inside the throwaway VM. Mounts the basics, unpacks the experiment from
+# /dev/vdb, runs it as root, tars /out to /dev/vdc, powers off.
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin HOME=/root
+mount -t proc proc /proc
+mount -t sysfs sys /sys
+mount -t devtmpfs dev /dev 2>/dev/null
+mkdir -p /dev/pts /dev/shm && mount -t devpts devpts /dev/pts && mount -t tmpfs shm /dev/shm
+mount -t tmpfs tmp /tmp; mount -t tmpfs run /run
+mount -t tracefs tracefs /sys/kernel/tracing
+mount -t debugfs debugfs /sys/kernel/debug
+mount -t bpf bpf /sys/fs/bpf 2>/dev/null
+mount -o remount,rw / 2>/dev/null
+ip link set lo up 2>/dev/null
+hostname tracelab
+sysctl -qw kernel.perf_event_paranoid=-1 kernel.kptr_restrict=0 2>/dev/null
+mkdir -p /work /out && cd /work && tar xf /dev/vdb
+NAME=$(cat /work/.name)
+echo "tracelab: guest up: $(nproc) cpus, $(uname -r), experiment $NAME"
+cd /work/experiments/$NAME && OUT=/out sh ./run.sh > /out/run.log 2>&1
+echo $? > /out/.exit
+echo "tracelab: experiment exit $(cat /out/.exit); tail of run.log:"; tail -n 15 /out/run.log
+tar cf /dev/vdc -C /out . && sync
+echo "tracelab: done"
+echo 1 > /proc/sys/kernel/sysrq
+echo o > /proc/sysrq-trigger      # power off (there is no init system to ask)
+sleep 30

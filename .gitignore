@@ -1,0 +1,6 @@
+lab/build/
+*.o
+perf.data*
+gmon.out
+results/*/console.log
+__pycache__/

@@ -1,0 +1,35 @@
+$ heaptrack ./ingest   (summary lines)
+heaptrack stats:
+	allocations:          	2
+	leaked allocations:   	0
+	temporary allocations:	1
+$ heaptrack_print ht.gz | grep -E '^(total runtime|calls to allocation|temporary|peak heap|peak RSS|total memory leaked)'
+total runtime: 3.42s.
+calls to allocation functions: 2 (0/s)
+temporary memory allocations: 2 (0/s)
+peak heap memory consumption: 133.73K
+peak RSS (including heaptrack overhead): 4.44M
+total memory leaked: 0B
+
+$ ./ingest_pg ; gprof -b -p ingest_pg gmon.out | head -10
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  us/call  us/call  name    
+100.14      0.33     0.33      600   550.74   550.74  audit_log
+  0.00      0.33     0.00      300     0.00     0.00  make_record
+
+--- the same, built with -fno-ipa-cp (so checksum is not renamed checksum.constprop.0)
+$ nm ingest_pg | grep checksum ; nm ingest_pg2 | grep checksum
+0000000000001680 t checksum.constprop.0
+0000000000001500 t checksum
+$ ./ingest_pg2 ; gprof -b -p ingest_pg2 gmon.out | head -10
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+100.13      0.34     0.34      300     1.13     1.13  checksum
+  0.00      0.34     0.00      300     0.00     0.00  audit_log
+  0.00      0.34     0.00      300     0.00     0.00  make_record

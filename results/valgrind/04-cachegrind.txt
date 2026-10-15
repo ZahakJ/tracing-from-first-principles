@@ -1,0 +1,113 @@
+$ ./sum2d rows
+4292870144
+# native wall ms, 5 runs (median min max n): 4.05 3.912 4.365 5
+$ valgrind --tool=cachegrind --cache-sim=yes --cachegrind-out-file=cg.rows ./sum2d rows
+==371== Cachegrind, a high-precision tracing profiler
+==371== Command: ./sum2d rows
+--371-- warning: L3 cache found, using its data for the LL simulation.
+--371-- warning: specified LL cache: line_size 64  assoc 1  total_size 100,663,296
+--371-- warning: simulated LL cache: line_size 64  assoc 2  total_size 134,217,728
+4292870144
+==371== I refs:        46,282,155
+==371== I1  misses:         1,319
+==371== LLi misses:         1,292
+==371== I1  miss rate:       0.00%
+==371== LLi miss rate:       0.00%
+==371== D refs:         8,429,347  (4,223,132 rd   + 4,206,215 wr)
+==371== D1  misses:       526,004  (  263,439 rd   +   262,565 wr)
+==371== LLd misses:       263,511  (    1,004 rd   +   262,507 wr)
+==371== D1  miss rate:        6.2% (      6.2%     +       6.2%  )
+==371== LLd miss rate:        3.1% (      0.0%     +       6.2%  )
+==371== LL refs:          527,323  (  264,758 rd   +   262,565 wr)
+==371== LL misses:        264,803  (    2,296 rd   +   262,507 wr)
+==371== LL miss rate:         0.5% (      0.0%     +       6.2%  )
+
+$ ./sum2d cols
+4292870144
+# native wall ms, 5 runs (median min max n): 24.884 24.52 25.002 5
+$ valgrind --tool=cachegrind --cache-sim=yes --cachegrind-out-file=cg.cols ./sum2d cols
+==415== Cachegrind, a high-precision tracing profiler
+==415== Command: ./sum2d cols
+--415-- warning: L3 cache found, using its data for the LL simulation.
+--415-- warning: specified LL cache: line_size 64  assoc 1  total_size 100,663,296
+--415-- warning: simulated LL cache: line_size 64  assoc 2  total_size 134,217,728
+4292870144
+==415== I refs:        46,282,154
+==415== I1  misses:         1,319
+==415== LLi misses:         1,292
+==415== I1  miss rate:       0.00%
+==415== LLi miss rate:       0.00%
+==415== D refs:         8,429,347  (4,223,132 rd   + 4,206,215 wr)
+==415== D1  misses:     4,458,163  (4,195,598 rd   +   262,565 wr)
+==415== LLd misses:       263,511  (    1,004 rd   +   262,507 wr)
+==415== D1  miss rate:       52.9% (     99.3%     +       6.2%  )
+==415== LLd miss rate:        3.1% (      0.0%     +       6.2%  )
+==415== LL refs:        4,459,482  (4,196,917 rd   +   262,565 wr)
+==415== LL misses:        264,803  (    2,296 rd   +   262,507 wr)
+==415== LL miss rate:         0.5% (      0.0%     +       6.2%  )
+
+# the simulated cache geometry, from the output file header:
+$ grep ^desc: cg.rows
+desc: I1 cache:         32768 B, 64 B, 8-way associative
+desc: D1 cache:         32768 B, 64 B, 8-way associative
+desc: LL cache:         134217728 B, 64 B, 2-way associative
+
+# and what valgrind -v says about where the sizes came from:
+$ valgrind -v --tool=cachegrind --cache-sim=yes ./sum2d rows 2>&1 | grep -i -e cache -e LL
+==419== Cachegrind, a high-precision tracing profiler
+--419--    --tool=cachegrind
+--419--    --cache-sim=yes
+--419--    --cachegrind-out-file=/dev/null
+--419-- warning: L3 cache found, using its data for the LL simulation.
+--419-- warning: specified LL cache: line_size 64  assoc 1  total_size 100,663,296
+--419-- warning: simulated LL cache: line_size 64  assoc 2  total_size 134,217,728
+==419== Cache configuration used:
+
+$ getconf -a | grep CACHE   (the real CPU)
+LEVEL1_DCACHE_SIZE                 32768
+LEVEL1_DCACHE_ASSOC                8
+LEVEL1_DCACHE_LINESIZE             64
+LEVEL2_CACHE_SIZE                  1048576
+LEVEL2_CACHE_ASSOC                 8
+LEVEL2_CACHE_LINESIZE              64
+LEVEL3_CACHE_SIZE                  100663296
+LEVEL3_CACHE_ASSOC                 16
+LEVEL3_CACHE_LINESIZE              64
+
+# the same, but simulating a 1 MB 8-way LL (the size of this CPU L2) instead of the 96 MB L3:
+$ valgrind --tool=cachegrind --cache-sim=yes --LL=1048576,8,64 ./sum2d rows 2>&1 | grep -e 'D1  miss' -e 'LLd miss'
+==426== D1  misses:       526,004  (  263,439 rd   +   262,565 wr)
+==426== LLd misses:       525,806  (  263,264 rd   +   262,542 wr)
+==426== D1  miss rate:        6.2% (      6.2%     +       6.2%  )
+==426== LLd miss rate:        6.2% (      6.2%     +       6.2%  )
+$ valgrind --tool=cachegrind --cache-sim=yes --LL=1048576,8,64 ./sum2d cols 2>&1 | grep -e 'D1  miss' -e 'LLd miss'
+==428== D1  misses:     4,458,163  (4,195,598 rd   +   262,565 wr)
+==428== LLd misses:     4,457,965  (4,195,423 rd   +   262,542 wr)
+==428== D1  miss rate:       52.9% (     99.3%     +       6.2%  )
+==428== LLd miss rate:       52.9% (     99.3%     +       6.2%  )
+
+$ cg_annotate cg.rows   (the summing loops of sum_rows and sum_cols)
+Ir_________________ I1mr__________ ILmr__________ Dr________________ D1mr____________ DLmr__________ Dw________________ D1mw____________ DLmw____________ 
+Ir________________ I1mr____ ILmr____ Dr_______________ D1mr___________ DLmr Dw_______________ D1mw___________ DLmw___________ 
+     6,145  (0.0%) 0        0                0               0            0         0               0               0          	for (int i = 0; i < N; i++)
+12,587,008 (27.2%) 0        0                0               0            0         0               0               0          		for (int j = 0; j < N; j++)
+ 8,388,608 (18.1%) 0        0        4,194,304 (99.3%) 262,145 (99.5%)    0         0               0               0          			s += m[i][j];
+         .         .        .                .               .            .         .               .               .          	for (int j = 0; j < N; j++)
+         .         .        .                .               .            .         .               .               .          		for (int i = 0; i < N; i++)
+         .         .        .                .               .            .         .               .               .          			s += m[i][j];
+     8,194  (0.0%) 1 (0.1%) 1 (0.1%)         0               0            0         0               0               0          	for (int i = 0; i < N; i++)
+12,582,912 (27.2%) 0        0                0               0            0         0               0               0          		for (int j = 0; j < N; j++)
+Ir________________ I1mr_________ ILmr_________ Dr_______________ D1mr___________ DLmr__________ Dw_______________ D1mw___________ DLmw___________ 
+
+$ cg_annotate cg.cols   (the summing loops of sum_rows and sum_cols)
+Ir_________________ I1mr__________ ILmr__________ Dr________________ D1mr______________ DLmr__________ Dw________________ D1mw____________ DLmw____________ 
+Ir________________ I1mr____ ILmr____ Dr_______________ D1mr______________ DLmr Dw_______________ D1mw___________ DLmw___________ 
+         .         .        .                .                 .             .         .               .               .          	for (int i = 0; i < N; i++)
+         .         .        .                .                 .             .         .               .               .          		for (int j = 0; j < N; j++)
+         .         .        .                .                 .             .         .               .               .          			s += m[i][j];
+     6,144  (0.0%) 0        0                0                 0             0         0               0               0          	for (int j = 0; j < N; j++)
+12,587,008 (27.2%) 0        0                0                 0             0         0               0               0          		for (int i = 0; i < N; i++)
+ 8,388,608 (18.1%) 0        0        4,194,304 (99.3%) 4,194,304 (100.0%)    0         0               0               0          			s += m[i][j];
+     8,194  (0.0%) 1 (0.1%) 1 (0.1%)         0                 0             0         0               0               0          	for (int i = 0; i < N; i++)
+12,582,912 (27.2%) 0        0                0                 0             0         0               0               0          		for (int j = 0; j < N; j++)
+Ir________________ I1mr_________ ILmr_________ Dr_______________ D1mr______________ DLmr__________ Dw_______________ D1mw___________ DLmw___________ 

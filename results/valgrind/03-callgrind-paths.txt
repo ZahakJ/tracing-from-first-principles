@@ -1,0 +1,54 @@
+# native: ./paths wall ms, 5 runs (median min max n): 26.62 25.985 27.285 5
+$ valgrind --tool=callgrind --callgrind-out-file=paths.cg ./paths
+==314== Callgrind, a call-graph generating cache profiler
+==314== Command: ./paths
+==314== For interactive control, run 'callgrind_control -h'.
+==314== Events    : Ir
+==314== Collected : 659624746
+==314== I   refs:      659,624,746
+
+$ callgrind_annotate --inclusive=yes paths.cg   (functions from paths.c only)
+Ir                   
+659,624,746 (100.0%)  PROGRAM TOTALS
+Ir                    file:function
+659,510,012 (99.98%)  /tmp/experiments/valgrind/src/paths.c:main [/tmp/experiments/valgrind/bin/paths]
+659,470,000 (99.98%)  /tmp/experiments/valgrind/src/paths.c:spin [/tmp/experiments/valgrind/bin/paths]
+600,001,104 (90.96%)  /tmp/experiments/valgrind/src/paths.c:slow_path [/tmp/experiments/valgrind/bin/paths]
+ 59,508,904 ( 9.02%)  /tmp/experiments/valgrind/src/paths.c:fast_path [/tmp/experiments/valgrind/bin/paths]
+Ir                   
+ 59,469,300 ( 9.02%)  => /tmp/experiments/valgrind/src/paths.c:spin (9,900x)
+600,000,700 (90.96%)  => /tmp/experiments/valgrind/src/paths.c:spin (100x)
+ 59,508,904 ( 9.02%)  => /tmp/experiments/valgrind/src/paths.c:fast_path (1x)
+600,001,104 (90.96%)  => /tmp/experiments/valgrind/src/paths.c:slow_path (1x)
+Ir                   
+
+$ callgrind_annotate --tree=caller paths.cg   (the entry for spin)
+
+600,000,700 (90.96%)  < /tmp/experiments/valgrind/src/paths.c:slow_path (100x) [/tmp/experiments/valgrind/bin/paths]
+ 59,469,300 ( 9.02%)  < /tmp/experiments/valgrind/src/paths.c:fast_path (9,900x) [/tmp/experiments/valgrind/bin/paths]
+659,470,000 (99.98%)  *  /tmp/experiments/valgrind/src/paths.c:spin [/tmp/experiments/valgrind/bin/paths]
+
+$ callgrind_annotate --tree=both --inclusive=yes paths.cg   (fast_path, slow_path, spin)
+600,000,700 (90.96%)  < /tmp/experiments/valgrind/src/paths.c:slow_path (100x) [/tmp/experiments/valgrind/bin/paths]
+ 59,469,300 ( 9.02%)  < /tmp/experiments/valgrind/src/paths.c:fast_path (9,900x) [/tmp/experiments/valgrind/bin/paths]
+659,470,000 (99.98%)  *  /tmp/experiments/valgrind/src/paths.c:spin [/tmp/experiments/valgrind/bin/paths]
+--
+600,001,104 (90.96%)  < /tmp/experiments/valgrind/src/paths.c:main (1x) [/tmp/experiments/valgrind/bin/paths]
+600,001,104 (90.96%)  *  /tmp/experiments/valgrind/src/paths.c:slow_path [/tmp/experiments/valgrind/bin/paths]
+600,000,700 (90.96%)  >   /tmp/experiments/valgrind/src/paths.c:spin (100x) [/tmp/experiments/valgrind/bin/paths]
+--
+ 59,508,904 ( 9.02%)  < /tmp/experiments/valgrind/src/paths.c:main (1x) [/tmp/experiments/valgrind/bin/paths]
+ 59,508,904 ( 9.02%)  *  /tmp/experiments/valgrind/src/paths.c:fast_path [/tmp/experiments/valgrind/bin/paths]
+ 59,469,300 ( 9.02%)  >   /tmp/experiments/valgrind/src/paths.c:spin (9,900x) [/tmp/experiments/valgrind/bin/paths]
+--
+
+$ callgrind_annotate --auto=yes paths.cg   (the source lines of spin)
+          .           static __attribute__((noinline)) void spin(long n)
+          .           {
+     10,000 ( 0.00%)  	volatile long x = 0;
+          .           
+329,750,000 (49.99%)  	for (long i = 0; i < n; i++)
+329,700,000 (49.98%)  		x += i;
+     10,000 ( 0.00%)  }
+          .           
+          .           static __attribute__((noinline)) void fast_path(void)

@@ -1,0 +1,29 @@
+$ strace -k -e trace=openat ./liar
+[exit status 1]
+[first 23 lines omitted: the dynamic loader's two openat calls, each with an 11-12 frame stack inside ld-linux-x86-64.so.2]
+openat(AT_FDCWD, "/etc/liar/liar.conf", O_RDONLY) = -1 ENOENT (No such file or directory)
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__internal_syscall_cancel+0x67) [0x8f3a7]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__syscall_cancel+0xd) [0x8f3cd]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_open64+0x4d) [0x10353d]
+ > /tmp/experiments/strace/bin/liar(main+0x7a) [0x110a]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_call_main+0x78) [0x29ca8]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main_alias_2+0x85) [0x29d65]
+ > /tmp/experiments/strace/bin/liar(_start+0x21) [0x1181]
+openat(AT_FDCWD, "/tmp/.liar.conf", O_RDONLY) = -1 ENOENT (No such file or directory)
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__internal_syscall_cancel+0x67) [0x8f3a7]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__syscall_cancel+0xd) [0x8f3cd]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_open64+0x4d) [0x10353d]
+ > /tmp/experiments/strace/bin/liar(main+0x7a) [0x110a]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_call_main+0x78) [0x29ca8]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main_alias_2+0x85) [0x29d65]
+ > /tmp/experiments/strace/bin/liar(_start+0x21) [0x1181]
+openat(AT_FDCWD, "./liar.conf", O_RDONLY) = -1 ENOENT (No such file or directory)
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__internal_syscall_cancel+0x67) [0x8f3a7]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__syscall_cancel+0xd) [0x8f3cd]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_open64+0x4d) [0x10353d]
+ > /tmp/experiments/strace/bin/liar(main+0x7a) [0x110a]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_call_main+0x78) [0x29ca8]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main_alias_2+0x85) [0x29d65]
+ > /tmp/experiments/strace/bin/liar(_start+0x21) [0x1181]
+liar: startup failed
++++ exited with 1 +++

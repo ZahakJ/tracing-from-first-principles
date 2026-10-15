@@ -1,0 +1,6 @@
+$ /tmp/bt/writer buffered /mnt/buffered.dat
+write() took 6.6 us
+
+--- blkparse events:
+
+--- D2C of each request:

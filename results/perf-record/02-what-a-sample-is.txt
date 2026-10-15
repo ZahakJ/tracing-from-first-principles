@@ -1,0 +1,46 @@
+$ perf evlist -v -i hot.data
+cycles:P: type: 0 (PERF_TYPE_HARDWARE), size: 136, config: 0 (PERF_COUNT_HW_CPU_CYCLES), { sample_period, sample_freq }: 4000, sample_type: IP|TID|TIME|PERIOD, read_format: ID|LOST, disabled: 1, inherit: 1, mmap: 1, comm: 1, freq: 1, enable_on_exec: 1, task: 1, sample_id_all: 1, mmap2: 1, comm_exec: 1, ksymbol: 1, bpf_event: 1
+
+$ perf script -i hot.data -F comm,pid,tid,time,ip,sym,period | head -15
+       perf-exec     163/163         0.788033:          1  ffffffffa0249583 perf_event_exec
+       perf-exec     163/163         0.788049:          1  ffffffffa0249583 perf_event_exec
+       perf-exec     163/163         0.788062:          1  ffffffffa0249583 perf_event_exec
+       perf-exec     163/163         0.788075:          3  ffffffffa0249583 perf_event_exec
+       perf-exec     163/163         0.788088:         10  ffffffffa0249583 perf_event_exec
+       perf-exec     163/163         0.788101:         34  ffffffffa0249583 perf_event_exec
+       perf-exec     163/163         0.788114:        114  ffffffffa0249583 perf_event_exec
+       perf-exec     163/163         0.788130:        377  ffffffffa0249583 perf_event_exec
+       perf-exec     163/163         0.788145:       1211  ffffffffa0249583 perf_event_exec
+       perf-exec     163/163         0.788157:       3384  ffffffffa0249583 perf_event_exec
+       perf-exec     163/163         0.788173:      10327  ffffffffa0084b0f update_process_times
+       perf-exec     163/163         0.788205:      34641  ffffffff9ffa6294 kthread_is_per_cpu
+             hot     163/163         0.788241:      87601  ffffffffa046bbf4 load_elf_binary
+             hot     163/163         0.788287:     161933  ffffffffa1156f46 copy_mc_enhanced_fast_string
+             hot     163/163         0.788389:     283690  ffffffffa1165aec exc_page_fault
+
+$ perf script -i hot.data -F period,ip,sym | head -12
+         1  ffffffffa0249583 perf_event_exec
+         1  ffffffffa0249583 perf_event_exec
+         1  ffffffffa0249583 perf_event_exec
+         3  ffffffffa0249583 perf_event_exec
+        10  ffffffffa0249583 perf_event_exec
+        34  ffffffffa0249583 perf_event_exec
+       114  ffffffffa0249583 perf_event_exec
+       377  ffffffffa0249583 perf_event_exec
+      1211  ffffffffa0249583 perf_event_exec
+      3384  ffffffffa0249583 perf_event_exec
+     10327  ffffffffa0084b0f update_process_times
+     34641  ffffffff9ffa6294 kthread_is_per_cpu
+
+$ perf report -D -i hot.data | grep -m1 -B7 -A2 PERF_RECORD_SAMPLE
+0x270@hot.data [0x28]: event: 9
+.
+. ... raw event: size 40 bytes
+.  0000:  09 00 00 00 01 00 28 00 83 95 24 a0 ff ff ff ff  ......(...$.....
+.  0010:  a3 00 00 00 a3 00 00 00 c4 70 f8 2e 00 00 00 00  .........p......
+.  0020:  01 00 00 00 00 00 00 00                          ........        
+
+788033732 0x270 [0x28]: PERF_RECORD_SAMPLE(IP, 0x1): 163/163: 0xffffffffa0249583 period: 1 addr: 0
+ ... thread: perf-exec:163
+ ...... dso: /proc/kcore
+

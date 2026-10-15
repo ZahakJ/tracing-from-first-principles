@@ -1,0 +1,29 @@
+$ perf record -o hot.data ./hot
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.206 MB hot.data (5380 samples) ]
+perf.data size: 0.21 MB (222068 bytes)
+
+$ perf report --stdio -i hot.data   (blank lines dropped)
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 5K of event 'cycles:P'
+# Event count (approx.): 6045611447
+#
+# Overhead  Command  Shared Object      Symbol                             
+# ........  .......  .................  ...................................
+#
+    59.90%  hot      hot                [.] six
+    29.97%  hot      hot                [.] three
+     9.98%  hot      hot                [.] one
+     0.04%  hot      [kernel.kallsyms]  [k] asm_sysvec_apic_timer_interrupt
+     0.02%  hot      [kernel.kallsyms]  [k] irqtime_account_irq
+     0.02%  hot      [kernel.kallsyms]  [k] __hrtimer_run_queues
+     0.02%  hot      [kernel.kallsyms]  [k] psi_account_irqtime
+     0.02%  hot      [kernel.kallsyms]  [k] update_process_times
+     0.02%  hot      [kernel.kallsyms]  [k] get_page_from_freelist
+[... 10 more lines]
+
+expected from the source: six 60%, three 30%, one 10%

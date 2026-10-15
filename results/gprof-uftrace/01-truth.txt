@@ -1,0 +1,9 @@
+$ ./paths-truth   (5 runs)
+fast_path 0.0115 s  slow_path 1.0982 s  slow share 98.96%
+fast_path 0.0109 s  slow_path 1.0841 s  slow share 99.01%
+fast_path 0.0114 s  slow_path 1.0843 s  slow share 98.96%
+fast_path 0.0108 s  slow_path 1.0837 s  slow share 99.02%
+fast_path 0.0110 s  slow_path 1.0823 s  slow share 98.99%
+
+$ wall time of ./paths-plain, ms (median min max n):
+1089.18 1088.46 1095.97 5

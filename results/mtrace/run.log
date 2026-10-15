@@ -1,0 +1,24 @@
++ gcc -g -O0 -Wall -o /tmp/b/leaky src/leaky.c
++ gcc -g -O0 -Wall -no-pie -o /tmp/b/leaky-nopie src/leaky.c
++ gcc -g -O0 -Wall -fsanitize=address -o /tmp/b/leaky-asan src/leaky.c
++ gcc -shared -fPIC -O2 -Wall -o /tmp/b/count.so src/count.c -ldl
++ gcc -O2 -Wall -o /tmp/b/churn src/churn.c
++ gcc -O2 -g -Wall -fsanitize=address -o /tmp/b/churn-asan src/churn.c
++ gcc -g -O0 -Wall -o /tmp/b/uaf src/uaf.c
+src/uaf.c: In function 'main':
+src/uaf.c:30:44: warning: pointer 'p' used after 'free' [-Wuse-after-free]
+   30 |         printf("after free, p[5] = %d\n", p[5]);        /* bug 2: use after free */
+      |                                            ^
+src/uaf.c:29:9: note: call to 'free' here
+   29 |         free(p);
+      |         ^~~~~~~
++ gcc -g -O0 -Wall -fsanitize=address -o /tmp/b/uaf-asan src/uaf.c
+src/uaf.c: In function 'main':
+src/uaf.c:30:44: warning: pointer 'p' used after 'free' [-Wuse-after-free]
+   30 |         printf("after free, p[5] = %d\n", p[5]);        /* bug 2: use after free */
+      |                                            ^
+src/uaf.c:29:9: note: call to 'free' here
+   29 |         free(p);
+      |         ^~~~~~~
++ set +x
+done

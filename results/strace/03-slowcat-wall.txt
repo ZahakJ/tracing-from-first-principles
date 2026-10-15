@@ -1,0 +1,10 @@
+# input: /tmp/strace-exp/in.4M (4 MiB of /dev/urandom); output: /tmp/strace-exp/out (a real file, not /dev/null)
+# filesystem of /tmp: overlayfs
+$ ./fastcat < in.4M > out    (wall ms, 5 runs: median min max n)
+3.097 2.637 3.157 5
+(output identical to input)
+  (fastcat: 64 reads + 64 writes + 1 EOF read = 129 syscalls in the copy loop)
+$ ./slowcat < in.4M > out    (wall ms, 5 runs: median min max n)
+6141.1 6114.67 6222.02 5
+(output identical to input)
+  8388608 syscalls in the copy loop -> 732.1 ns per read-or-write (6141.10 ms * 1e6 / 8388608; process startup included, negligible)

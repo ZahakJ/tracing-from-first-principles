@@ -1,0 +1,15 @@
+tracelab: 1 setup
+tracelab: 2 buffered write
+tracelab: 3 fsync and direct
+tracelab: 5 logger + btt
+tracelab: 6 merging and splitting
+tracelab: 7 without blktrace
+tracelab: 8 price
+tracelab: 9 application side
+tracelab: done
+tracelab: 10 ext4
+tracelab: 11 ext4 fsync
+tracelab: 12 ext4 logger
+tracelab: 13 ext4 buffered, nothing forcing it
+tracelab: 14 batch
+tracelab: done ext4

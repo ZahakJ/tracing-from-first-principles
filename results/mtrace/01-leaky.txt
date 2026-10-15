@@ -1,0 +1,3 @@
+$ ./leaky
+handled 1000 requests, 120 errors
+exit status: 0

@@ -1,0 +1,271 @@
+=== function __schedule, event sched/sched_switch
+$ ./kpeek __schedule __schedule.0      # event off
+__schedule at 0xffffffff8676c650, 6256 bytes
+$ echo 1 > /sys/kernel/tracing/events/sched/sched_switch/enable
+$ ./kpeek __schedule __schedule.1      # event on
+__schedule at 0xffffffff8676c650, 6256 bytes
+$ echo 0 > /sys/kernel/tracing/events/sched/sched_switch/enable
+$ ./kpeek __schedule __schedule.2      # event off again
+__schedule at 0xffffffff8676c650, 6256 bytes
+$ ./bdiff.py 0xffffffff8676c650 __schedule.0 __schedule.1 __schedule.0.s __schedule.1.s     # off -> on, with objdump of each
+  +0x230 (0xffffffff8676c880): 0f 1f 44  ->  e9 31 09
+    before:
+      ffffffff8676c878:	0f 95 c0             	setne  %al
+      ffffffff8676c87b:	e9 c7 08 00 00       	jmp    0xffffffff8676d147
+      ffffffff8676c880:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+      ffffffff8676c885:	48 8b 43 20          	mov    0x20(%rbx),%rax
+      ffffffff8676c889:	49 39 c7             	cmp    %rax,%r15
+    after:
+      ffffffff8676c878:	0f 95 c0             	setne  %al
+      ffffffff8676c87b:	e9 c7 08 00 00       	jmp    0xffffffff8676d147
+      ffffffff8676c880:	e9 31 09 00 00       	jmp    0xffffffff8676d1b6
+      ffffffff8676c885:	48 8b 43 20          	mov    0x20(%rbx),%rax
+      ffffffff8676c889:	49 39 c7             	cmp    %rax,%r15
+
+  1 changed range(s)
+$ # the call targets in the changed instructions, looked up in /proc/kallsyms
+$ ./bdiff.py 0xffffffff8676c650 __schedule.1 __schedule.2     # on -> off
+  +0x230 (0xffffffff8676c880): e9 31 09  ->  0f 1f 44
+  1 changed range(s)
+$ cmp __schedule.0 __schedule.2 && echo identical
+identical
+
+=== function kfree, event kmem/kfree
+$ ./kpeek kfree kfree.0      # event off
+kfree at 0xffffffff85914c30, 1072 bytes
+$ echo 1 > /sys/kernel/tracing/events/kmem/kfree/enable
+$ ./kpeek kfree kfree.1      # event on
+kfree at 0xffffffff85914c30, 1072 bytes
+$ echo 0 > /sys/kernel/tracing/events/kmem/kfree/enable
+$ ./kpeek kfree kfree.2      # event off again
+kfree at 0xffffffff85914c30, 1072 bytes
+$ ./bdiff.py 0xffffffff85914c30 kfree.0 kfree.1 kfree.0.s kfree.1.s     # off -> on, with objdump of each
+  +0x22 (0xffffffff85914c52): 66 90  ->  eb 7b
+    before:
+      ffffffff85914c4a:	48 89 f9             	mov    %rdi,%rcx
+      ffffffff85914c4d:	48 8b 74 24 40       	mov    0x40(%rsp),%rsi
+      ffffffff85914c52:	66 90                	xchg   %ax,%ax
+      ffffffff85914c54:	48 83 f9 10          	cmp    $0x10,%rcx
+      ffffffff85914c58:	0f 86 da 00 00 00    	jbe    0xffffffff85914d38
+    after:
+      ffffffff85914c4a:	48 89 f9             	mov    %rdi,%rcx
+      ffffffff85914c4d:	48 8b 74 24 40       	mov    0x40(%rsp),%rsi
+      ffffffff85914c52:	eb 7b                	jmp    0xffffffff85914ccf
+      ffffffff85914c54:	48 83 f9 10          	cmp    $0x10,%rcx
+      ffffffff85914c58:	0f 86 da 00 00 00    	jbe    0xffffffff85914d38
+
+  +0xdc (0xffffffff85914d0c): 50 e9 f8  ->  80 00 f9
+    before:
+      ffffffff85914d02:	4c 89 44 24 08       	mov    %r8,0x8(%rsp)
+      ffffffff85914d07:	48 89 0c 24          	mov    %rcx,(%rsp)
+      ffffffff85914d0b:	e8 50 e9 f8 ff       	call   0xffffffff858a3660
+      ffffffff85914d10:	4c 8b 44 24 08       	mov    0x8(%rsp),%r8
+      ffffffff85914d15:	48 8b 0c 24          	mov    (%rsp),%rcx
+    after:
+      ffffffff85914d02:	4c 89 44 24 08       	mov    %r8,0x8(%rsp)
+      ffffffff85914d07:	48 89 0c 24          	mov    %rcx,(%rsp)
+      ffffffff85914d0b:	e8 80 00 f9 ff       	call   0xffffffff858a4d90
+      ffffffff85914d10:	4c 8b 44 24 08       	mov    0x8(%rsp),%r8
+      ffffffff85914d15:	48 8b 0c 24          	mov    (%rsp),%rcx
+
+  2 changed range(s)
+$ # the call targets in the changed instructions, looked up in /proc/kallsyms
+  0xffffffff858a3660 = __traceiter_kfree
+  0xffffffff858a4d90 = trace_event_raw_event_kfree
+$ ./bdiff.py 0xffffffff85914c30 kfree.1 kfree.2     # on -> off
+  +0x22 (0xffffffff85914c52): eb 7b  ->  66 90
+  +0xdc (0xffffffff85914d0c): 80 00 f9  ->  50 e9 f8
+  2 changed range(s)
+$ cmp kfree.0 kfree.2 && echo identical
+identical
+
+=== function try_to_wake_up, event sched/sched_waking
+$ ./kpeek try_to_wake_up try_to_wake_up.0      # event off
+try_to_wake_up at 0xffffffff855cae70, 2096 bytes
+$ echo 1 > /sys/kernel/tracing/events/sched/sched_waking/enable
+$ ./kpeek try_to_wake_up try_to_wake_up.1      # event on
+try_to_wake_up at 0xffffffff855cae70, 2096 bytes
+$ echo 0 > /sys/kernel/tracing/events/sched/sched_waking/enable
+$ ./kpeek try_to_wake_up try_to_wake_up.2      # event off again
+try_to_wake_up at 0xffffffff855cae70, 2096 bytes
+$ ./bdiff.py 0xffffffff855cae70 try_to_wake_up.0 try_to_wake_up.1 try_to_wake_up.0.s try_to_wake_up.1.s     # off -> on, with objdump of each
+  +0x111 (0xffffffff855caf81): 0f 1f 44  ->  e9 60 03
+    before:
+      ffffffff855caf7a:	b8 01 00 00 00       	mov    $0x1,%eax
+      ffffffff855caf7f:	eb 92                	jmp    0xffffffff855caf13
+      ffffffff855caf81:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+      ffffffff855caf86:	44 8b 5b 68          	mov    0x68(%rbx),%r11d
+      ffffffff855caf8a:	45 85 db             	test   %r11d,%r11d
+    after:
+      ffffffff855caf7a:	b8 01 00 00 00       	mov    $0x1,%eax
+      ffffffff855caf7f:	eb 92                	jmp    0xffffffff855caf13
+      ffffffff855caf81:	e9 60 03 00 00       	jmp    0xffffffff855cb2e6
+      ffffffff855caf86:	44 8b 5b 68          	mov    0x68(%rbx),%r11d
+      ffffffff855caf8a:	45 85 db             	test   %r11d,%r11d
+
+  +0x33b (0xffffffff855cb1ab): 0f 1f 44  ->  e9 90 01
+    before:
+      ffffffff855cb1a1:	e9 cf fd ff ff       	jmp    0xffffffff855caf75
+      ffffffff855cb1a6:	48 89 6c 24 38       	mov    %rbp,0x38(%rsp)
+      ffffffff855cb1ab:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+      ffffffff855cb1b0:	c7 43 18 00 00 00 00 	movl   $0x0,0x18(%rbx)
+      ffffffff855cb1b7:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+    after:
+      ffffffff855cb1a1:	e9 cf fd ff ff       	jmp    0xffffffff855caf75
+      ffffffff855cb1a6:	48 89 6c 24 38       	mov    %rbp,0x38(%rsp)
+      ffffffff855cb1ab:	e9 90 01 00 00       	jmp    0xffffffff855cb340
+      ffffffff855cb1b0:	c7 43 18 00 00 00 00 	movl   $0x0,0x18(%rbx)
+      ffffffff855cb1b7:	e9 d0 00 00 00       	jmp    0xffffffff855cb28c
+
+  +0x347 (0xffffffff855cb1b7): 0f 1f 44  ->  e9 d0 00
+    before:
+      ffffffff855cb1ab:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+      ffffffff855cb1b0:	c7 43 18 00 00 00 00 	movl   $0x0,0x18(%rbx)
+      ffffffff855cb1b7:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+      ffffffff855cb1bc:	e9 ac fd ff ff       	jmp    0xffffffff855caf6d
+      ffffffff855cb1c1:	c7 43 1c 00 00 00 00 	movl   $0x0,0x1c(%rbx)
+    after:
+      ffffffff855cb1ab:	e9 90 01 00 00       	jmp    0xffffffff855cb340
+      ffffffff855cb1b0:	c7 43 18 00 00 00 00 	movl   $0x0,0x18(%rbx)
+      ffffffff855cb1b7:	e9 d0 00 00 00       	jmp    0xffffffff855cb28c
+      ffffffff855cb1bc:	e9 ac fd ff ff       	jmp    0xffffffff855caf6d
+      ffffffff855cb1c1:	c7 43 1c 00 00 00 00 	movl   $0x0,0x1c(%rbx)
+
+  +0x451 (0xffffffff855cb2c1): bb b2 fe ff  ->  db 1f 16 00
+    before:
+      ffffffff855cb2b9:	48 8b 78 08          	mov    0x8(%rax),%rdi
+      ffffffff855cb2bd:	48 89 de             	mov    %rbx,%rsi
+      ffffffff855cb2c0:	e8 bb b2 fe ff       	call   0xffffffff855b6580
+      ffffffff855cb2c5:	48 c7 c0 80 3e b5 87 	mov    $0xffffffff87b53e80,%rax
+      ffffffff855cb2cc:	48 85 c0             	test   %rax,%rax
+    after:
+      ffffffff855cb2b9:	48 8b 78 08          	mov    0x8(%rax),%rdi
+      ffffffff855cb2bd:	48 89 de             	mov    %rbx,%rsi
+      ffffffff855cb2c0:	e8 db 1f 16 00       	call   0xffffffff8572d2a0
+      ffffffff855cb2c5:	48 c7 c0 80 3e b5 87 	mov    $0xffffffff87b53e80,%rax
+      ffffffff855cb2cc:	48 85 c0             	test   %rax,%rax
+
+  +0x4ae (0xffffffff855cb31e): ee b1  ->  9e eb
+    before:
+      ffffffff855cb316:	48 89 de             	mov    %rbx,%rsi
+      ffffffff855cb319:	48 89 14 24          	mov    %rdx,(%rsp)
+      ffffffff855cb31d:	e8 ee b1 fe ff       	call   0xffffffff855b6510
+      ffffffff855cb322:	48 8b 14 24          	mov    (%rsp),%rdx
+      ffffffff855cb326:	48 c7 c0 80 3e b5 87 	mov    $0xffffffff87b53e80,%rax
+    after:
+      ffffffff855cb316:	48 89 de             	mov    %rbx,%rsi
+      ffffffff855cb319:	48 89 14 24          	mov    %rdx,(%rsp)
+      ffffffff855cb31d:	e8 9e eb fe ff       	call   0xffffffff855b9ec0
+      ffffffff855cb322:	48 8b 14 24          	mov    (%rsp),%rdx
+      ffffffff855cb326:	48 c7 c0 80 3e b5 87 	mov    $0xffffffff87b53e80,%rax
+
+  +0x505 (0xffffffff855cb375): 97 b1  ->  47 eb
+    before:
+      ffffffff855cb36d:	48 8b 78 08          	mov    0x8(%rax),%rdi
+      ffffffff855cb371:	48 89 de             	mov    %rbx,%rsi
+      ffffffff855cb374:	e8 97 b1 fe ff       	call   0xffffffff855b6510
+      ffffffff855cb379:	48 c7 c0 80 3e b5 87 	mov    $0xffffffff87b53e80,%rax
+      ffffffff855cb380:	48 85 c0             	test   %rax,%rax
+    after:
+      ffffffff855cb36d:	48 8b 78 08          	mov    0x8(%rax),%rdi
+      ffffffff855cb371:	48 89 de             	mov    %rbx,%rsi
+      ffffffff855cb374:	e8 47 eb fe ff       	call   0xffffffff855b9ec0
+      ffffffff855cb379:	48 c7 c0 80 3e b5 87 	mov    $0xffffffff87b53e80,%rax
+      ffffffff855cb380:	48 85 c0             	test   %rax,%rax
+
+  +0x704 (0xffffffff855cb574): 66 90  ->  eb 05
+    before:
+      ffffffff855cb567:	0f 84 b2 00 00 00    	je     0xffffffff855cb61f
+      ffffffff855cb56d:	c7 43 18 00 00 00 00 	movl   $0x0,0x18(%rbx)
+      ffffffff855cb574:	66 90                	xchg   %ax,%ax
+      ffffffff855cb576:	e9 53 fe ff ff       	jmp    0xffffffff855cb3ce
+      ffffffff855cb57b:	65 8b 05 b2 ca 0f 03 	mov    %gs:0x30fcab2(%rip),%eax        # 0xffffffff886c8034
+    after:
+      ffffffff855cb567:	0f 84 b2 00 00 00    	je     0xffffffff855cb61f
+      ffffffff855cb56d:	c7 43 18 00 00 00 00 	movl   $0x0,0x18(%rbx)
+      ffffffff855cb574:	eb 05                	jmp    0xffffffff855cb57b
+      ffffffff855cb576:	e9 53 fe ff ff       	jmp    0xffffffff855cb3ce
+      ffffffff855cb57b:	65 8b 05 b2 ca 0f 03 	mov    %gs:0x30fcab2(%rip),%eax        # 0xffffffff886c8034
+
+  +0x74d (0xffffffff855cb5bd): bf af fe ff  ->  df 1c 16 00
+    before:
+      ffffffff855cb5b3:	48 89 54 24 08       	mov    %rdx,0x8(%rsp)
+      ffffffff855cb5b8:	44 89 04 24          	mov    %r8d,(%rsp)
+      ffffffff855cb5bc:	e8 bf af fe ff       	call   0xffffffff855b6580
+      ffffffff855cb5c1:	48 8b 4c 24 10       	mov    0x10(%rsp),%rcx
+      ffffffff855cb5c6:	48 8b 54 24 08       	mov    0x8(%rsp),%rdx
+    after:
+      ffffffff855cb5b3:	48 89 54 24 08       	mov    %rdx,0x8(%rsp)
+      ffffffff855cb5b8:	44 89 04 24          	mov    %r8d,(%rsp)
+      ffffffff855cb5bc:	e8 df 1c 16 00       	call   0xffffffff8572d2a0
+      ffffffff855cb5c1:	48 8b 4c 24 10       	mov    0x10(%rsp),%rcx
+      ffffffff855cb5c6:	48 8b 54 24 08       	mov    0x8(%rsp),%rdx
+
+  8 changed range(s)
+$ # the call targets in the changed instructions, looked up in /proc/kallsyms
+  0xffffffff855b6510 = __traceiter_sched_waking
+  0xffffffff855b6580 = __traceiter_sched_wakeup
+  0xffffffff855b9ec0 = trace_event_raw_event_sched_wakeup_template
+  0xffffffff8572d2a0 = probe_sched_wakeup
+$ ./bdiff.py 0xffffffff855cae70 try_to_wake_up.1 try_to_wake_up.2     # on -> off
+  +0x111 (0xffffffff855caf81): e9 60 03  ->  0f 1f 44
+  +0x33b (0xffffffff855cb1ab): e9 90 01  ->  0f 1f 44
+  +0x347 (0xffffffff855cb1b7): e9 d0 00  ->  0f 1f 44
+  +0x451 (0xffffffff855cb2c1): db 1f 16 00  ->  bb b2 fe ff
+  +0x4ae (0xffffffff855cb31e): 9e eb  ->  ee b1
+  +0x505 (0xffffffff855cb375): 47 eb  ->  97 b1
+  +0x704 (0xffffffff855cb574): eb 05  ->  66 90
+  +0x74d (0xffffffff855cb5bd): df 1c 16 00  ->  bf af fe ff
+  8 changed range(s)
+$ cmp try_to_wake_up.0 try_to_wake_up.2 && echo identical
+identical
+
+=== function kmem_cache_free, event kmem/kmem_cache_free
+$ ./kpeek kmem_cache_free kmem_cache_free.0      # event off
+kmem_cache_free at 0xffffffff85915b70, 1136 bytes
+$ echo 1 > /sys/kernel/tracing/events/kmem/kmem_cache_free/enable
+$ ./kpeek kmem_cache_free kmem_cache_free.1      # event on
+kmem_cache_free at 0xffffffff85915b70, 1136 bytes
+$ echo 0 > /sys/kernel/tracing/events/kmem/kmem_cache_free/enable
+$ ./kpeek kmem_cache_free kmem_cache_free.2      # event off again
+kmem_cache_free at 0xffffffff85915b70, 1136 bytes
+$ ./bdiff.py 0xffffffff85915b70 kmem_cache_free.0 kmem_cache_free.1 kmem_cache_free.0.s kmem_cache_free.1.s     # off -> on, with objdump of each
+  +0x85 (0xffffffff85915bf5): 0f 1f 44  ->  e9 21 01
+    before:
+      ffffffff85915bea:	0f 85 1c 02 00 00    	jne    0xffffffff85915e0c
+      ffffffff85915bf0:	4c 8b 4c 24 40       	mov    0x40(%rsp),%r9
+      ffffffff85915bf5:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+      ffffffff85915bfa:	4c 89 44 24 20       	mov    %r8,0x20(%rsp)
+      ffffffff85915bff:	eb 0e                	jmp    0xffffffff85915c0f
+    after:
+      ffffffff85915bea:	0f 85 1c 02 00 00    	jne    0xffffffff85915e0c
+      ffffffff85915bf0:	4c 8b 4c 24 40       	mov    0x40(%rsp),%r9
+      ffffffff85915bf5:	e9 21 01 00 00       	jmp    0xffffffff85915d1b
+      ffffffff85915bfa:	4c 89 44 24 20       	mov    %r8,0x20(%rsp)
+      ffffffff85915bff:	eb 0e                	jmp    0xffffffff85915c0f
+
+  +0x22d (0xffffffff85915d9d): d9 f8  ->  21 f9
+    before:
+      ffffffff85915d92:	4c 89 5c 24 08       	mov    %r11,0x8(%rsp)
+      ffffffff85915d97:	4c 89 04 24          	mov    %r8,(%rsp)
+      ffffffff85915d9b:	e8 60 d9 f8 ff       	call   0xffffffff858a3700
+      ffffffff85915da0:	4c 8b 54 24 10       	mov    0x10(%rsp),%r10
+      ffffffff85915da5:	4c 8b 5c 24 08       	mov    0x8(%rsp),%r11
+    after:
+      ffffffff85915d92:	4c 89 5c 24 08       	mov    %r11,0x8(%rsp)
+      ffffffff85915d97:	4c 89 04 24          	mov    %r8,(%rsp)
+      ffffffff85915d9b:	e8 60 21 f9 ff       	call   0xffffffff858a7f00
+      ffffffff85915da0:	4c 8b 54 24 10       	mov    0x10(%rsp),%r10
+      ffffffff85915da5:	4c 8b 5c 24 08       	mov    0x8(%rsp),%r11
+
+  2 changed range(s)
+$ # the call targets in the changed instructions, looked up in /proc/kallsyms
+  0xffffffff858a3700 = __traceiter_kmem_cache_free
+  0xffffffff858a7f00 = trace_event_raw_event_kmem_cache_free
+$ ./bdiff.py 0xffffffff85915b70 kmem_cache_free.1 kmem_cache_free.2     # on -> off
+  +0x85 (0xffffffff85915bf5): e9 21 01  ->  0f 1f 44
+  +0x22d (0xffffffff85915d9d): 21 f9  ->  d9 f8
+  2 changed range(s)
+$ cmp kmem_cache_free.0 kmem_cache_free.2 && echo identical
+identical
+

@@ -1,0 +1,14 @@
+$ ./over
+buf: 123456789
+[exit status 0]
+
+$ valgrind --track-origins=yes ./over
+==445== Command: ./over
+==445== Invalid write of size 1
+==445==    at 0x1091A2: main (over.c:12)
+==445==  Address 0x4a5804a is 0 bytes after a block of size 10 alloc'd
+==445==    at 0x4844818: malloc (vg_replace_malloc.c:446)
+==445==    by 0x10917A: main (over.c:9)
+buf: 123456789
+==445== For lists of detected and suppressed errors, rerun with: -s
+==445== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)

@@ -1,0 +1,89 @@
+$ nm app | grep ' handle$'
+00000000004012f0 T handle
+$ readelf -lW app | grep LOAD
+  LOAD           0x000000 0x0000000000400000 0x0000000000400000 0x000680 0x000680 R   0x1000
+  LOAD           0x001000 0x0000000000401000 0x0000000000401000 0x000301 0x000301 R E 0x1000
+  LOAD           0x002000 0x0000000000402000 0x0000000000402000 0x000164 0x000164 R   0x1000
+  LOAD           0x002df8 0x0000000000403df8 0x0000000000403df8 0x000248 0x000258 RW  0x1000
+file offset of handle = 0x12f0
+$ objdump -d app --start-address=0x00000000004012f0 --stop-address=$((0x00000000004012f0+16))
+  4012f0:	8d 44 7f 01          	lea    0x1(%rdi,%rdi,2),%eax
+  4012f4:	c3                   	ret
+  4012f8:	48 83 ec 08          	sub    $0x8,%rsp
+  4012fc:	48 83 c4 08          	add    $0x8,%rsp
+
+$ echo 'p:tl_handle /work/experiments/kprobes-uprobes/app:0x12f0 id=%di' >> uprobe_events
+p:uprobes/tl_handle /work/experiments/kprobes-uprobes/app:0x00000000000012f0 id=%di
+md5sum before: f6f5b292e57fcae9c99f279e6fee4a7b  app
+[enabled at ~1.5 s]
+md5sum during: f6f5b292e57fcae9c99f279e6fee4a7b  app
+$ cat uprobe_profile
+  /work/experiments/kprobes-uprobes/app tl_handle                                                 14
+[disabled at ~4 s]
+Terminated
+md5sum after:  f6f5b292e57fcae9c99f279e6fee4a7b  app
+
+--- output of the first 'app watch':
+id= 0  handle: 8d 44 7f 01
+id= 1  handle: 8d 44 7f 01
+id= 2  handle: 8d 44 7f 01
+id= 3  handle: 8d 44 7f 01
+id= 4  handle: 8d 44 7f 01
+id= 5  handle: 8d 44 7f 01
+id= 6  handle: 8d 44 7f 01
+id= 7  handle: 8d 44 7f 01
+id= 8  handle: cc 44 7f 01
+id= 9  handle: cc 44 7f 01
+id=10  handle: cc 44 7f 01
+id=11  handle: cc 44 7f 01
+id=12  handle: cc 44 7f 01
+id=13  handle: cc 44 7f 01
+id=14  handle: cc 44 7f 01
+id=15  handle: cc 44 7f 01
+id=16  handle: cc 44 7f 01
+id=17  handle: cc 44 7f 01
+id=18  handle: cc 44 7f 01
+id=19  handle: cc 44 7f 01
+id=20  handle: cc 44 7f 01
+id=21  handle: 8d 44 7f 01
+id=22  handle: 8d 44 7f 01
+id=23  handle: 8d 44 7f 01
+id=24  handle: 8d 44 7f 01
+id=25  handle: 8d 44 7f 01
+id=26  handle: 8d 44 7f 01
+id=27  handle: 8d 44 7f 01
+id=28  handle: 8d 44 7f 01
+id=29  handle: 8d 44 7f 01
+
+--- (b) second copy, started at ~2 s while the probe was on (killed when the first ends):
+id= 0  handle: cc 44 7f 01
+id= 1  handle: cc 44 7f 01
+id= 2  handle: cc 44 7f 01
+id= 3  handle: cc 44 7f 01
+id= 4  handle: cc 44 7f 01
+id= 5  handle: cc 44 7f 01
+id= 6  handle: cc 44 7f 01
+id= 7  handle: cc 44 7f 01
+id= 8  handle: cc 44 7f 01
+id= 9  handle: cc 44 7f 01
+id=10  handle: cc 44 7f 01
+id=11  handle: 8d 44 7f 01
+id=12  handle: 8d 44 7f 01
+id=13  handle: 8d 44 7f 01
+id=14  handle: 8d 44 7f 01
+id=15  handle: 8d 44 7f 01
+id=16  handle: 8d 44 7f 01
+id=17  handle: 8d 44 7f 01
+id=18  handle: 8d 44 7f 01
+id=19  handle: 8d 44 7f 01
+
+--- trace:
+             app-387     [001] DBZff    19.476806: tl_handle: (0x4012f0) id=0x8
+             app-387     [001] DBZff    19.676945: tl_handle: (0x4012f0) id=0x9
+             app-387     [001] DBZff    19.877049: tl_handle: (0x4012f0) id=0xa
+             app-390     [003] DBZff    19.886149: tl_handle: (0x4012f0) id=0x0
+             app-387     [001] DBZff    20.077141: tl_handle: (0x4012f0) id=0xb
+             app-390     [003] DBZff    20.086268: tl_handle: (0x4012f0) id=0x1
+[24 lines in all]
+$ cat uprobe_profile
+  /work/experiments/kprobes-uprobes/app tl_handle                                                 24

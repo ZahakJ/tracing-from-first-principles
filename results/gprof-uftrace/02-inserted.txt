@@ -1,0 +1,79 @@
+$ (see each block's header; relocations shown with -r)
+=== gcc -O2  -c paths.c ; objdump -dr --no-show-raw-insn d.o, <spin> first 8 lines
+   0:	movq   $0x0,-0x8(%rsp)
+   9:	xor    %eax,%eax
+   b:	data16 cs nopw 0x0(%rax,%rax,1)
+  16:	cs nopw 0x0(%rax,%rax,1)
+  20:	mov    -0x8(%rsp),%rdx
+  25:	add    %rax,%rdx
+  28:	add    $0x1,%rax
+  2c:	mov    %rdx,-0x8(%rsp)
+  31:	cmp    %rax,%rdi
+  34:	jne    20 <spin+0x20>
+
+=== gcc -O2 -pg -c paths.c ; objdump -dr --no-show-raw-insn d.o, <spin> first 8 lines
+   0:	push   %rbp
+   1:	mov    %rsp,%rbp
+   4:	sub    $0x10,%rsp
+   8:	call   d <spin+0xd>
+			9: R_X86_64_PLT32	mcount-0x4
+   d:	xor    %eax,%eax
+   f:	movq   $0x0,-0x8(%rbp)
+  17:	nopw   0x0(%rax,%rax,1)
+  20:	mov    -0x8(%rbp),%rdx
+  24:	add    %rax,%rdx
+
+=== gcc -O2 -pg -mfentry -c paths.c ; objdump -dr --no-show-raw-insn d.o, <spin> first 8 lines
+   0:	call   5 <spin+0x5>
+			1: R_X86_64_PLT32	__fentry__-0x4
+   5:	sub    $0x10,%rsp
+   9:	xor    %eax,%eax
+   b:	movq   $0x0,0x8(%rsp)
+  14:	data16 cs nopw 0x0(%rax,%rax,1)
+  1f:	nop
+  20:	mov    0x8(%rsp),%rdx
+  25:	add    %rax,%rdx
+  28:	add    $0x1,%rax
+
+=== gcc -O2 -pg -mfentry -mrecord-mcount -mnop-mcount -fno-pie -c paths.c ; objdump -dr --no-show-raw-insn d.o, <spin> first 8 lines
+   0:	nopl   0x0(%rax,%rax,1)
+   5:	sub    $0x10,%rsp
+   9:	xor    %eax,%eax
+   b:	movq   $0x0,0x8(%rsp)
+  14:	data16 cs nopw 0x0(%rax,%rax,1)
+  1f:	nop
+  20:	mov    0x8(%rsp),%rdx
+  25:	add    %rax,%rdx
+  28:	add    $0x1,%rax
+  2c:	mov    %rdx,0x8(%rsp)
+
+=== gcc -O2 -finstrument-functions -c paths.c ; objdump -dr --no-show-raw-insn d.o, <spin> first 8 lines
+   0:	push   %rbp
+   1:	lea    -0x8(%rip),%rbp        # 0 <spin>
+   8:	push   %rbx
+   9:	mov    %rdi,%rbx
+   c:	mov    %rbp,%rdi
+   f:	sub    $0x18,%rsp
+  13:	mov    0x28(%rsp),%rsi
+  18:	call   1d <spin+0x1d>
+			19: R_X86_64_PLT32	__cyg_profile_func_enter-0x4
+  1d:	movq   $0x0,0x8(%rsp)
+
+=== the same, every call in spin() (enter and exit):
+  18:	call   1d <spin+0x1d>
+			19: R_X86_64_PLT32	__cyg_profile_func_enter-0x4
+  64:	jmp    69 <spin+0x69>
+			65: R_X86_64_PLT32	__cyg_profile_func_exit-0x4
+
+=== gcc -O2 -fpatchable-function-entry=5 -c paths.c ; objdump -dr --no-show-raw-insn d.o, <spin> first 8 lines
+   0:	nop
+   1:	nop
+   2:	nop
+   3:	nop
+   4:	nop
+   5:	movq   $0x0,-0x8(%rsp)
+   e:	xor    %eax,%eax
+  10:	data16 cs nopw 0x0(%rax,%rax,1)
+  1b:	nopl   0x0(%rax,%rax,1)
+  20:	mov    -0x8(%rsp),%rdx
+

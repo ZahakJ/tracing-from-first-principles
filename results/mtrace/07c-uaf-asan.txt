@@ -1,0 +1,20 @@
+$ gcc -g -O0 -fsanitize=address -o uaf-asan uaf.c && ./uaf-asan
+[shadow-byte dump cut to the => row, legend removed; full report was 47 lines]
+=================================================================
+==1213==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x502000000020 at pc 0x55ef3c8a1263 bp 0x7ffde80fc980 sp 0x7ffde80fc978
+WRITE of size 1 at 0x502000000020 thread T0
+    #0 0x55ef3c8a1262 in main src/uaf.c:23
+    #1 0x7f833d7a1ca7 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+    #2 0x7f833d7a1d64 in __libc_start_main_impl ../csu/libc-start.c:360
+    #3 0x55ef3c8a1120 in _start (/tmp/b/uaf-asan+0x1120) (BuildId: 28147f06b343b6dc52b77c3e37289e1e62d92531)
+
+0x502000000020 is located 0 bytes after 16-byte region [0x502000000010,0x502000000020)
+allocated by thread T0 here:
+    #0 0x7f833da60c57 in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:69
+    #1 0x55ef3c8a1209 in main src/uaf.c:21
+    #2 0x7f833d7a1ca7 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow src/uaf.c:23 in main
+Shadow bytes around the buggy address:
+=>0x502000000000: fa fa 00 00[fa]fa fa fa fa fa fa fa fa fa fa fa
+exit status: 1

@@ -1,0 +1,25 @@
+$ perf stat -e branch-misses,L1-dcache-load-misses,cycles,instructions,branches,L1-dcache-loads,dTLB-loads,dTLB-load-misses,iTLB-loads,iTLB-load-misses,L1-icache-loads,L1-icache-load-misses ./phases 1
+3229914199821
+
+ Performance counter stats for './phases 1':
+
+          84183059      branch-misses                    #   17.39% of all branches             (49.84%)
+          59784476      L1-dcache-load-misses            #   69.55% of all L1-dcache accesses   (49.85%)
+        3347512285      cycles                                                                  (49.85%)
+        1583738942      instructions                     #    0.47  insn per cycle              (49.88%)
+         484049740      branches                                                                (50.00%)
+          85959534      L1-dcache-loads                                                         (50.11%)
+          15204081      dTLB-loads                                                              (50.16%)
+           9415583      dTLB-load-misses                 #   61.93% of all dTLB cache accesses  (50.15%)
+               614      iTLB-loads                                                              (50.15%)
+               215      iTLB-load-misses                 #   35.02% of all iTLB cache accesses  (50.12%)
+           3365294      L1-icache-loads                                                         (50.00%)
+             96076      L1-icache-load-misses            #    2.85% of all L1-icache accesses   (49.89%)
+
+       0.873908684 seconds time elapsed
+
+       0.815891000 seconds user
+       0.004702000 seconds sys
+
+
+

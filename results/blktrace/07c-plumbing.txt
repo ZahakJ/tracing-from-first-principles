@@ -1,0 +1,28 @@
+$ ls -la /sys/kernel/debug/block/vdd/
+total 0
+drwxr-xr-x 7 root root 0 Oct  6 16:02 .
+drwxr-xr-x 6 root root 0 Oct  6 16:01 ..
+-r--r--r-- 1 root root 0 Oct  6 16:02 dropped
+drwxr-xr-x 3 root root 0 Oct  6 16:01 hctx0
+drwxr-xr-x 3 root root 0 Oct  6 16:01 hctx1
+drwxr-xr-x 3 root root 0 Oct  6 16:01 hctx2
+drwxr-xr-x 3 root root 0 Oct  6 16:01 hctx3
+--w--w--w- 1 root root 0 Oct  6 16:02 msg
+-rw------- 1 root root 0 Oct  6 16:01 pm_only
+-r-------- 1 root root 0 Oct  6 16:01 poll_stat
+-r-------- 1 root root 0 Oct  6 16:01 requeue_list
+drwxr-xr-x 3 root root 0 Oct  6 16:01 rqos
+-rw------- 1 root root 0 Oct  6 16:01 state
+-r-------- 1 root root 0 Oct  6 16:02 trace0
+-r-------- 1 root root 0 Oct  6 16:02 trace1
+-r-------- 1 root root 0 Oct  6 16:02 trace2
+-r-------- 1 root root 0 Oct  6 16:02 trace3
+-r-------- 1 root root 0 Oct  6 16:01 zone_wplugs
+
+$ strace -f -e trace=ioctl -o st.txt blktrace -d /dev/vdd -w 1   (BLKTRACE* ioctls only)
+633   ioctl(3, BLKTRACESETUP, {act_mask=65535, buf_size=524288, buf_nr=4, start_lba=0, end_lba=0, pid=0, name="vdd"}) = 0
+633   ioctl(3, BLKTRACESTART)           = 0
+633   ioctl(3, BLKTRACESTOP)            = 0
+633   ioctl(3, BLKTRACESTOP)            = -1 EINVAL (Invalid argument)
+633   ioctl(3, BLKTRACETEARDOWN)        = 0
+(st.txt has 12 lines in total)

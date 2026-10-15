@@ -1,0 +1,47 @@
+$ strace -c ./fastcat < in.4M > out
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 63.36    0.000287           4        64           write
+ 36.64    0.000166           2        66           read
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         2           fstat
+  0.00    0.000000           0         8           mmap
+  0.00    0.000000           0         3           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         2           pread64
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+  0.00    0.000000           0         1           set_tid_address
+  0.00    0.000000           0         2           openat
+  0.00    0.000000           0         1           set_robust_list
+  0.00    0.000000           0         1           prlimit64
+  0.00    0.000000           0         1           rseq
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.000453           2       158         1 total
+
+# slowcat gets a 1 MiB input here (2,097,152 copy syscalls): at 4 MiB the traced run takes ~100 s.
+$ strace -c ./slowcat < in.1M > out
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 53.95    2.592892           2   1048576           write
+ 46.05    2.213288           2   1048578           read
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         2           fstat
+  0.00    0.000000           0         8           mmap
+  0.00    0.000000           0         3           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         1           brk
+  0.00    0.000000           0         2           pread64
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+  0.00    0.000000           0         1           set_tid_address
+  0.00    0.000000           0         2           openat
+  0.00    0.000000           0         1           set_robust_list
+  0.00    0.000000           0         1           prlimit64
+  0.00    0.000000           0         1           rseq
+------ ----------- ----------- --------- --------- ----------------
+100.00    4.806180           2   2097182         1 total
+[wall time of that traced run: 25764 ms]

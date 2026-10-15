@@ -1,0 +1,48 @@
+perf_event_max_sample_rate at boot of run.sh: 100000
+perf_event_max_sample_rate now: 20000
+perf_cpu_time_max_percent: 25
+default (no -F), from perf evlist -v:  sample_freq }: 4000  freq: 1 
+bare ./hot wall ms (median min max n): 1260.79 1223.33 1285.38 5
+perf record -o junk.data true, wall ms (median min max n): 1155.91 1148.77 1164.44 5
+perf record --no-buildid -o junk.data true, wall ms: 1145.32 1144 1164.76 5
+
+$ perf record -F 99 -o f99.data ./hot
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.006 MB f99.data (134 samples) ]
+  size 0.01 MB (12364 bytes); throttle records: 0
+  recorded wall ms (median min max n): 2136.83 2136.32 2138.31 5
+  first-to-last sample ms (median min max n): 1229.8 1218.6 1234.8 5
+$ perf record -F 999 -o f999.data ./hot
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.049 MB f999.data (1255 samples) ]
+  size 0.05 MB (57204 bytes); throttle records: 0
+  recorded wall ms (median min max n): 2137.59 2136.83 2138.72 5
+  first-to-last sample ms (median min max n): 1239.1 1238.7 1275.6 5
+$ perf record -F 4000 -o f4000.data ./hot
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.199 MB f4000.data (5174 samples) ]
+  size 0.20 MB (213964 bytes); throttle records: 0
+  recorded wall ms (median min max n): 2137.78 2135.53 2138.34 5
+  first-to-last sample ms (median min max n): 1288.9 1279.9 1300.1 5
+$ perf record -F 9999 -o f9999.data ./hot
+[ perf record: Woken up 3 times to write data ]
+[ perf record: Captured and wrote 0.535 MB f9999.data (13992 samples) ]
+  size 0.54 MB (566896 bytes); throttle records: 1
+  recorded wall ms (median min max n): 2137.63 2136.42 2138.8 5
+  first-to-last sample ms (median min max n): 1398.8 1396.5 1404.9 5
+$ perf record -F 49999 -o f49999.data ./hot
+warning: Maximum frequency rate (20000 Hz) exceeded, throttling from 49999 Hz to 20000 Hz.
+         The limit can be raised via /proc/sys/kernel/perf_event_max_sample_rate.
+         The kernel will lower it when perf's interrupts take too long.
+         Use --strict-freq to disable this throttling, refusing to record.
+[ perf record: Woken up 6 times to write data ]
+[ perf record: Captured and wrote 1.415 MB f49999.data (33438 samples) ]
+  size 1.42 MB (1489468 bytes); throttle records: 1509
+  recorded wall ms (median min max n): 2138.35 2136.38 2141.65 5
+  first-to-last sample ms (median min max n): 1614.2 1608.5 1622.8 5
+perf_event_max_sample_rate afterwards: 20000
+[    0.803213] perf: interrupt took too long (4000 > 3975), lowering kernel.perf_event_max_sample_rate to 50000
+[    0.810996] perf: interrupt took too long (5036 > 5000), lowering kernel.perf_event_max_sample_rate to 39000
+[    0.822217] perf: interrupt took too long (6310 > 6295), lowering kernel.perf_event_max_sample_rate to 31000
+[    0.869419] perf: interrupt took too long (7888 > 7887), lowering kernel.perf_event_max_sample_rate to 25000
+[   37.244449] perf: interrupt took too long (9883 > 9860), lowering kernel.perf_event_max_sample_rate to 20000

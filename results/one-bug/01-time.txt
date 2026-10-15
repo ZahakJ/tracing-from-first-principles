@@ -1,0 +1,10 @@
+$ /usr/bin/time -f "%e %U %S" ./ingest     (5 runs; real user sys in seconds)
+  run 1: real 3.47  user 0.34  sys 0.00
+  run 2: real 3.41  user 0.34  sys 0.00
+  run 3: real 3.41  user 0.33  sys 0.00
+  run 4: real 3.42  user 0.33  sys 0.01
+  run 5: real 3.42  user 0.34  sys 0.00
+  real  median 3.42  min 3.41  max 3.47  (n=5)
+  user  median 0.34  min 0.33  max 0.34
+  sys   median 0  min 0  max 0.01
+  real / (user+sys) = 3.42 / 0.34 = 10.1x  (medians)

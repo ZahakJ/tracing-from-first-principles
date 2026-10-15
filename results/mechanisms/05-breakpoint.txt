@@ -1,0 +1,20 @@
+$ nm work | grep " store$"
+0000000000401330 T store
+$ objdump -d work --disassemble=store | head
+0000000000401330 <store>:
+  401330:	55                   	push   %rbp
+  401331:	48 89 fd             	mov    %rdi,%rbp
+  401334:	53                   	push   %rbx
+  401335:	8d 5e 01             	lea    0x1(%rsi),%ebx
+  401338:	48 63 db             	movslq %ebx,%rbx
+$ ./bp 0000000000401330 ./work
+code at 0x401330 was 015e8d53fd894855, is now 015e8d53fd8948cc
+hit 1: arg1=0x7ffd793487b0 arg2=29
+hit 2: arg1=0x7ffd793487b0 arg2=30
+hit 3: arg1=0x7ffd793487b0 arg2=30
+3837611256
+200000 hits
+
+wall time, ms (median min max runs):
+work                  546.867 546.328 547.585 5
+bp <store> work       3676.64 3645.47 3691.22 5

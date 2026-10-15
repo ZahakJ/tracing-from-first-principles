@@ -1,0 +1,60 @@
+$ strace -f -T -e trace=read,nanosleep,clock_nanosleep,fsync,write ./waits
+clock_nanosleep(CLOCK_REALTIME, 0, {tv_sec=0, tv_nsec=200000000}, NULL) = 0 <0.200059>
+strace: Process 233 attached
+[pid   232] read(3,  <unfinished ...>
+[pid   233] clock_nanosleep(CLOCK_REALTIME, 0, {tv_sec=0, tv_nsec=300000000}, NULL) = 0 <0.300077>
+[pid   233] write(4, "hello", 5)        = 5 <0.000015>
+[pid   232] <... read resumed>"hello", 16) = 5 <0.300239>
+[pid   233] +++ exited with 0 +++
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=233, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+write(5, "some data\n", 10)             = 10 <0.000019>
+fsync(5)                                = 0 <0.006660>
++++ exited with 0 +++
+# (filtered out: the dynamic loader's read of libc's ELF header)
+
+$ strace -c -w -f ./waits
+strace: Process 238 attached
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 61.94    0.500144      250071         2           clock_nanosleep
+ 37.17    0.300176      150087         2           read
+  0.82    0.006596        6596         1           fsync
+  0.01    0.000119         118         1           execve
+  0.01    0.000082          82         1           wait4
+  0.01    0.000078          78         1           clone
+  0.01    0.000061          20         3           openat
+  0.01    0.000059           7         8           mmap
+  0.00    0.000029           9         3           rt_sigprocmask
+  0.00    0.000028          14         2           write
+  0.00    0.000022           7         3           mprotect
+  0.00    0.000022           7         3           close
+  0.00    0.000015           7         2           set_robust_list
+  0.00    0.000015          15         1           pipe2
+  0.00    0.000012           5         2           fstat
+  0.00    0.000011           5         2           pread64
+  0.00    0.000010          10         1           munmap
+  0.00    0.000007           6         1         1 access
+  0.00    0.000006           5         1           brk
+  0.00    0.000006           5         1           prlimit64
+  0.00    0.000005           5         1           arch_prctl
+  0.00    0.000005           5         1           set_tid_address
+  0.00    0.000005           5         1           rseq
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.807514       18352        44         1 total
+
+$ strace -c -f ./waits      (default: system CPU time, not wall)
+strace: Process 244 attached
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 80.00    0.000060          60         1           fsync
+ 14.67    0.000011           5         2           write
+  5.33    0.000004           1         3           close
+100.00    0.000075           1        44         1 total
+[... trimmed: the three most expensive rows and the total kept]
+
+$ strace -T -e trace=read,clock_nanosleep,write ./waits     (no -f: the child is not followed)
+clock_nanosleep(CLOCK_REALTIME, 0, {tv_sec=0, tv_nsec=200000000}, NULL) = 0 <0.200029>
+read(3, "hello", 16)                    = 5 <0.300081>
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=250, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+write(5, "some data\n", 10)             = 10 <0.000015>
++++ exited with 0 +++

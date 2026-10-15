@@ -1,0 +1,14 @@
+$ ./calls N   -> ns per call of add(); 5 runs each; median (min-max)
+N = 200000000 except under uftrace record: N = 2000000
+
+build / run                                  ns/call median (min-max)   added   slowdown
+plain -O2                                        1.03 (1.03-1.04)  +   0.00  x1.0
+-fpatchable-function-entry=5, run plain          1.03 (1.03-1.04)  +   0.00  x1.0
+-pg, run plain (mcount + gprof)                  4.63 (4.59-4.76)  +   3.60  x4.5
+-pg -mfentry, run plain                          4.58 (4.57-4.77)  +   3.55  x4.4
+-finstrument-functions, empty hooks              2.66 (2.66-2.67)  +   1.63  x2.6
+-pg under uftrace record                        64.51 (63.41-68.56)  +  63.48  x62.6
+-pg under uftrace record -t 100us               50.73 (50.03-54.23)  +  49.70  x49.2
+
+uftrace record ./calls-pg 2000000: uftrace.data = 64368066 bytes = 32.2 bytes per call (each call = 1 entry + 1 exit record)
+uftrace record -t 100us ./calls-pg 2000000: uftrace.data = 367892 bytes

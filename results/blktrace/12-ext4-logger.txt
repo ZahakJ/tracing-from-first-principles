@@ -1,0 +1,45 @@
+$ /tmp/bt/logger 200 /mnt/log.dat
+200 fdatasync: mean 10489.9 us, min 10148.7 us, max 19761.8 us
+
+--- D events by RWBS and process, mean D2C (paired D->C):
+FN       [kworker/1:1H]       n= 400  mean D2C   5112.7 us
+WS       [logger]             n= 200  mean D2C     50.0 us
+WSM      [jbd2/vdd-8]         n= 200  mean D2C     47.3 us
+WSM      [kworker/1:1H]       n= 200  mean D2C     46.6 us
+
+--- D (issue) count per fdatasync, by process:
+jbd2/vdd-8         200  1.00 per fdatasync
+kworker/1:1H       600  3.00 per fdatasync
+logger             200  1.00 per fdatasync
+total D 1000 = 5.00 per fdatasync
+
+--- bytes written to the device (sectors at D with W in RWBS) per 4 KiB of payload:
+9624 sectors = 4927488 bytes for 819200 bytes of payload: 6.01 x
+
+--- one fdatasync from the middle (events 100th fdatasync window):
+254,48   0      595     1.024923539   802  Q  WS 295960 + 8 [logger]
+254,48   0      596     1.024924471   802  G  WS 295960 + 8 [logger]
+254,48   0      597     1.024924761   802  P   N [logger]
+254,48   0      598     1.024925042   802  U   N [logger] 1
+254,48   0      599     1.024925513   802  D  WS 295960 + 8 [logger]
+254,48   0      600     1.024988932     0  C  WS 295960 + 8 [0]
+254,48   1     1987     1.025042012   739  Q WSM 266464 + 8 [jbd2/vdd-8]
+254,48   1     1988     1.025042793   739  G WSM 266464 + 8 [jbd2/vdd-8]
+254,48   1     1989     1.025043063   739  P   N [jbd2/vdd-8]
+254,48   1     1990     1.025043434   739  Q WSM 266472 + 8 [jbd2/vdd-8]
+254,48   1     1991     1.025043805   739  M WSM 266472 + 8 [jbd2/vdd-8]
+254,48   1     1992     1.025044205   739  Q WSM 266480 + 8 [jbd2/vdd-8]
+254,48   1     1993     1.025044366   739  M WSM 266480 + 8 [jbd2/vdd-8]
+254,48   1     1994     1.025044686   739  Q WSM 266488 + 8 [jbd2/vdd-8]
+254,48   1     1995     1.025044826   739  M WSM 266488 + 8 [jbd2/vdd-8]
+254,48   1     1996     1.025045198   739  U   N [jbd2/vdd-8] 1
+254,48   1     1997     1.025045868   739  D WSM 266464 + 32 [jbd2/vdd-8]
+254,48   1     1998     1.025099249     0  C WSM 266464 + 32 [0]
+254,48   1     1999     1.025108245   177  D  FN [kworker/1:1H]
+254,48   1     2000     1.030181370     0  C  FN 0 [0]
+254,48   1     2001     1.030189285   177  I WSM 266496 + 8 [kworker/1:1H]
+254,48   1     2002     1.030190167   177  D WSM 266496 + 8 [kworker/1:1H]
+254,48   1     2003     1.030230563     0  C WSM 266496 + 8 [0]
+254,48   1     2004     1.030233598   177  D  FN [kworker/1:1H]
+254,48   1     2005     1.035286034     0  C  FN 0 [0]
+254,48   1     2006     1.035286635     0  C WSM 266496 [0]

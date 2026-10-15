@@ -1,0 +1,38 @@
+$ bash -c 'time ./sleepy'
+17471393586648757761
+
+real	0m1.965s
+user	0m0.164s
+sys	0m0.001s
+
+$ perf record -o sleepy.data ./sleepy
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.029 MB sleepy.data (728 samples) ]
+
+$ perf report --stdio -i sleepy.data 2>/dev/null | grep -v '^$' | head -25
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 728  of event 'cycles:P'
+# Event count (approx.): 806652965
+#
+# Overhead  Command  Shared Object      Symbol                             
+# ........  .......  .................  ...................................
+#
+    99.57%  sleepy   sleepy             [.] compute
+     0.15%  sleepy   [kernel.kallsyms]  [k] _raw_write_lock_irq
+     0.14%  sleepy   [kernel.kallsyms]  [k] asm_sysvec_apic_timer_interrupt
+     0.06%  sleepy   [kernel.kallsyms]  [k] __do_sys_prlimit64
+     0.04%  sleepy   [kernel.kallsyms]  [k] lruvec_stat_mod_folio
+     0.02%  sleepy   [kernel.kallsyms]  [k] get_page_from_freelist
+     0.02%  sleepy   [kernel.kallsyms]  [k] __alloc_frozen_pages_noprof
+     0.01%  sleepy   [kernel.kallsyms]  [k] __handle_mm_fault
+     0.01%  sleepy   [kernel.kallsyms]  [k] load_elf_binary
+     0.00%  sleepy   [kernel.kallsyms]  [k] do_fault
+     0.00%  sleepy   [kernel.kallsyms]  [k] chacha_permute
+     0.00%  sleepy   [kernel.kallsyms]  [k] charge_memcg
+     0.00%  perf-ex  [kernel.kallsyms]  [k] perf_ctx_unlock
+     0.00%  sleepy   [kernel.kallsyms]  [k] asm_exc_page_fault
+

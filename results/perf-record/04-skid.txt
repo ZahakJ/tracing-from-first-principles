@@ -1,0 +1,88 @@
+$ perf record -e cycles -o skid.data ./skid
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.054 MB skid.data (1379 samples) ]
+exit status: 0
+$ perf evlist -v -i skid.data
+cycles: type: 0 (PERF_TYPE_HARDWARE), size: 136, config: 0 (PERF_COUNT_HW_CPU_CYCLES), { sample_period, sample_freq }: 4000, sample_type: IP|TID|TIME|PERIOD, read_format: ID|LOST, disabled: 1, inherit: 1, mmap: 1, comm: 1, freq: 1, enable_on_exec: 1, task: 1, sample_id_all: 1, exclude_guest: 1, mmap2: 1, comm_exec: 1, ksymbol: 1, bpf_event: 1
+
+$ perf annotate --stdio --no-source -i skid.data -s divloop 2>/dev/null | awk '/or +\$0x1,/,/jne/'
+    0.00 :   1200:   or     $0x1,%rsi
+    6.36 :   1204:   mov    %r8,%rax
+    0.00 :   1207:   xor    %edx,%edx
+    0.00 :   1209:   div    %rsi
+   78.67 :   120c:   lea    (%rax,%rcx,1),%rsi
+    5.42 :   1210:   add    $0x1,%rcx
+    4.29 :   1214:   xor    $0x5555,%rsi
+    0.74 :   121b:   add    $0x3039,%rsi
+    4.50 :   1222:   cmp    %rcx,%rdi
+    0.00 :   1225:   jne    1200 <divloop+0x40>
+
+$ perf record -e cycles:P -o skid.data ./skid
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.054 MB skid.data (1379 samples) ]
+exit status: 0
+$ perf evlist -v -i skid.data
+cycles:P: type: 0 (PERF_TYPE_HARDWARE), size: 136, config: 0 (PERF_COUNT_HW_CPU_CYCLES), { sample_period, sample_freq }: 4000, sample_type: IP|TID|TIME|PERIOD, read_format: ID|LOST, disabled: 1, inherit: 1, mmap: 1, comm: 1, freq: 1, enable_on_exec: 1, task: 1, sample_id_all: 1, mmap2: 1, comm_exec: 1, ksymbol: 1, bpf_event: 1
+
+$ perf annotate --stdio --no-source -i skid.data -s divloop 2>/dev/null | awk '/or +\$0x1,/,/jne/'
+    0.00 :   1200:   or     $0x1,%rsi
+    2.24 :   1204:   mov    %r8,%rax
+    0.00 :   1207:   xor    %edx,%edx
+    0.00 :   1209:   div    %rsi
+   89.40 :   120c:   lea    (%rax,%rcx,1),%rsi
+    2.60 :   1210:   add    $0x1,%rcx
+    2.54 :   1214:   xor    $0x5555,%rsi
+    0.72 :   121b:   add    $0x3039,%rsi
+    2.50 :   1222:   cmp    %rcx,%rdi
+    0.00 :   1225:   jne    1200 <divloop+0x40>
+
+$ perf record -e cycles -o skid.data ./skid
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.053 MB skid.data (1367 samples) ]
+exit status: 0
+$ perf evlist -v -i skid.data
+cycles: type: 0 (PERF_TYPE_HARDWARE), size: 136, config: 0 (PERF_COUNT_HW_CPU_CYCLES), { sample_period, sample_freq }: 4000, sample_type: IP|TID|TIME|PERIOD, read_format: ID|LOST, disabled: 1, inherit: 1, mmap: 1, comm: 1, freq: 1, enable_on_exec: 1, task: 1, sample_id_all: 1, exclude_guest: 1, mmap2: 1, comm_exec: 1, ksymbol: 1, bpf_event: 1
+
+$ perf annotate --stdio --no-source -i skid.data -s divloop 2>/dev/null | awk '/or +\$0x1,/,/jne/'
+    0.00 :   1200:   or     $0x1,%rsi
+    2.87 :   1204:   mov    %r8,%rax
+    0.00 :   1207:   xor    %edx,%edx
+    0.00 :   1209:   div    %rsi
+   83.86 :   120c:   lea    (%rax,%rcx,1),%rsi
+    4.76 :   1210:   add    $0x1,%rcx
+    3.94 :   1214:   xor    $0x5555,%rsi
+    0.15 :   121b:   add    $0x3039,%rsi
+    4.41 :   1222:   cmp    %rcx,%rdi
+    0.00 :   1225:   jne    1200 <divloop+0x40>
+
+$ perf record -e cycles:P -o skid.data ./skid
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.053 MB skid.data (1370 samples) ]
+exit status: 0
+$ perf evlist -v -i skid.data
+cycles:P: type: 0 (PERF_TYPE_HARDWARE), size: 136, config: 0 (PERF_COUNT_HW_CPU_CYCLES), { sample_period, sample_freq }: 4000, sample_type: IP|TID|TIME|PERIOD, read_format: ID|LOST, disabled: 1, inherit: 1, mmap: 1, comm: 1, freq: 1, enable_on_exec: 1, task: 1, sample_id_all: 1, mmap2: 1, comm_exec: 1, ksymbol: 1, bpf_event: 1
+
+$ perf annotate --stdio --no-source -i skid.data -s divloop 2>/dev/null | awk '/or +\$0x1,/,/jne/'
+    0.00 :   1200:   or     $0x1,%rsi
+    2.88 :   1204:   mov    %r8,%rax
+    0.00 :   1207:   xor    %edx,%edx
+    0.00 :   1209:   div    %rsi
+   91.93 :   120c:   lea    (%rax,%rcx,1),%rsi
+    1.09 :   1210:   add    $0x1,%rcx
+    1.44 :   1214:   xor    $0x5555,%rsi
+    0.23 :   121b:   add    $0x3039,%rsi
+    2.43 :   1222:   cmp    %rcx,%rdi
+    0.00 :   1225:   jne    1200 <divloop+0x40>
+
+$ perf record -e cycles:p -o skid.data ./skid
+Error:
+cycles:p: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+exit status: 255
+$ perf record -e cycles:pp -o skid.data ./skid
+Error:
+cycles:pp: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+exit status: 255
+$ perf record -e cycles:ppp -o skid.data ./skid
+Error:
+cycles:ppp: PMU Hardware doesn't support sampling/overflow-interrupts. Try 'perf stat'
+exit status: 255

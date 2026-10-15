@@ -1,0 +1,18 @@
+$ grep -cw __vfs_read /proc/kallsyms
+0
+$ bpftrace -e 'kprobe:__vfs_read { @ = count(); }'
+stdin:1:1-18: WARNING: __vfs_read is not traceable (either non-existing, inlined, or marked as "notrace"); attaching to it will likely fail
+kprobe:__vfs_read { @ = count(); } interval:s:1 { exit(); }
+~~~~~~~~~~~~~~~~~
+Attaching 2 probes...
+cannot attach kprobe, Invalid argument
+ERROR: Error attaching probe: kprobe:__vfs_read
+$ grep -cw blk_account_io_start /proc/kallsyms
+1
+$ bpftrace -e 'kprobe:blk_account_io_start { @ = count(); }'
+stdin:1:1-28: WARNING: blk_account_io_start is not traceable (either non-existing, inlined, or marked as "notrace"); attaching to it will likely fail
+kprobe:blk_account_io_start { @ = count(); } interval:s:1 { exit(); }
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Attaching 2 probes...
+cannot attach kprobe, Invalid argument
+ERROR: Error attaching probe: kprobe:blk_account_io_start

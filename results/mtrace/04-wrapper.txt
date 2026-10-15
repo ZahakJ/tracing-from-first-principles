@@ -1,0 +1,16 @@
+$ sed -n 21,28p leaky.c   # the line every name leak is blamed on
+ 21  static void *xmalloc(size_t n)
+ 22  {
+ 23  	void *p = malloc(n);
+ 24  
+ 25  	if (!p)
+ 26  		abort();
+ 27  	return p;
+ 28  }
+
+$ grep -n "xstrdup(" leaky.c   # who calls it
+30:static char *xstrdup(const char *s)
+42:	r->name = xstrdup(name);
+
+mtrace rows blamed on leaky.c:23 (inside xmalloc): 40
+rows blamed on leaky.c:42 (handle calling xstrdup) or :32 (xstrdup calling xmalloc): 0

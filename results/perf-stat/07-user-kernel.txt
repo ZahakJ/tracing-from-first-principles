@@ -1,0 +1,17 @@
+$ perf stat -e instructions:u,instructions:k,cycles:u,cycles:k ./sysloop
+1954000000
+
+ Performance counter stats for './sysloop':
+
+          36103761      instructions:u                   #    0.25  insn per cycle            
+         669526045      instructions:k                   #    0.69  insn per cycle            
+         146831927      cycles:u                                                              
+         967778405      cycles:k                                                              
+
+       0.237589574 seconds time elapsed
+
+       0.060725000 seconds user
+       0.176332000 seconds sys
+
+
+

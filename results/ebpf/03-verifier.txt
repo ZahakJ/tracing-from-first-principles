@@ -1,0 +1,80 @@
+$ ./rawbpf bad
+==== (i-a) no NULL check, array map, constant key 0
+   0: code=0x62 dst=r10 src=r0 off=-4   imm=0
+   1: code=0xbf dst=r2 src=r10 off=0    imm=0
+   2: code=0x07 dst=r2 src=r0 off=0    imm=-4
+   3: code=0x18 dst=r1 src=r1 off=0    imm=3
+   4: code=0x00 dst=r0 src=r0 off=0    imm=0
+   5: code=0x85 dst=r0 src=r0 off=0    imm=1
+   6: code=0xb7 dst=r1 src=r0 off=0    imm=1
+   7: code=0xdb dst=r0 src=r1 off=0    imm=0
+   8: code=0xb7 dst=r0 src=r0 off=0    imm=0
+   9: code=0x95 dst=r0 src=r0 off=0    imm=0
+-- result: accepted
+-- verifier log:
+processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+==== (i-b) no NULL check, the same program on a hash map
+   0: code=0x62 dst=r10 src=r0 off=-4   imm=0
+   1: code=0xbf dst=r2 src=r10 off=0    imm=0
+   2: code=0x07 dst=r2 src=r0 off=0    imm=-4
+   3: code=0x18 dst=r1 src=r1 off=0    imm=4
+   4: code=0x00 dst=r0 src=r0 off=0    imm=0
+   5: code=0x85 dst=r0 src=r0 off=0    imm=1
+   6: code=0xb7 dst=r1 src=r0 off=0    imm=1
+   7: code=0xdb dst=r0 src=r1 off=0    imm=0
+   8: code=0xb7 dst=r0 src=r0 off=0    imm=0
+   9: code=0x95 dst=r0 src=r0 off=0    imm=0
+-- result: BPF_PROG_LOAD: Permission denied
+-- verifier log:
+0: R1=ctx() R10=fp0
+0: (62) *(u32 *)(r10 -4) = 0          ; R10=fp0 fp-8=0000????
+1: (bf) r2 = r10                      ; R2=fp0 R10=fp0
+2: (07) r2 += -4                      ; R2=fp-4
+3: (18) r1 = 0xffff899fc1baf800       ; R1=map_ptr(ks=4,vs=8)
+5: (85) call bpf_map_lookup_elem#1    ; R0=map_value_or_null(id=1,ks=4,vs=8)
+6: (b7) r1 = 1                        ; R1=1
+7: (db) lock *(u64 *)(r0 +0) += r1
+R0 invalid mem access 'map_value_or_null'
+processed 7 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+==== (ii-a) read through the context pointer at offset 30000
+   0: code=0x79 dst=r0 src=r1 off=30000 imm=0
+   1: code=0x95 dst=r0 src=r0 off=0    imm=0
+-- result: BPF_PROG_LOAD: Permission denied
+-- verifier log:
+0: R1=ctx() R10=fp0
+0: (79) r0 = *(u64 *)(r1 +30000)
+invalid bpf_context access off=30000 size=8
+processed 1 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+==== (ii-b) read through an uninitialised register r3
+   0: code=0x79 dst=r0 src=r3 off=0    imm=0
+   1: code=0x95 dst=r0 src=r0 off=0    imm=0
+-- result: BPF_PROG_LOAD: Permission denied
+-- verifier log:
+0: R1=ctx() R10=fp0
+0: (79) r0 = *(u64 *)(r3 +0)
+R3 !read_ok
+processed 1 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+==== (iii) a loop that never ends (goto -1)
+   0: code=0xb7 dst=r0 src=r0 off=0    imm=0
+   1: code=0x05 dst=r0 src=r0 off=-1   imm=0
+-- result: BPF_PROG_LOAD: Invalid argument
+-- verifier log:
+[... 1 earlier lines]
+0: (b7) r0 = 0                        ;
+1: (05) goto pc-1
+1: (05) goto pc-1
+1: (05) goto pc-1
+1: (05) goto pc-1
+1: (05) goto pc-1
+1: (05) goto pc-1
+1: (05) goto pc-1
+infinite loop detected at insn 1
+cur state: R10=fp0
+old state: R10=fp0
+processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 0
+==== (iv) falling off the end without exit
+   0: code=0xb7 dst=r0 src=r0 off=0    imm=0
+-- result: BPF_PROG_LOAD: Invalid argument
+-- verifier log:
+last insn is not an exit or jmp
+processed 0 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0

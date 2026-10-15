@@ -1,0 +1,11 @@
+$ LD_PRELOAD=./shim.so ./work
+malloc: 200002 calls, 8739041 bytes
+        16 to 31       bytes: 14
+        32 to 63       bytes: 199986
+      4096 to 8191     bytes: 1
+   1048576 to 2097151  bytes: 1
+3837611256
+
+wall time, ms (median min max runs):
+work               545.709 543.551 548.325 5
+work with shim.so  547.337 545.068 554.473 5

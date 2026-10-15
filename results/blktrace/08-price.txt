@@ -1,0 +1,12 @@
+seqwrite direct 20000 (4 KiB O_DIRECT writes, no fsync), us per write; runs alternate
+blktrace exit report, run 1:
+=== vdd ===
+  CPU  0:                54623 events,     2561 KiB data
+  CPU  1:                    0 events,        0 KiB data
+  CPU  2:                    0 events,        0 KiB data
+  CPU  3:                68717 events,     3222 KiB data
+  Total:                123340 events (dropped 0),     5782 KiB data
+without blktrace: median min max n = 22.81 22.66 27.42 5   (all: 27.42 22.66 22.81 23.39 22.69 )
+with blktrace:    median min max n = 23.81 23.57 26.3 5   (all: 23.81 23.68 26.30 23.57 24.69 )
+trace size bytes: median min max n = 5.92038e+06 5.92038e+06 5.92057e+06 5
+bytes per 4 KiB write = median size / 20000 = 296.0

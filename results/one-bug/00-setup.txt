@@ -1,0 +1,3 @@
+/dev/vdd on /mnt type ext4 (rw,relatime)
+vdd scheduler: [none] mq-deadline kyber bfq 
+builds: gcc -O2 -g -fno-omit-frame-pointer [-DFASTSUM | -pg] ../src/ingest.c

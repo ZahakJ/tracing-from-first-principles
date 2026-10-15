@@ -1,0 +1,68 @@
+$ wc -l < /sys/kernel/tracing/available_events
+1898
+
+$ cut -d: -f1 /sys/kernel/tracing/available_events | sort | uniq -c | sort -rn | head -15
+    734 syscalls
+    116 ext4
+    101 btrfs
+     56 xhci-hcd
+     34 irq_vectors
+     33 libata
+     32 writeback
+     30 sched
+     26 xen
+     24 tcp
+     24 block
+     21 vmscan
+     21 jbd2
+     21 clk
+     19 power
+
+$ ls /sys/kernel/tracing/events | wc -l   # subsystems (plus enable, header_* files)
+140
+
+$ ls /sys/kernel/tracing/events/sched/sched_switch/
+enable
+filter
+format
+hist
+id
+trigger
+
+$ cat /sys/kernel/tracing/events/syscalls/sys_enter_openat/format
+name: sys_enter_openat
+ID: 762
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:int __syscall_nr;	offset:8;	size:4;	signed:1;
+	field:int dfd;	offset:16;	size:8;	signed:0;
+	field:const char * filename;	offset:24;	size:8;	signed:0;
+	field:int flags;	offset:32;	size:8;	signed:0;
+	field:umode_t mode;	offset:40;	size:8;	signed:0;
+	field:__data_loc char[] __filename_val;	offset:48;	size:4;	signed:0;
+
+print fmt: "dfd: 0x%08lx, filename: 0x%08lx \"%s\", flags: %s%s, mode: 0%03o", ((unsigned long)(REC->dfd)), ((unsigned long)(REC->filename)), __get_str(__filename_val), (REC->flags & ~3) && !(REC->flags & 3) ? "O_RDONLY|" : "",  REC->flags ? __print_flags(REC->flags, "|", { 0x1, "O_WRONLY" }, { 0x2, "O_RDWR" }, { 0x40, "O_CREAT" }, { 0x80, "O_EXCL" }, { 0x100, "O_NOCTTY" }, { 0x200, "O_TRUNC" }, { 0x400, "O_APPEND" }, { 0x800, "O_NONBLOCK" }, { 0x1000, "O_DSYNC" }, { 0x4000, "O_DIRECT" }, { 0x8000, "O_LARGEFILE" }, { 0x10000, "O_DIRECTORY" }, { 0x20000, "O_NOFOLLOW" }, { 0x40000, "O_NOATIME" }, { 0x80000, "O_CLOEXEC" }) : "O_RDONLY",  ((unsigned long)(REC->mode))
+
+$ cat /sys/kernel/tracing/events/sched/sched_switch/format
+name: sched_switch
+ID: 310
+format:
+	field:unsigned short common_type;	offset:0;	size:2;	signed:0;
+	field:unsigned char common_flags;	offset:2;	size:1;	signed:0;
+	field:unsigned char common_preempt_count;	offset:3;	size:1;	signed:0;
+	field:int common_pid;	offset:4;	size:4;	signed:1;
+
+	field:char prev_comm[16];	offset:8;	size:16;	signed:0;
+	field:pid_t prev_pid;	offset:24;	size:4;	signed:1;
+	field:int prev_prio;	offset:28;	size:4;	signed:1;
+	field:long prev_state;	offset:32;	size:8;	signed:1;
+	field:char next_comm[16];	offset:40;	size:16;	signed:0;
+	field:pid_t next_pid;	offset:56;	size:4;	signed:1;
+	field:int next_prio;	offset:60;	size:4;	signed:1;
+
+print fmt: "prev_comm=%s prev_pid=%d prev_prio=%d prev_state=%s%s ==> next_comm=%s next_pid=%d next_prio=%d", REC->prev_comm, REC->prev_pid, REC->prev_prio, (REC->prev_state & ((((0x00000000 | 0x00000001 | 0x00000002 | 0x00000004 | 0x00000008 | 0x00000010 | 0x00000020 | 0x00000040) + 1) << 1) - 1)) ? __print_flags(REC->prev_state & ((((0x00000000 | 0x00000001 | 0x00000002 | 0x00000004 | 0x00000008 | 0x00000010 | 0x00000020 | 0x00000040) + 1) << 1) - 1), "|", { 0x00000001, "S" }, { 0x00000002, "D" }, { 0x00000004, "T" }, { 0x00000008, "t" }, { 0x00000010, "X" }, { 0x00000020, "Z" }, { 0x00000040, "P" }, { 0x00000080, "I" }) : "R", REC->prev_state & (((0x00000000 | 0x00000001 | 0x00000002 | 0x00000004 | 0x00000008 | 0x00000010 | 0x00000020 | 0x00000040) + 1) << 1) ? "+" : "", REC->next_comm, REC->next_pid, REC->next_prio
+

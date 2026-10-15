@@ -1,0 +1,17 @@
+$ ./uaf
+p[2] after free: 517885259
+[exit status 0]
+
+$ valgrind --track-origins=yes ./uaf
+==438== Command: ./uaf
+==438== Invalid read of size 4
+==438==    at 0x109191: main (uaf.c:12)
+==438==  Address 0x4a58048 is 8 bytes inside a block of size 16 free'd
+==438==    at 0x484787F: free (vg_replace_malloc.c:989)
+==438==    by 0x109188: main (uaf.c:11)
+==438==  Block was alloc'd at
+==438==    at 0x4844818: malloc (vg_replace_malloc.c:446)
+==438==    by 0x10916A: main (uaf.c:8)
+p[2] after free: 42
+==438== For lists of detected and suppressed errors, rerun with: -s
+==438== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)

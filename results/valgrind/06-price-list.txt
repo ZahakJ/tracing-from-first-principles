@@ -1,0 +1,22 @@
+# workload: ./count 4000000 (a tight integer loop, no syscalls, no malloc)
+# wall seconds; native 5 runs, valgrind tools 3 runs except lackey and callgrind (1 run each: they are slow)
+# runner allows a neighbouring experiment, so look at min as well as median
+# tool                           median   min     max     n   slowdown(median/native median)
+native                             0.454    0.449   0.461   5   1.0
+--tool=none                        1.243    1.236   1.244   3   2.7
+--tool=lackey                      28.459   28.459  28.459  1   62.7
+--tool=callgrind                   14.994   14.994  14.994  1   33.0
+--tool=cachegrind --cache-sim=yes  4.542    4.528   4.543   3   10.0
+--tool=cachegrind (no cache sim)   4.582    4.561   4.601   3   10.1
+--tool=memcheck                    2.384    2.384   2.42    3   5.3
+
+# workload 2: ./mallocs 3000000 (3M malloc+free pairs of 16..215 bytes), dynamically linked
+native                             0.036    0.035   0.036   5   1.0
+--tool=none                        0.358    0.357   0.36    3   9.9
+--tool=callgrind                   2.888    2.877   2.9     3   80.2
+--tool=memcheck                    2.454    2.443   2.46    3   68.2
+
+# workload 3: /bin/true (nothing but process startup: the fixed cost)
+native                             0.001    0.001   0.001   5   (too small to divide)
+--tool=none                        0.107    0.107   0.108   3   (+106 ms)
+--tool=memcheck                    0.229    0.228   0.229   3   (+228 ms)

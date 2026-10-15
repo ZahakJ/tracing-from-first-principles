@@ -1,0 +1,78 @@
+$ cat /proc/sys/net/core/bpf_jit_enable
+1
+
+$ ./rawbpf hold 6 &
+instructions loaded (11):
+   0: code=0x62 dst=r10 src=r0 off=-4   imm=0
+   1: code=0xbf dst=r2 src=r10 off=0    imm=0
+   2: code=0x07 dst=r2 src=r0 off=0    imm=-4
+   3: code=0x18 dst=r1 src=r1 off=0    imm=3
+   4: code=0x00 dst=r0 src=r0 off=0    imm=0
+   5: code=0x85 dst=r0 src=r0 off=0    imm=1
+   6: code=0x15 dst=r0 src=r0 off=2    imm=0
+   7: code=0xb7 dst=r1 src=r0 off=0    imm=1
+   8: code=0xdb dst=r0 src=r1 off=0    imm=0
+   9: code=0xb7 dst=r0 src=r0 off=0    imm=0
+  10: code=0x95 dst=r0 src=r0 off=0    imm=0
+prog fd 4, prog id 38, map fd 3, tracepoint id 384
+wrote 101 bytes of x86-64 code to /tmp/jit.bin
+attached (event on CPU 0, all processes) for 6 s
+
+$ bpftool prog show id 38
+38: tracepoint  name rawbpf_count  tag cb72398717d03cb1  gpl
+	loaded_at 2026-10-06T15:38:44+0000  uid 0
+	xlated 136B  jited 101B  memlock 4096B  map_ids 29
+
+$ bpftool prog dump xlated id 38
+   0: (62) *(u32 *)(r10 -4) = 0
+   1: (bf) r2 = r10
+   2: (07) r2 += -4
+   3: (18) r1 = map[id:29]
+   5: (07) r1 += 304
+   6: (61) r0 = *(u32 *)(r2 +0)
+   7: (35) if r0 >= 0x1 goto pc+3
+   8: (67) r0 <<= 3
+   9: (0f) r0 += r1
+  10: (05) goto pc+1
+  11: (b7) r0 = 0
+  12: (15) if r0 == 0x0 goto pc+2
+  13: (b7) r1 = 1
+  14: (db) lock *(u64 *)(r0 +0) += r1
+  15: (b7) r0 = 0
+  16: (95) exit
+
+$ bpftool prog dump jited id 38
+Error: No JIT disassembly support
+
+$ bpftool prog dump jited id 38 opcodes
+Error: No JIT disassembly support
+
+$ objdump -D -b binary -m i386:x86-64 /tmp/jit.bin   (bytes from BPF_OBJ_GET_INFO_BY_FD, jited_prog_insns)
+0000000000000000 <.data>:
+   0:	f3 0f 1e fa          	endbr64
+   4:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+   9:	0f 1f 00             	nopl   (%rax)
+   c:	55                   	push   %rbp
+   d:	48 89 e5             	mov    %rsp,%rbp
+  10:	f3 0f 1e fa          	endbr64
+  14:	48 81 ec 08 00 00 00 	sub    $0x8,%rsp
+  1b:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%rbp)
+  22:	48 89 ee             	mov    %rbp,%rsi
+  25:	48 83 c6 fc          	add    $0xfffffffffffffffc,%rsi
+  29:	48 bf 00 7e 1e c1 9f 	movabs $0xffff899fc11e7e00,%rdi
+  30:	89 ff ff 
+  33:	48 81 c7 30 01 00 00 	add    $0x130,%rdi
+  3a:	8b 46 00             	mov    0x0(%rsi),%eax
+  3d:	48 83 f8 01          	cmp    $0x1,%rax
+  41:	73 09                	jae    0x4c
+  43:	48 c1 e0 03          	shl    $0x3,%rax
+  47:	48 01 f8             	add    %rdi,%rax
+  4a:	eb 02                	jmp    0x4e
+  4c:	31 c0                	xor    %eax,%eax
+  4e:	48 85 c0             	test   %rax,%rax
+  51:	74 0a                	je     0x5d
+  53:	bf 01 00 00 00       	mov    $0x1,%edi
+  58:	f0 48 01 78 00       	lock add %rdi,0x0(%rax)
+  5d:	31 c0                	xor    %eax,%eax
+  5f:	c9                   	leave
+  60:	e9 52 2a 78 ce       	jmp    0xffffffffce782ab7

@@ -1,0 +1,41 @@
+$ perf script -F comm,ip,sym -i callers_nofp__call_graph_dwarf.data | head -40
+perf-exec 
+	ffffffffa024039c ctx_resched
+	ffffffffa0249580 perf_event_exec
+	ffffffffa03c4cf0 begin_new_exec
+	ffffffffa046b218 load_elf_binary
+	ffffffffa03c28ab bprm_execve
+	ffffffffa03c4177 do_execveat_common.isra.0
+	ffffffffa03c44ad __x64_sys_execve
+	ffffffffa115caba do_syscall_64
+	ffffffff9fc0012f entry_SYSCALL_64_after_hwframe
+
+perf-exec 
+	ffffffffa024039c ctx_resched
+	ffffffffa0249580 perf_event_exec
+	ffffffffa03c4cf0 begin_new_exec
+	ffffffffa046b218 load_elf_binary
+	ffffffffa03c28ab bprm_execve
+	ffffffffa03c4177 do_execveat_common.isra.0
+	ffffffffa03c44ad __x64_sys_execve
+	ffffffffa115caba do_syscall_64
+	ffffffff9fc0012f entry_SYSCALL_64_after_hwframe
+
+perf-exec 
+	ffffffffa024039c ctx_resched
+	ffffffffa0249580 perf_event_exec
+	ffffffffa03c4cf0 begin_new_exec
+	ffffffffa046b218 load_elf_binary
+	ffffffffa03c28ab bprm_execve
+	ffffffffa03c4177 do_execveat_common.isra.0
+	ffffffffa03c44ad __x64_sys_execve
+	ffffffffa115caba do_syscall_64
+	ffffffff9fc0012f entry_SYSCALL_64_after_hwframe
+
+perf-exec 
+	ffffffffa024039c ctx_resched
+	ffffffffa0249580 perf_event_exec
+	ffffffffa03c4cf0 begin_new_exec
+	ffffffffa046b218 load_elf_binary
+	ffffffffa03c28ab bprm_execve
+	ffffffffa03c4177 do_execveat_common.isra.0

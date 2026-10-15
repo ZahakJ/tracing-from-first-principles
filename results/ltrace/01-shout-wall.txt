@@ -1,0 +1,5 @@
+$ ./shout    (200000 bytes; wall ms over 5 runs: median min max n)
+HELLO WORLD ... (200000 bytes)
+274.921 274.423 275.913 5
+$ ./shout 50000 -> 18.994 18.681 19.438 5
+$ ./shout 100000 -> 70.885 70.591 71.456 5

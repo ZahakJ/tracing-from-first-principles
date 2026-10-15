@@ -1,0 +1,89 @@
+$ ./writer buffered /dev/vdd   (uptime 2.39 s; marker read of sector 524280 just before)
+write() took 7.8 us
+
+polling once a second: meminfo Dirty/Writeback and vdd writes completed (/sys/block/vdd/stat field 5)
++1s Dirty: 12 kB Writeback: 0 kB  vdd_writes=0
++2s Dirty: 12 kB Writeback: 0 kB  vdd_writes=0
++3s Dirty: 12 kB Writeback: 0 kB  vdd_writes=0
++4s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++5s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++6s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++7s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++8s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++9s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++10s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++11s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++12s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++13s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++14s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++15s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++16s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++17s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++18s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++19s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++20s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++21s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++22s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++23s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++24s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++25s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++26s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++27s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++28s Dirty: 48 kB Writeback: 0 kB  vdd_writes=0
++29s Dirty: 12 kB Writeback: 0 kB  vdd_writes=0
++30s Dirty: 12 kB Writeback: 0 kB  vdd_writes=0
++31s Dirty: 8 kB Writeback: 0 kB  vdd_writes=1
++32s Dirty: 8 kB Writeback: 0 kB  vdd_writes=1
+
+data = byte offset 0 of /dev/vdd = sector 0
+
+--- blkparse lines for the marker read (sector 524280) and the data (sector 0):
+254,48   3        1     0.000000000   186  Q  RS 524280 + 8 [dd]
+254,48   3        2     0.000001192   186  G  RS 524280 + 8 [dd]
+254,48   3        5     0.000002464   186  D  RS 524280 + 8 [dd]
+254,48   3        6     0.000060082     0  C  RS 524280 + 8 [0]
+254,48   3        7    30.876221251    15  Q   W 0 + 8 [kworker/u16:1]
+254,48   3        8    30.876225479    15  G   W 0 + 8 [kworker/u16:1]
+254,48   3       11    30.876233403    15  D   W 0 + 8 [kworker/u16:1]
+254,48   3       12    30.876367475     0  C   W 0 + 8 [0]
+
+marker Q at 0.000000000 s, data Q at 30.876221251 s by [kworker/u16:1]: data queued 30.876 s after write()
+
+--- whole blkparse output (trace events only):
+254,48   3        1     0.000000000   186  Q  RS 524280 + 8 [dd]
+254,48   3        2     0.000001192   186  G  RS 524280 + 8 [dd]
+254,48   3        3     0.000001603   186  P   N [dd]
+254,48   3        4     0.000001813   186  U   N [dd] 1
+254,48   3        5     0.000002464   186  D  RS 524280 + 8 [dd]
+254,48   3        6     0.000060082     0  C  RS 524280 + 8 [0]
+254,48   3        7    30.876221251    15  Q   W 0 + 8 [kworker/u16:1]
+254,48   3        8    30.876225479    15  G   W 0 + 8 [kworker/u16:1]
+254,48   3        9    30.876226630    15  P   N [kworker/u16:1]
+254,48   3       10    30.876231520    15  U   N [kworker/u16:1] 1
+254,48   3       11    30.876233403    15  D   W 0 + 8 [kworker/u16:1]
+254,48   3       12    30.876367475     0  C   W 0 + 8 [0]
+
+--- blkparse summary:
+CPU3 (buffered):
+ Reads Queued:           1,        4KiB	 Writes Queued:           1,        4KiB
+ Read Dispatches:        1,        4KiB	 Write Dispatches:        1,        4KiB
+ Reads Requeued:         0		 Writes Requeued:         0
+ Reads Completed:        1,        4KiB	 Writes Completed:        1,        4KiB
+ Read Merges:            0,        0KiB	 Write Merges:            0,        0KiB
+ Read depth:             1        	 Write depth:             1
+ IO unplugs:             2        	 Timer unplugs:           0
+
+Throughput (R/W): 0KiB/s / 0KiB/s
+Events (buffered): 12 entries
+Skips: 0 forward (0 -   0.0%)
+Trace started at Tue Oct  6 16:01:33 2026
+
+Input file /tmp/bt/bt/buffered.blktrace.3 added
+
+--- blktrace's own exit report:
+=== vdd ===
+  CPU  0:                    0 events,        0 KiB data
+  CPU  1:                    0 events,        0 KiB data
+  CPU  2:                    0 events,        0 KiB data
+  CPU  3:                   17 events,        1 KiB data
+  Total:                    17 events (dropped 0),        1 KiB data

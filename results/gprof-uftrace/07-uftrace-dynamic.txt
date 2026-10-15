@@ -1,0 +1,49 @@
+$ uftrace record ./paths-plain        (no -pg)
+uftrace: ./cmds/record.c:1685:check_binary
+ ERROR: Can't find 'mcount' symbol in the './paths-plain'.
+	It seems not to be compiled with -pg or -finstrument-functions flag.
+	You can rebuild your program with it or use -P option for dynamic tracing.
+
+$ uftrace record -P . ./paths-plain   (dynamic patching, plain -O2)
+$ uftrace record -v -P . ./paths-plain 2>&1 | grep -E 'dynamic|perf'   (why is main missing?)
+uftrace: running uftrace v0.17 ( x86_64 dwarf python3 luajit tui perf sched dynamic kernel )
+uftrace: skipping perf event due to error: Operation not permitted
+dynamic: dynamic patch type: paths-plain: 0 (none)
+dynamic: dynamic patch stats for 'paths-plain'
+dynamic:    total:        4
+dynamic:  patched:        3 (75.00%)
+dynamic:   failed:        1 (25.00%)
+dynamic:  skipped:        0 ( 0.00%)
+$ objdump -d paths-plain, <main>:
+0000000000001040 <main>:
+    1040:	call   1180 <fast_path>
+    1045:	call   11a0 <slow_path>
+    104a:	xor    %eax,%eax
+    104c:	ret
+    104d:	nopl   (%rax)
+$ uftrace report
+  Total time   Self time       Calls  Function
+  ==========  ==========  ==========  ====================
+    1.099  s    1.099  s       10000  spin
+    1.086  s   19.772 us           1  slow_path
+   13.140 ms  585.342 us           1  fast_path
+
+$ uftrace record -P . ./paths-patch   (-fpatchable-function-entry=5)
+uftrace: running uftrace v0.17 ( x86_64 dwarf python3 luajit tui perf sched dynamic kernel )
+dynamic: dynamic patch type: paths-patch: 5 (fpatchable)
+dynamic: patched all (4) functions in 'paths-patch'
+$ uftrace report
+  Total time   Self time       Calls  Function
+  ==========  ==========  ==========  ====================
+    1.101  s    0.331 us           1  main
+    1.100  s    1.100  s       10000  spin
+    1.087  s   13.814 us           1  slow_path
+   13.172 ms  578.904 us           1  fast_path
+
+$ uftrace record ./paths-patch   (no -P)
+uftrace: ./cmds/record.c:1685:check_binary
+ ERROR: Can't find 'mcount' symbol in the './paths-patch'.
+	It seems not to be compiled with -pg or -finstrument-functions flag.
+	You can rebuild your program with it or use -P option for dynamic tracing.
+$ uftrace report
+WARN: cannot open record data: uftrace.data: No such file or directory

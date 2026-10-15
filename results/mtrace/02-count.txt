@@ -1,0 +1,3 @@
+$ LD_PRELOAD=./count.so ./leaky
+count: 3001 malloc + 0 calloc + 0 realloc = 3001 allocations, 2860 frees, 295989 bytes requested
+handled 1000 requests, 120 errors

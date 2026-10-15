@@ -1,0 +1,31 @@
+$ perf record -e syscalls:sys_enter_read,syscalls:sys_exit_read -o /tmp/a.data ./reader /tmp/ram/data64
+1056800 read() calls
+elapsed_ms 1106.6
+[ perf record: Woken up 773 times to write data ]
+[ perf record: Captured and wrote 197.408 MB /tmp/a.data (2113732 samples) ]
+whole perf record command (last run): 2224 ms
+reader elapsed ms under perf record, median min max n: 1110.6 1078.1 1117.9 5
+files written during the last run:
+-rw------- 1 root root 207010728 Oct  6 15:38 /tmp/a.data
+-rw-r--r-- 1 root root       127 Oct  6 15:38 /tmp/a.err
+-rw-r--r-- 1 root root        35 Oct  6 15:38 /tmp/a.ms
+-rw-r--r-- 1 root root        39 Oct  6 15:38 /tmp/a.out
+
+$ perf report -i /tmp/a.data --stats | grep -E 'SAMPLE|LOST|TOTAL'
+               TOTAL events:    2623362
+              SAMPLE events:    2113732  (80.6%)
+              SAMPLE events:    1056864
+              SAMPLE events:    1056868
+
+$ perf script -i /tmp/a.data -F tid,time,event --ns | python3 src/hist.py
+1056801 enter/exit pairs
+[512, 1K)         1052369 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|
+[1K, 2K)             2688 |                                                    |
+[2K, 4K)              325 |                                                    |
+[4K, 8K)             1270 |                                                    |
+[8K, 16K)             113 |                                                    |
+[16K, 32K)              5 |                                                    |
+[32K, 64K)             28 |                                                    |
+[64K, 128K)             2 |                                                    |
+[512K, 1M)              1 |                                                    |
+post-processing took 1279 ms

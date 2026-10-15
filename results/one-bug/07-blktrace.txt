@@ -1,0 +1,95 @@
+$ blktrace -d /dev/vdd -o bt -D bt &  ./ingest -n 100 ; kill -INT blktrace
+$ blkparse -i bt -D bt -d bt.bin -O ; btt -i bt.bin
+  traced run: real 1.20 s  user 0.11  sys 0.00  (-n 100)
+=== vdd ===
+  CPU  0:                  626 events,       30 KiB data
+  CPU  1:                    9 events,        1 KiB data
+  CPU  2:                    0 events,        0 KiB data
+  CPU  3:                 1665 events,       79 KiB data
+[... 1 more lines]
+--- btt, first table (ALL rows):
+==================== All Devices ====================
+
+            ALL           MIN           AVG           MAX           N
+--------------- ------------- ------------- ------------- -----------
+Q2Qdm             0.000000330   0.003852988   0.025303065         313
+Q2Cdm             0.000030187   0.000045635   0.000112501         314
+
+Q2G               0.000000240   0.000000943   0.000005069         205
+Q2M               0.000000120   0.000000387   0.000000681         109
+M2D               0.000000802   0.000001194   0.000008516         109
+D2C               0.000028874   0.000043261   0.000110387         314
+
+
+--- requests by process, from $ blkparse -i bt -D bt -f "%a %C %d
+"
+    (Q = queued by that process; RWBS F=flush/preflush, W=write, S=sync, M=meta, FUA)
+     208  Q  jbd2/vdd-8 WSM
+     100  Q  ingest WS
+       5  Q  kworker/u16:1 WM
+       1  Q  sync FWS
+       1  Q  ingest RM
+  totals: Q 315  D 508  C 610  -> Q per fdatasync (100 calls) = 3.15
+
+
+--- one fdatasync, from the middle of the run: $ blkparse -i bt -D bt -f '%T.%t %a %C %d %S+%n
+' (lines for one cycle)
+0.611389516 Q ingest WS 19508+2
+0.611391620 D ingest WS 19508+2
+0.611435293 C swapper/0 WS 19508+2
+0.611455159 Q jbd2/vdd-8 WSM 235580+2
+0.611456662 Q jbd2/vdd-8 WSM 235582+2
+0.611457995 D jbd2/vdd-8 WSM 235580+4
+0.611492800 C swapper/0 WSM 235580+4
+0.611503510 D kworker/3:1H FN 0+0
+0.616502075 C swapper/0 FN 0+0
+0.616514989 D kworker/3:1H WSM 235584+2
+0.616568209 C swapper/0 WSM 235584+2
+0.616587135 D kworker/3:1H FN 0+0
+
+--- cache flushes (RWBS FN: no Q event, so btt's Q2C/D2C above leave them out); D->C paired in order
+  flushes: 202 (2.02 per fdatasync)  D2C avg 5.304 ms  min 4.909  max 10.338  total 1.071 s
+vdd write_cache: write back   fua: 0
+
+$ bpftrace jbd2off.bt -c "./ingest -n 100"     (where the journal thread waits; top 3)
+Attaching 3 probes...
+@off_us[
+        finish_task_switch.isra.0+5
+        __schedule+1121
+        schedule+39
+        io_schedule+70
+        bit_wait_io+17
+        __wait_on_bit+146
+        out_of_line_wait_on_bit+151
+        jbd2_journal_commit_transaction+4439
+        kjournald2+172
+        kthread+228
+]: 3629
+@off_us[
+        finish_task_switch.isra.0+5
+        __schedule+1121
+        schedule+39
+        kjournald2+563
+        kthread+228
+        ret_from_fork+679
+        ret_from_fork_asm+26
+]: 122014
+@off_us[
+        finish_task_switch.isra.0+5
+        __schedule+1121
+        schedule+39
+        io_schedule+70
+        bit_wait_io+17
+        __wait_on_bit+146
+        out_of_line_wait_on_bit+151
+        jbd2_journal_commit_transaction+5633
+        kjournald2+172
+        kthread+228
+]: 1009434
+
+$ strace -c -w -e trace=fdatasync ./ingest -n 100     (no blktrace; for the per-call time)
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+100.00    1.025042       10250       100           fdatasync
+------ ----------- ----------- --------- --------- ----------------
+100.00    1.025042       10250       100           total

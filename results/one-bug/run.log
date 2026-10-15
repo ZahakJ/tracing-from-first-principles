@@ -1,0 +1,12 @@
+tracelab: setup
+tracelab: 16:03:29 01 time
+tracelab: 16:03:47 02 perf
+tracelab: 16:04:07 03 strace
+tracelab: 16:04:17 04 who calls
+tracelab: 16:04:25 05 off-cpu
+tracelab: 16:04:29 06 perf trace
+tracelab: 16:04:43 07 blktrace
+tracelab: 16:04:49 08 fix
+tracelab: 16:04:51 09 overhead
+tracelab: 16:06:32 10 wrong kind
+tracelab: 16:06:42 done

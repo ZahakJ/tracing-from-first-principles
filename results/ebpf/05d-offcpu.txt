@@ -1,0 +1,56 @@
+$ bpftrace -e 'tracepoint:sched:sched_switch /args.prev_pid == (int32)cpid/ { @t = nsecs; @ks = kstack(5); @us = ustack(5); }
+tracepoint:sched:sched_switch /args.next_pid == (int32)cpid && @t/ { @offcpu_ns[@ks, @us] = sum(nsecs - @t); @t = 0; }
+END { clear(@ks); clear(@us); clear(@t); }' -c ./sleepy
+Attaching 3 probes...
+
+
+
+@offcpu_ns[
+        __schedule+2988
+        schedule+39
+        irqentry_exit+552
+        asm_sysvec_apic_timer_interrupt+26
+, 
+        0x4010ea
+        0x7f94c27f0ca8
+]: 7715
+@offcpu_ns[
+        __schedule+2988
+        schedule+39
+        irqentry_exit+552
+        asm_sysvec_apic_timer_interrupt+26
+, 
+        0x4010f5
+        0x7f94c27f0ca8
+]: 12844
+@offcpu_ns[
+        __schedule+2988
+        schedule+39
+        irqentry_exit+552
+        asm_sysvec_apic_timer_interrupt+26
+, 
+        0x4010e7
+        0x7f94c27f0ca8
+]: 41778
+@offcpu_ns[
+        __schedule+2988
+        schedule+39
+        anon_pipe_read+758
+        vfs_read+997
+        ksys_read+207
+, 
+        0x7f94c28563a7
+        0x7f94c27f0ca8
+]: 800162867
+@offcpu_ns[
+        __schedule+2988
+        schedule+39
+        do_nanosleep+123
+        hrtimer_nanosleep+194
+        common_nsleep+52
+, 
+        0x7f94c28563a7
+        0x7f94c27f0ca8
+]: 1000070749
+
+

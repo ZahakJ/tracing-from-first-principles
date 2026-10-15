@@ -1,0 +1,210 @@
+=== (a) gcc  hello.c -o v
+-- readelf -d v | grep -E 'BIND_NOW|FLAGS'
+ 0x000000006ffffffb (FLAGS_1)            Flags: PIE
+-- readelf -S v | grep plt
+.rela.plt RELA
+.plt PROGBITS
+.plt.got PROGBITS
+.got.plt PROGBITS
+-- call instructions in main (objdump -d v)
+call   1030 <puts@plt>
+call   1040 <strlen@plt>
+call   1050 <printf@plt>
+-- ltrace ./v 2>&1 | head -5
+puts("hello, library")                           = 15
+strlen("hello, library")                         = 14
+printf("%zu\n", 14)                              = 3
+hello, library
+14
+[... 1 more lines]
+
+=== (b) gcc -no-pie hello.c -o v
+-- readelf -d v | grep -E 'BIND_NOW|FLAGS'
+-- readelf -S v | grep plt
+.rela.plt RELA
+.plt PROGBITS
+.got.plt PROGBITS
+-- call instructions in main (objdump -d v)
+call   401030 <puts@plt>
+call   401040 <strlen@plt>
+call   401050 <printf@plt>
+-- ltrace ./v 2>&1 | head -5
+puts("hello, library")                           = 15
+strlen("hello, library")                         = 14
+printf("%zu\n", 14)                              = 3
+hello, library
+14
+[... 1 more lines]
+
+=== (c) gcc -Wl,-z,now hello.c -o v
+-- readelf -d v | grep -E 'BIND_NOW|FLAGS'
+ 0x000000000000001e (FLAGS)              BIND_NOW
+ 0x000000006ffffffb (FLAGS_1)            Flags: NOW PIE
+-- readelf -S v | grep plt
+.rela.plt RELA
+.plt PROGBITS
+.plt.got PROGBITS
+-- call instructions in main (objdump -d v)
+call   1030 <puts@plt>
+call   1040 <strlen@plt>
+call   1050 <printf@plt>
+-- ltrace ./v 2>&1 | head -5
+puts("hello, library")                           = 15
+strlen("hello, library")                         = 14
+printf("%zu\n", 14)                              = 3
+hello, library
+14
+[... 1 more lines]
+
+=== (d) gcc -Wl,-z,now -fcf-protection=full hello.c -o v
+-- readelf -d v | grep -E 'BIND_NOW|FLAGS'
+ 0x000000000000001e (FLAGS)              BIND_NOW
+ 0x000000006ffffffb (FLAGS_1)            Flags: NOW PIE
+-- readelf -S v | grep plt
+.rela.plt RELA
+.plt PROGBITS
+.plt.got PROGBITS
+-- call instructions in main (objdump -d v)
+call   1030 <puts@plt>
+call   1040 <strlen@plt>
+call   1050 <printf@plt>
+-- ltrace ./v 2>&1 | head -5
+puts("hello, library")                           = 15
+strlen("hello, library")                         = 14
+printf("%zu\n", 14)                              = 3
+hello, library
+14
+[... 1 more lines]
+
+=== (d2) gcc -Wl,-z,now -fcf-protection=full -Wl,-z,ibtplt hello.c -o v
+-- readelf -d v | grep -E 'BIND_NOW|FLAGS'
+ 0x000000000000001e (FLAGS)              BIND_NOW
+ 0x000000006ffffffb (FLAGS_1)            Flags: NOW PIE
+-- readelf -S v | grep plt
+.rela.plt RELA
+.plt PROGBITS
+.plt.got PROGBITS
+.plt.sec PROGBITS
+-- call instructions in main (objdump -d v)
+call   1070 <puts@plt>
+call   1080 <strlen@plt>
+call   1090 <printf@plt>
+-- ltrace ./v 2>&1 | head -5
+puts("hello, library")                           = 15
+strlen("hello, library")                         = 14
+printf("%zu\n", 14)                              = 3
+hello, library
+14
+[... 1 more lines]
+
+=== (e) gcc -fno-plt hello.c -o v
+-- readelf -d v | grep -E 'BIND_NOW|FLAGS'
+ 0x000000006ffffffb (FLAGS_1)            Flags: PIE
+-- readelf -S v | grep plt
+.plt PROGBITS
+.plt.got PROGBITS
+.got.plt PROGBITS
+-- call instructions in main (objdump -d v)
+call   *0x2e58(%rip)        # 3fb8 <puts@GLIBC_2.2.5>
+call   *0x2e53(%rip)        # 3fc0 <strlen@GLIBC_2.2.5>
+call   *0x2e43(%rip)        # 3fc8 <printf@GLIBC_2.2.5>
+-- ltrace ./v 2>&1 | head -5
+hello, library
+14
++++ exited (status 0) +++
+
+=== (f) gcc -static hello.c -o v
+-- readelf -d v | grep -E 'BIND_NOW|FLAGS'
+There is no dynamic section in this file.
+-- readelf -S v | grep plt
+3] .rela.plt
+5] .plt
+.got.plt PROGBITS
+-- call instructions in main (objdump -d v)
+call   40a150 <_IO_puts>
+call   4010b8 <_init+0xb8>
+call   4047e0 <_IO_printf>
+-- ltrace ./v 2>&1 | head -5
+Couldn't find .dynsym or .dynstr in "/proc/665/exe"
+hello, library
+14
+
+=== (g) gcc -O2 hello.c -o v
+-- readelf -d v | grep -E 'BIND_NOW|FLAGS'
+ 0x000000006ffffffb (FLAGS_1)            Flags: PIE
+-- readelf -S v | grep plt
+.rela.plt RELA
+.plt PROGBITS
+.plt.got PROGBITS
+.got.plt PROGBITS
+-- call instructions in main (objdump -d v)
+call   1030 <puts@plt>
+call   1040 <strlen@plt>
+call   1050 <printf@plt>
+-- ltrace ./v 2>&1 | head -5
+puts("hello, library")                           = 15
+strlen("hello, library")                         = 14
+printf("%zu\n", 14)                              = 3
+hello, library
+14
+[... 1 more lines]
+
+=== (g-shout) gcc -O2 shout.c -o v
+-- readelf -d v | grep -E 'BIND_NOW|FLAGS'
+ 0x000000006ffffffb (FLAGS_1)            Flags: PIE
+-- readelf -S v | grep plt
+.rela.plt RELA
+.plt PROGBITS
+.plt.got PROGBITS
+.got.plt PROGBITS
+-- call instructions in main (objdump -d v)
+call   1070 <malloc@plt>
+call   1030 <__ctype_toupper_loc@plt>
+call   1050 <strlen@plt>
+call   1060 <printf@plt>
+call   1040 <free@plt>
+call   1080 <strtoul@plt>
+call   1070 <malloc@plt>
+-- ltrace -c ./v 2000 2>&1 | head -8
+HELLO WORLD ... (2000 bytes)
+% time     seconds  usecs/call     calls      function
+------ ----------- ----------- --------- --------------------
+ 50.00    0.071225          35      2001 strlen
+ 49.78    0.070901          35      2000 __ctype_toupper_loc
+  0.06    0.000087          87         1 exit_group
+  0.06    0.000079          79         1 malloc
+  0.05    0.000066          66         1 printf
+[... 4 more lines]
+
+=== (a-shout) gcc -O0 shout.c -o v
+-- readelf -d v | grep -E 'BIND_NOW|FLAGS'
+ 0x000000006ffffffb (FLAGS_1)            Flags: PIE
+-- readelf -S v | grep plt
+.rela.plt RELA
+.plt PROGBITS
+.plt.got PROGBITS
+.got.plt PROGBITS
+-- call instructions in main (objdump -d v)
+call   1080 <strtoul@plt>
+call   1070 <malloc@plt>
+call   1040 <toupper@plt>
+call   1050 <strlen@plt>
+call   1060 <printf@plt>
+call   1030 <free@plt>
+-- ltrace -c ./v 2000 2>&1 | head -8
+HELLO WORLD ... (2000 bytes)
+% time     seconds  usecs/call     calls      function
+------ ----------- ----------- --------- --------------------
+ 49.96    0.071018          35      2001 strlen
+ 49.81    0.070812          35      2000 toupper
+  0.06    0.000083          83         1 exit_group
+  0.06    0.000079          79         1 malloc
+  0.05    0.000065          65         1 printf
+[... 4 more lines]
+
+=== why (d) has no .plt.sec: GNU property notes of the input crt files
+-- readelf -n v (d build) | grep -iE 'feature|x86'
+      Properties: x86 ISA needed: x86-64-baseline
+-- crt1.o: 
+-- crti.o: 
+-- crtn.o: 

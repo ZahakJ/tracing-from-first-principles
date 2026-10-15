@@ -1,0 +1,62 @@
+$ perf sched record -o sched.data -- sh -c 'taskset -c 0 ./spin 3 & taskset -c 0 ./spin 3 & taskset -c 0 ./wakeup 200; wait'
+wakeup: 200 wake-ups, lateness avg 0.082 ms, max 1.537 ms
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.619 MB sched.data (5758 samples) ]
+
+for comparison, wakeup alone without the spinners:
+$ taskset -c 0 ./wakeup 200
+wakeup: 200 wake-ups, lateness avg 0.071 ms, max 0.086 ms
+
+$ perf sched latency -i sched.data | head -20
+ -------------------------------------------------------------------------------------------------------------------------------------------
+  Task                  |   Runtime ms  |  Count   | Avg delay ms    | Max delay ms    | Max delay start           | Max delay end          |
+ -------------------------------------------------------------------------------------------------------------------------------------------
+  spin:(2)              |   2210.274 ms |     1331 | avg:   1.667 ms | max:   4.218 ms | max start:    57.506271 s | max end:    57.510489 s
+  kworker/0:1-rcu:10    |      0.023 ms |        3 | avg:   0.895 ms | max:   1.998 ms | max start:    57.799041 s | max end:    57.801039 s
+  kworker/0:1H-kb:312   |      0.005 ms |        1 | avg:   0.537 ms | max:   0.537 ms | max start:    58.375042 s | max end:    58.375578 s
+  wakeup:583            |      1.263 ms |      205 | avg:   0.037 ms | max:   1.863 ms | max start:    57.445157 s | max end:    57.447020 s
+  kcompactd0:52         |      0.043 ms |        5 | avg:   0.019 ms | max:   0.024 ms | max start:    59.543053 s | max end:    59.543077 s
+  kworker/3:0-rcu:40    |      0.009 ms |        1 | avg:   0.019 ms | max:   0.019 ms | max start:    57.801049 s | max end:    57.801068 s
+  kworker/u16:1-e:14    |      0.029 ms |        5 | avg:   0.015 ms | max:   0.023 ms | max start:    58.032050 s | max end:    58.032073 s
+  kworker/1:1-eve:50    |      0.010 ms |        2 | avg:   0.014 ms | max:   0.020 ms | max start:    57.801046 s | max end:    57.801065 s
+  perf:(2)              |      0.254 ms |        4 | avg:   0.012 ms | max:   0.014 ms | max start:    59.662470 s | max end:    59.662484 s
+  sh:579                |      0.856 ms |        6 | avg:   0.011 ms | max:   0.019 ms | max start:    59.662116 s | max end:    59.662134 s
+  kworker/2:1-eve:72    |      0.001 ms |        1 | avg:   0.006 ms | max:   0.006 ms | max start:    59.041048 s | max end:    59.041055 s
+  kworker/u16:2-e:49    |      0.009 ms |        3 | avg:   0.005 ms | max:   0.005 ms | max start:    57.802053 s | max end:    57.802058 s
+  rcu_preempt:16        |      0.035 ms |       13 | avg:   0.004 ms | max:   0.007 ms | max start:    57.443045 s | max end:    57.443052 s
+  migration/0:20        |      0.009 ms |        1 | avg:   0.003 ms | max:   0.003 ms | max start:    57.442433 s | max end:    57.442436 s
+  migration/1:26        |      0.008 ms |        1 | avg:   0.003 ms | max:   0.003 ms | max start:    57.442479 s | max end:    57.442482 s
+  migration/3:38        |      0.017 ms |        2 | avg:   0.003 ms | max:   0.003 ms | max start:    59.662520 s | max end:    59.662523 s
+  migration/2:32        |      0.015 ms |        2 | avg:   0.002 ms | max:   0.003 ms | max start:    57.442523 s | max end:    57.442525 s
+
+$ perf sched timehist -i sched.data | grep -e wakeup -e spin -e 'wait time' -e '\[ms\]' -e '\-\-\-' | head -30
+           time    cpu  task name                       wait time  sch delay   run time
+--------------- ------  ------------------------------  ---------  ---------  ---------
+      57.447020 [0000]  spin[581]                           1.424      0.011      2.109 
+      57.447309 [0000]  wakeup[583]                         0.004      0.004      0.259 
+      57.449186 [0000]  spin[582]                           2.146      2.146      1.877 
+      57.450042 [0000]  spin[581]                           2.166      2.166      0.855 
+      57.451046 [0000]  spin[582]                           0.855      0.855      1.004 
+      57.452324 [0000]  spin[581]                           1.008      1.008      1.273 
+      57.453434 [0000]  spin[582]                           1.277      1.277      1.110 
+      57.455544 [0000]  spin[581]                           1.110      1.110      2.110 
+      57.456043 [0000]  spin[582]                           2.110      2.110      0.498 
+      57.457359 [0000]  spin[582]                           0.003      0.003      1.312 
+      57.457364 [0000]  wakeup[583]                        10.049      0.002      0.005 
+      57.457678 [0000]  spin[582]                           0.005      0.005      0.313 
+      57.458039 [0000]  spin[581]                           2.133      2.133      0.361 
+      57.460049 [0000]  spin[582]                           0.361      0.361      2.009 
+      57.461816 [0000]  spin[581]                           2.013      2.013      1.763 
+      57.461926 [0000]  spin[582]                           1.767      1.767      0.109 
+      57.461941 [0000]  spin[581]                           0.109      0.109      0.014 
+      57.464053 [0000]  spin[582]                           0.014      0.014      2.111 
+      57.466162 [0000]  spin[581]                           2.111      2.111      2.108 
+      57.467358 [0000]  spin[582]                           2.108      2.108      1.196 
+      57.467363 [0000]  wakeup[583]                         9.994      0.002      0.005 
+      57.469468 [0000]  spin[581]                           1.201      1.201      2.104 
+      57.471039 [0000]  spin[582]                           2.109      2.109      1.571 
+      57.472048 [0000]  spin[581]                           1.571      1.571      1.009 
+      57.473499 [0000]  spin[582]                           1.009      1.009      1.450 
+      57.474611 [0000]  spin[581]                           1.450      1.450      1.112 
+      57.476730 [0000]  spin[582]                           1.112      1.112      2.118 
+      57.478839 [0000]  spin[581]                           2.118      2.118      2.108 

@@ -1,0 +1,12 @@
+$ cat src/kpeek  (the tool)
+# kpeek: show the machine code the kernel is running right now.
+#   kpeek SYMBOL[+OFF] [NBYTES] [--raw]
+# Looks the symbol up in /proc/kallsyms, reads the bytes at that address out
+# of /proc/kcore (an ELF core file whose segments map kernel virtual
+# addresses), prints them in hex and disassembles them with objdump.
+
+$ ./src/kpeek vfs_read 16
+vfs_read = 0xffffffffbb3b7500:  0f 1f 40 d6 0f 1f 44 00 00 48 81 ec 90 00 00 00
+ffffffffbb3b7500:	0f 1f 40 d6          	nopl   -0x2a(%rax)
+ffffffffbb3b7504:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ffffffffbb3b7509:	48 81 ec 90 00 00 00 	sub    $0x90,%rsp

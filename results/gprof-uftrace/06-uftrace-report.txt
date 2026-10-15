@@ -1,0 +1,7 @@
+$ uftrace report | head -15
+  Total time   Self time       Calls  Function
+  ==========  ==========  ==========  ====================
+    1.121  s    0.190 us           1  main
+    1.120  s    1.120  s       10000  spin
+    1.109  s   14.338 us           1  slow_path
+   11.971 ms  559.596 us           1  fast_path

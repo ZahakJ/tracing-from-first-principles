@@ -1,0 +1,14 @@
+$ ./step 00000000004012d0 40132c ./work 1000        (the range is the checksum function)
+2661244768
+2714158 instructions, 1541472 of them in [0x4012d0, 0x40132c) = 56.8%
+16.63 s, 6126 ns per instruction
+$ ./step 00000000004012d0 40132c ./work 1000        (again: is the count the same?)
+2714158 instructions, 1541472 of them in [0x4012d0, 0x40132c) = 56.8%
+
+wall time of the unobserved ./work 1000, ms: 1.179 1.022 1.274 5
+
+the same question put to Valgrind, which simulates the CPU instead of stopping it:
+$ valgrind --tool=lackey ./work 1000
+2661244768
+  guest instrs:  2,732,360
+0.17 s wall

@@ -1,0 +1,9 @@
+$ bpftrace -e 'tracepoint:raw_syscalls:sys_enter { printf("%d\n", pid); }' > /tmp/pf.txt &   then ./sysloop 1000000 x5, then 3 sysloops at once
+printf: ns/call median min max n: 298.2 202.3 312.3 5
+3 at once, ns/call each: 216.8 217.2 318.7 
+output: 9785583 bytes, 2446389 lines; non-numeric lines:
+      1 Lost 7990191 events
+      1 Attaching 1 probe...
+(compare 06a: the count() version)
+bare|115.7 114.7 117.6 7
+bpftrace tracepoint:raw_syscalls:sys_enter { @ = count(); }|171.4 168.3 262.9 7

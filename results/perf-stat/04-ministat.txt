@@ -1,0 +1,37 @@
+$ ./ministat
+work result   2864311
+instructions  16416308
+cycles        11080341
+
+$ perf stat -e instructions:u,cycles:u ./count
+2864311
+
+ Performance counter stats for './count':
+
+          20475342      instructions:u                   #    1.76  insn per cycle            
+          11604848      cycles:u                                                              
+
+       0.002929164 seconds time elapsed
+
+       0.002021000 seconds user
+       0.001012000 seconds sys
+
+
+
+$ perf stat -e instructions:u,cycles:u ./ministat
+work result   2864311
+instructions  16416311
+cycles        11151944
+
+ Performance counter stats for './ministat':
+
+          16522654      instructions:u                   #    1.46  insn per cycle            
+          11339916      cycles:u                                                              
+
+       0.003068685 seconds time elapsed
+
+       0.002083000 seconds user
+       0.001041000 seconds sys
+
+
+

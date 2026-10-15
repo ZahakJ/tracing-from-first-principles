@@ -1,0 +1,63 @@
++ id
+uid=1000 gid=984 groups=984
++ uname -r
+7.1.8-arch1-3
++ gcc --version
++ head -1
+gcc (Debian 14.2.0-19) 14.2.0
++ ldd --version
++ head -1
+ldd (Debian GLIBC 2.41-12+deb13u4) 2.41
++ printf %s:  strace
+strace: + command -v strace
+/usr/bin/strace
++ printf %s:  ltrace
+ltrace: + command -v ltrace
+/usr/bin/ltrace
++ printf %s:  valgrind
+valgrind: + command -v valgrind
+/usr/bin/valgrind
++ printf %s:  uftrace
+uftrace: + command -v uftrace
+/usr/bin/uftrace
++ printf %s:  heaptrack
+heaptrack: + command -v heaptrack
+/usr/bin/heaptrack
++ printf %s:  gprof
+gprof: + command -v gprof
+/usr/bin/gprof
++ printf %s:  gdb
+gdb: + command -v gdb
+/usr/bin/gdb
++ printf %s:  mtrace
+mtrace: + command -v mtrace
+/usr/bin/mtrace
++ printf %s:  lttng
+lttng: + command -v lttng
+/usr/bin/lttng
++ printf %s:  perf
+perf: + command -v perf
+/usr/bin/perf
++ printf %s:  bpftrace
+bpftrace: + command -v bpftrace
+/usr/bin/bpftrace
++ strace -V
++ head -1
+strace -- version 6.13
++ ltrace -V
++ head -1
+ltrace 0.7.91
++ valgrind --version
+valgrind-3.24.0
++ uftrace --version
+uftrace v0.17 ( x86_64 dwarf python3 luajit tui perf sched dynamic kernel )
++ heaptrack --version
+heaptrack 1.5.0
++ strace -c -o /out/strace-true.txt true
++ echo int main(){return 0;}
++ gcc t.c -o t
++ valgrind -q ./t
++ echo valgrind ok
+valgrind ok
++ ltrace -o /out/ltrace-true.txt /bin/echo hi
+hi

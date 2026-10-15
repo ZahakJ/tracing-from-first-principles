@@ -1,0 +1,24 @@
+# churn: N malloc+free pairs, 1000 live blocks, sizes 16..4096. 5 runs each.
+# ns/pair is churn's own clock around the loop (excludes tool start-up and teardown).
+# wall is the whole process (includes start-up, heaptrack's post-processing, valgrind's JIT, etc.).
+# slowdown = median ns/pair / bare median ns/pair.  wall/pair = wall ms * 1e6 / N.
+# commands: ./churn N; LD_PRELOAD=./count.so ./churn N;
+#   LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libc_malloc_debug.so.0 ./churn N (malloc_debug-idle: library loaded, MALLOC_TRACE unset); LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libc_malloc_debug.so.0 MALLOC_TRACE=/tmp/churn.log ./churn N;
+#   heaptrack -o /tmp/htc ./churn N; valgrind -q --leak-check=full ./churn 500000; ./churn-asan N (-fsanitize=address -O2);
+#   ASAN_OPTIONS=quarantine_size_mb=0 ./churn-asan N; ASAN_OPTIONS=quarantine_size_mb=0:malloc_context_size=0 ./churn-asan N;
+#   ltrace -e malloc+free ./churn 20000
+bare                   N=5000000  ns/pair median       7.3 (min       7.3 max       7.4)  x1.0      wall ms median      37.5 (min      37.4 max      39.2)  wall/pair      7.5 ns
+count-shim             N=5000000  ns/pair median       8.4 (min       8.3 max       9.7)  x1.2      wall ms median      42.5 (min      42.1 max      46.0)  wall/pair      8.5 ns
+malloc_debug-idle      N=5000000  ns/pair median      10.4 (min      10.3 max      10.8)  x1.4      wall ms median      52.8 (min      52.5 max      55.6)  wall/pair     10.6 ns
+mtrace                 N=5000000  ns/pair median     447.4 (min     443.1 max     463.0)  x61.3     wall ms median    2329.0 (min    2299.7 max    2448.6)  wall/pair    465.8 ns
+mtrace-to-dev-null     N=5000000  ns/pair median     302.3 (min     300.8 max     304.4)  x41.4     wall ms median    1513.5 (min    1505.7 max    1521.5)  wall/pair    302.7 ns
+heaptrack              N=5000000  ns/pair median     101.4 (min     100.0 max     101.7)  x13.9     wall ms median     515.1 (min     509.5 max     520.5)  wall/pair    103.0 ns
+valgrind-memcheck      N=500000   ns/pair median     700.0 (min     693.1 max     714.1)  x95.9     wall ms median     595.7 (min     593.7 max     597.6)  wall/pair   1191.3 ns
+asan                   N=5000000  ns/pair median     284.6 (min     279.7 max     285.6)  x39.0     wall ms median    1469.7 (min    1438.4 max    1472.7)  wall/pair    293.9 ns
+asan-no-quarantine     N=5000000  ns/pair median      99.8 (min      98.7 max     105.1)  x13.7     wall ms median     504.3 (min     502.9 max     506.3)  wall/pair    100.9 ns
+asan-no-quar-no-stacks N=5000000  ns/pair median      82.8 (min      82.1 max      83.7)  x11.3     wall ms median     421.3 (min     420.6 max     428.4)  wall/pair     84.3 ns
+ltrace                 N=20000    ns/pair median  112411.0 (min  111493.0 max  112862.0)  x15398.8  wall ms median    2231.2 (min    2229.3 max    2256.5)  wall/pair 111561.5 ns
+
+mtrace log for one N=5000000 run: 388000161 bytes = 370 MB, 10000003 lines
+heaptrack data files:
+  117883 /tmp/htc.gz

@@ -1,0 +1,87 @@
+$ perf trace cat /etc/hostname 2>&1 | tail -25
+     0.291 ( 0.004 ms): cat/559 close(fd: 3)                                                          = 0
+     0.303 ( 0.006 ms): cat/559 mmap(len: 12288, prot: READ|WRITE, flags: PRIVATE|ANONYMOUS)          = 0x7f809512c000
+     0.315 ( 0.004 ms): cat/559 arch_prctl(option: SET_FS, arg2: 0x7f809512c780)                      = 0
+     0.322 ( 0.003 ms): cat/559 set_tid_address(tidptr: 0x7f809512ca50)                               = 559 (cat)
+     0.329 ( 0.003 ms): cat/559 set_robust_list(head: 0x7f809512ca60, len: 24)                        = 0
+     0.336 ( 0.003 ms): cat/559 rseq(rseq: 0x7f809512c680, rseq_len: 33, sig: 1392848979)             = 0
+     0.372 ( 0.007 ms): cat/559 mprotect(start: 0x7f8095310000, len: 16384, prot: READ)               = 0
+     0.392 ( 0.006 ms): cat/559 mprotect(start: 0x55bd851a5000, len: 4096, prot: READ)                = 0
+     0.403 ( 0.005 ms): cat/559 mprotect(start: 0x7f8095367000, len: 8192, prot: READ)                = 0
+     0.418 ( 0.004 ms): cat/559 prlimit64(resource: STACK, old_rlim: 0x7ffc11da32c0)                  = 0
+     0.440 ( 0.008 ms): cat/559 munmap(addr: 0x7f8095323000, len: 23491)                              = 0
+     0.460 ( 0.004 ms): cat/559 getrandom(ubuf: 0x7f809531b218, len: 8, flags: NONBLOCK)              = 8
+     0.468 ( 0.003 ms): cat/559 brk()                                                                 = 0x55bda0eb2000
+     0.474 ( 0.005 ms): cat/559 brk(brk: 0x55bda0ed3000)                                              = 0x55bda0ed3000
+     0.487 ( 0.004 ms): cat/559 fstat(fd: 1, statbuf: 0x7ffc11da34b0)                                 = 0
+     0.494 ( 0.005 ms): cat/559 openat(dfd: CWD, filename: 0x11da3f18)                                = 3
+     0.503 ( 0.003 ms): cat/559 fstat(fd: 3, statbuf: 0x7ffc11da34b0)                                 = 0
+     0.510 ( 0.004 ms): cat/559 fadvise64(fd: 3, advice: 2)                                           = 0
+     0.518 ( 0.005 ms): cat/559 mmap(len: 270336, prot: READ|WRITE, flags: PRIVATE|ANONYMOUS)         = 0x7f80950ea000
+     0.528 ( 0.004 ms): cat/559 read(fd: 3, buf: 0x7f80950eb000, count: 262144)                       = 0
+     0.535 ( 0.007 ms): cat/559 munmap(addr: 0x7f80950ea000, len: 270336)                             = 0
+     0.545 ( 0.004 ms): cat/559 close(fd: 3)                                                          = 0
+     0.555 ( 0.003 ms): cat/559 close(fd: 1)                                                          = 0
+     0.562 ( 0.003 ms): cat/559 close(fd: 2)                                                          = 0
+     0.571 (         ): cat/559 exit_group()                                                          = ?
+
+$ strace cat /etc/hostname 2>&1 | tail -25
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f78282c9000
+arch_prctl(ARCH_SET_FS, 0x7f78282c9780) = 0
+set_tid_address(0x7f78282c9a50)         = 565
+set_robust_list(0x7f78282c9a60, 24)     = 0
+rseq(0x7f78282c9680, 0x21, 0, 0x53053053) = 0
+mprotect(0x7f78284ad000, 16384, PROT_READ) = 0
+mprotect(0x5639c9ee8000, 4096, PROT_READ) = 0
+mprotect(0x7f7828504000, 8192, PROT_READ) = 0
+prlimit64(0, RLIMIT_STACK, NULL, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+munmap(0x7f78284c0000, 23491)           = 0
+getrandom("\x6d\xa0\x4f\x4c\xcd\x6e\x53\x39", 8, GRND_NONBLOCK) = 8
+brk(NULL)                               = 0x5639c9f62000
+brk(0x5639c9f83000)                     = 0x5639c9f83000
+fstat(1, {st_mode=S_IFIFO|0600, st_size=0, ...}) = 0
+openat(AT_FDCWD, "/etc/hostname", O_RDONLY) = 3
+fstat(3, {st_mode=S_IFREG|0755, st_size=0, ...}) = 0
+fadvise64(3, 0, 0, POSIX_FADV_SEQUENTIAL) = 0
+mmap(NULL, 270336, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f7828287000
+read(3, "", 262144)                     = 0
+munmap(0x7f7828287000, 270336)          = 0
+close(3)                                = 0
+close(1)                                = 0
+close(2)                                = 0
+exit_group(0)                           = ?
++++ exited with 0 +++
+
+$ perf trace -s cat /etc/hostname 2>&1 | grep -v '^$'
+ Summary of events:
+ cat (569), 84 events, 93.3%
+   syscall            calls  errors  total       min       avg       max       stddev
+                                     (msec)    (msec)    (msec)    (msec)        (%)
+   --------------- --------  ------ -------- --------- --------- ---------     ------
+   mmap                   9      0     0.067     0.006     0.007     0.010      5.10%
+   close                  5      0     0.022     0.004     0.004     0.005      1.75%
+   mprotect               3      0     0.021     0.007     0.007     0.008      5.63%
+   fstat                  4      0     0.018     0.004     0.005     0.005      1.91%
+   openat                 3      0     0.017     0.006     0.006     0.006      1.22%
+   munmap                 2      0     0.017     0.008     0.009     0.009      5.44%
+   brk                    3      0     0.015     0.004     0.005     0.006      7.52%
+   pread64                2      0     0.009     0.005     0.005     0.005      1.70%
+   read                   2      0     0.009     0.005     0.005     0.005      1.53%
+   access                 1      1     0.006     0.006     0.006     0.006      0.00%
+   getrandom              1      0     0.005     0.005     0.005     0.005      0.00%
+   prlimit64              1      0     0.005     0.005     0.005     0.005      0.00%
+   arch_prctl             1      0     0.004     0.004     0.004     0.004      0.00%
+   set_robust_list        1      0     0.004     0.004     0.004     0.004      0.00%
+   rseq                   1      0     0.004     0.004     0.004     0.004      0.00%
+   fadvise64              1      0     0.004     0.004     0.004     0.004      0.00%
+   set_tid_address        1      0     0.004     0.004     0.004     0.004      0.00%
+   execve                 1      0     0.000     0.000     0.000     0.000      0.00%
+
+$ perf trace -a --duration 50 -- sleep 2 2>&1 | head -30   # meanwhile in the background: dd from /dev/vdd, sleep 0.3, sleep 0.2
+   398.941 (300.074 ms): sleep/577 clock_nanosleep(rqtp: 0x7ffcb0897210, rmtp: 0x7ffcb0897250)           = 0
+   398.080 (301.106 ms): sh/570 wait4(upid: -1, stat_addr: 0x7ffca954dc0c)                            = 577
+   700.212 (200.078 ms): sleep/570 clock_nanosleep(rqtp: 0x7ffd5c008e50, rmtp: 0x7ffd5c008e90)           = 0
+   699.242 (201.098 ms): head/574 read(buf: 0x7ffe8b5520a0, count: 8192)                                = 109
+     1.025 (2000.092 ms): sleep/575 clock_nanosleep(rqtp: 0x7fff0cad3d20, rmtp: 0x7fff0cad3d60)           = 0
+   900.374 (1100.835 ms): head/574 read(buf: 0x7ffe8b5520a0, count: 8192)                                = 110
+

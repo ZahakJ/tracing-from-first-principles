@@ -1,0 +1,11 @@
+tracelab: 1 hot
+tracelab: 2 sample
+tracelab: 3 sum2d
+tracelab: 4 skid
+tracelab: 5 callers
+tracelab: 6 folded
+tracelab: 7 rates
+tracelab: 8 kernel
+tracelab: 9 sleepy
+tracelab: 10 system-wide
+tracelab: done

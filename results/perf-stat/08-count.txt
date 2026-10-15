@@ -1,0 +1,20 @@
+$ perf stat -x, -e instructions:u ./count   (5 times; gcc -O1 -static)
+20475394
+20475394
+20475394
+20475393
+20475394
+$ perf stat -e instructions:u ./count
+2864311
+
+ Performance counter stats for './count':
+
+          20475342      instructions:u                                                        
+
+       0.002939413 seconds time elapsed
+
+       0.002963000 seconds user
+       0.000000000 seconds sys
+
+
+

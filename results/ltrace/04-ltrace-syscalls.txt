@@ -1,0 +1,44 @@
+$ strace -c -o tmp ltrace -o /dev/null ./callloop 10000   (strace tracing ltrace; top of the table)
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- -----------------
+ 53.07    0.481188           2    230459         2 ptrace
+ 14.89    0.134998           6     20058           read
+ 14.24    0.129134           4     30089           wait4
+  7.09    0.064273           3     20051        21 openat
+  4.85    0.043992           2     20030           close
+  3.93    0.035610           1     20029           fstat
+  1.93    0.017498           1     10006           write
+  0.00    0.000019           0        25           process_vm_readv
+  0.00    0.000000           0        34           mmap
+  0.00    0.000000           0         8           mprotect
+$ strace -c -o tmp ltrace -o /dev/null ./callloop 20000
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- -----------------
+ 53.15    0.962980           2    460459         2 ptrace
+ 14.89    0.269692           6     40058           read
+ 14.11    0.255627           4     60089           wait4
+  7.09    0.128427           3     40051        21 openat
+  4.87    0.088225           2     40030           close
+  3.94    0.071332           1     40029           fstat
+  1.94    0.035104           1     20006           write
+  0.01    0.000106           4        25           process_vm_readv
+  0.00    0.000078           2        34           mmap
+  0.00    0.000064          64         1           clone
+# per extra labs() call = (count at N=20000 - count at N=10000) / 10000:
+close                 20030    40030  -> 2.00 per call
+fstat                 20029    40029  -> 2.00 per call
+openat                20051    40051  -> 2.00 per call
+ptrace               230459   460459  -> 23.00 per call
+read                  20058    40058  -> 2.00 per call
+wait4                 30089    60089  -> 3.00 per call
+write                 10006    20006  -> 1.00 per call
+# which files ltrace opens and reads during the run:
+$ strace -e trace=openat -o tmp ltrace -o /dev/null ./callloop 3 ; grep -o "\"[^\"]*\"" tmp | sort | uniq -c | sort -rn | head
+     17 "/proc/513/status"
+      2 "/lib/x86_64-linux-gnu/libc.so.6"
+      1 "/usr/share/ltrace/libpthread.so.conf"
+      1 "/usr/share/ltrace/libpthread.so-types.conf"
+      1 "/usr/share/ltrace/libc.so.conf"
+      1 "/usr/share/ltrace/libc.so.6.conf"
+      1 "/usr/share/ltrace/libc.so-types.conf"
+      1 "/usr/share/ltrace/ld-linux-x86-64.so.conf"

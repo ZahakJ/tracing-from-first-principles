@@ -1,0 +1,28 @@
+$ bpftrace -v -e 'BEGIN { while (1) { } }'   (last 12 lines)
+0: (05) goto pc-1
+0: (05) goto pc-1
+0: (05) goto pc-1
+0: (05) goto pc-1
+0: (05) goto pc-1
+infinite loop detected at insn 0
+cur state: R10=fp0
+old state: R10=fp0
+processed 9 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 0
+
+
+ERROR: Loading BPF object(s) failed.
+
+$ bpftrace -v -e 'BEGIN { $i = 0; while ($i >= 0) { $i = $i + 1; } exit(); }'   (last 15 lines)
+Attaching 1 probe...
+
+
+exit status 0 after 230 ms
+
+$ bpftrace -e 'kprobe:vfs_read { @[str(arg1, 100000)] = count(); }'
+stdin:1:19-38: WARNING: length param (100000) is too long and will be shortened to 1024 bytes (see BPFTRACE_MAX_STRLEN)
+kprobe:vfs_read { @[str(arg1, 100000)] = count(); }
+                  ~~~~~~~~~~~~~~~~~~~
+Attaching 1 probe...
+
+
+

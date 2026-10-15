@@ -1,0 +1,35 @@
+/*
+ * offcpu.bt: where does the traced program (-c) wait, by stack?
+ * sched_switch: when our task leaves the CPU, note the time.
+ * finish_task_switch runs in our task's context right after it is
+ * switched back in, so its kernel stack is the path that slept and
+ * its user stack is where the program was: charge the gap to both.
+ */
+BEGIN
+{
+	@t0 = nsecs;
+}
+
+tracepoint:sched:sched_switch
+/args.prev_pid == (int32)cpid/
+{
+	@ts[cpid] = nsecs;
+}
+
+kprobe:finish_task_switch*
+/pid == cpid && @ts[cpid]/
+{
+	$us = (nsecs - @ts[cpid]) / 1000;
+	@off_us[kstack(12), ustack(4)] = sum($us);
+	@total_off_us = sum($us);
+	@switches = count();
+	delete(@ts[cpid]);
+}
+
+END
+{
+	printf("BEGIN to END: %d us\n", (nsecs - @t0) / 1000);
+	clear(@ts); clear(@t0);
+	print(@off_us, 3);
+	clear(@off_us);
+}

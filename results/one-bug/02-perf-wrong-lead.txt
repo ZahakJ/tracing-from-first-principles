@@ -1,0 +1,61 @@
+$ perf record -g ./ingest ; perf report --stdio --no-children | head -40
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.113 MB perf.data (1534 samples) ]
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 1K of event 'cycles:P'
+# Event count (approx.): 1545766895
+#
+# Overhead  Command  Shared Object         Symbol                                       
+# ........  .......  ....................  .............................................
+#
+    97.44%  ingest   ingest                [.] checksum.constprop.0
+            |
+            ---checksum.constprop.0
+               __libc_start_call_main
+
+     0.41%  ingest   [kernel.kallsyms]     [k] asm_sysvec_apic_timer_interrupt
+     0.14%  ingest   [kernel.kallsyms]     [k] copy_folio_from_iter_atomic
+     0.08%  ingest   [kernel.kallsyms]     [k] file_remove_privs_flags
+     0.07%  ingest   [kernel.kallsyms]     [k] jbd2_journal_dirty_metadata
+     0.07%  ingest   [kernel.kallsyms]     [k] ext4_fill_raw_inode
+     0.07%  ingest   libc.so.6             [.] _itoa_word
+     0.07%  ingest   [kernel.kallsyms]     [k] psi_task_switch
+     0.07%  ingest   [kernel.kallsyms]     [k] perf_ctx_disable
+     0.07%  ingest   [kernel.kallsyms]     [k] mpage_submit_folio
+     0.07%  ingest   [kernel.kallsyms]     [k] ext4_block_write_begin
+     0.07%  ingest   [kernel.kallsyms]     [k] __brelse
+     0.07%  ingest   [kernel.kallsyms]     [k] ext4_ext_index_trans_blocks
+     0.07%  ingest   [kernel.kallsyms]     [k] native_send_call_func_single_ipi
+     0.07%  ingest   [kernel.kallsyms]     [k] blkcg_set_ioprio
+     0.07%  ingest   [kernel.kallsyms]     [k] __schedule
+     0.07%  ingest   [kernel.kallsyms]     [k] start_this_handle
+     0.07%  ingest   [kernel.kallsyms]     [k] ext4_da_write_end
+     0.07%  ingest   [kernel.kallsyms]     [k] mnt_get_write_access_file
+     0.07%  ingest   [kernel.kallsyms]     [k] xas_set_mark
+     0.07%  ingest   [kernel.kallsyms]     [k] _raw_spin_lock
+     0.07%  ingest   [kernel.kallsyms]     [k] prepare_to_wait_event
+     0.07%  ingest   [kernel.kallsyms]     [k] __ext4_mark_inode_dirty
+     0.07%  ingest   [kernel.kallsyms]     [k] ext4_file_write_iter
+     0.07%  ingest   [kernel.kallsyms]     [k] __wake_up
+[trimmed to 40 lines]
+
+--- is checksum the problem? make it ~10x cheaper (-DFASTSUM) and time both
+$ /usr/bin/time -f "%e %U %S" ./ingest_fastsum     (5 runs)
+  run 1: real 3.11  user 0.04  sys 0.00
+  run 2: real 3.12  user 0.03  sys 0.01
+  run 3: real 3.12  user 0.03  sys 0.00
+  run 4: real 3.10  user 0.03  sys 0.01
+  run 5: real 3.10  user 0.03  sys 0.00
+  real  median 3.11  min 3.1  max 3.12  (n=5)
+  user  median 0.03  min 0.03  max 0.04
+  sys   median 0  min 0  max 0.01
+  real / (user+sys) = 3.11 / 0.03 = 103.7x  (medians)
+
+             real     user    sys
+ingest       3.42     0.34    0     (medians from 01-time.txt)
+ingest_fast  3.11     0.03    0
+user time cut by 0.31 s (91%); wall time cut by 0.31 s (9%)

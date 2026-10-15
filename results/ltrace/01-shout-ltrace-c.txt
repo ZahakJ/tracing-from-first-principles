@@ -1,0 +1,14 @@
+$ ltrace -c ./shout 2000    (2000 bytes instead of 200000, to keep it short: 200000 bytes means 400001 traced calls)
+HELLO WORLD ... (2000 bytes)
+% time     seconds  usecs/call     calls      function
+------ ----------- ----------- --------- --------------------
+ 50.06    0.070567          35      2001 strlen
+ 49.73    0.070108          35      2000 toupper
+  0.06    0.000078          78         1 malloc
+  0.05    0.000077          77         1 exit_group
+  0.04    0.000062          62         1 printf
+  0.04    0.000051          51         1 strtoul
+  0.02    0.000035          35         1 free
+------ ----------- ----------- --------- --------------------
+100.00    0.140978                  4006 total
+wall ms, 5 runs (median min max n): ./shout 2000 = 0.925 0.871 0.982 5; ltrace -c ./shout 2000 = 193.759 192.056 195.641 5

@@ -1,0 +1,38 @@
+compiler flags: gcc -O1 -fno-if-conversion -fno-tree-vectorize
+instructions:u: sorted 2587474253; shuffled 2587476297
+wall ms, median min max n: sorted 182.45 175.442 187.384 5; shuffled 733.628 727.45 745.163 5
+
+$ perf stat -e cycles,instructions,branches,branch-misses ./branchy sorted
+25701424840
+
+ Performance counter stats for './branchy sorted':
+
+         810362704      cycles                                                                
+        2595468369      instructions                     #    3.20  insn per cycle            
+         773714025      branches                                                              
+            185256      branch-misses                    #    0.02% of all branches           
+
+       0.183229793 seconds time elapsed
+
+       0.176366000 seconds user
+       0.006417000 seconds sys
+
+
+
+$ perf stat -e cycles,instructions,branches,branch-misses ./branchy shuffled
+25701424840
+
+ Performance counter stats for './branchy shuffled':
+
+        3586984370      cycles                                                                
+        2597770745      instructions                     #    0.72  insn per cycle            
+         774270928      branches                                                              
+         134555943      branch-misses                    #   17.38% of all branches           
+
+       0.739197637 seconds time elapsed
+
+       0.732984000 seconds user
+       0.004987000 seconds sys
+
+
+

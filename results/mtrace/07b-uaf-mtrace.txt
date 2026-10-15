@@ -1,0 +1,17 @@
+$ LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libc_malloc_debug.so.0 MALLOC_TRACE=/tmp/u.log ./uaf
+buf = aaaaaaaaaaaaaaaa
+after free, p[5] = 42
+exit status: 0
+
+$ cat /tmp/u.log
+= Start
+@ ./uaf:[0x119a] + 0x55d68b6ac2a0 0x10
+@ /lib/x86_64-linux-gnu/libc.so.6:(_IO_file_doallocate+83)[0x7dad3] + 0x55d68b6ac4a0 0x1000
+@ ./uaf:[0x11e8] - 0x55d68b6ac2a0
+@ ./uaf:[0x11f2] + 0x55d68b6ad4b0 0x20
+@ ./uaf:[0x1210] - 0x55d68b6ad4b0
+@ /lib/x86_64-linux-gnu/libc.so.6:[0x8d6ec] - 0x55d68b6ac4a0
+
+$ mtrace ./uaf /tmp/u.log
+No memory leaks.
+exit status: 0

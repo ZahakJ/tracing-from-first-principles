@@ -1,0 +1,58 @@
+$ cat buffer_size_kb; nproc
+1410
+4
+$ echo 1 > events/enable    # 1898 events
+  (workload: find / -xdev in a loop + dd bs=1 from /dev/zero, both for 2 s, run in parallel)
+$ cat per_cpu/cpu0/stats
+entries: 36778
+overrun: 4855592
+commit overrun: 0
+bytes: 1441332
+oldest event ts:    64.867840
+now ts:    64.912961
+dropped events: 0
+read events: 0
+$ cat per_cpu/cpu1/stats
+entries: 38955
+overrun: 4188621
+commit overrun: 0
+bytes: 1443744
+oldest event ts:    64.849933
+now ts:    64.913643
+dropped events: 0
+read events: 0
+$ cat per_cpu/cpu2/stats
+entries: 39229
+overrun: 9710295
+commit overrun: 0
+bytes: 1445756
+oldest event ts:    64.865598
+now ts:    64.914344
+dropped events: 0
+read events: 0
+$ cat per_cpu/cpu3/stats
+entries: 45174
+overrun: 385170
+commit overrun: 0
+bytes: 1443352
+oldest event ts:    63.006458
+now ts:    64.915014
+dropped events: 0
+read events: 0
+
+elapsed 2.002 s
+entries still in buffer 160136, overwritten (overrun) 19139678, total recorded 19299814 (99% lost to overwriting)
+events per second: 9640280
+bytes in buffer 5774184 = 36.1 bytes/event; estimated bytes per second 347609226 (347.6 MB/s)
+
+$ the 10 most frequent events still in the buffer
+  20773 cpu_idle:
+  13889 sys_exit:
+  13889 sys_enter:
+   9998 csd_function_entry:
+   9914 csd_function_exit:
+   8580 write_msr:
+   7519 csd_queue_cpu:
+   5734 kfree:
+   4432 kmalloc:
+   3906 rcu_utilization:

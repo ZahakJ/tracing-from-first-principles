@@ -1,0 +1,239 @@
+# The block: main+0x60 (0x401760), the n/2 branch of the collatz loop, as objdump shows it:
+$ objdump -d count | (lines from 0x401760 to the je)
+  401760:	mov    %rdx,%rsi
+  401763:	shr    $1,%rsi
+  401766:	mov    %rsi,%rdx
+  401769:	add    $0x1,%ecx
+  40176c:	cmp    $0x1,%rsi
+  401770:	je     401781 <main+0x81>
+
+$ valgrind --tool=none --trace-flags=10000000 --trace-notbelow=N --trace-notabove=N ./count 10
+# (N = this block's superblock number; 10000000 = 'show conversion into IR'; blank lines removed)
+==== SB 888 (evchecks 13142) [tid 1] 0x401760 main+96 /tmp/experiments/valgrind/bin/count+0x401760
+------------------------ Front end ------------------------
+	0x401760:  movq %rdx,%rsi
+              ------ IMark(0x401760, 3, 0) ------
+              PUT(64) = GET:I64(32)
+              PUT(184) = 0x401763:I64
+	0x401763:  shrq 0x1:I8, %rsi
+              ------ IMark(0x401763, 3, 0) ------
+              t0 = GET:I64(64)
+              t5 = And8(0x1:I8,0x3F:I8)
+              t2 = t0
+              t3 = Shr64(t2,t5)
+              t4 = Shr64(t2,And8(Sub8(t5,0x1:I8),0x3F:I8))
+              t6 = CmpNE8(t5,0x0:I8)
+              PUT(144) = ITE(t6,0x24:I64,GET:I64(144))
+              PUT(152) = ITE(t6,t3,GET:I64(152))
+              PUT(160) = ITE(t6,t4,GET:I64(160))
+              PUT(168) = 0x0:I64
+              t1 = t3
+              PUT(64) = t1
+              PUT(184) = 0x401766:I64
+	0x401766:  movq %rsi,%rdx
+              ------ IMark(0x401766, 3, 0) ------
+              PUT(32) = GET:I64(64)
+              PUT(184) = 0x401769:I64
+	0x401769:  addl $1, %ecx
+              ------ IMark(0x401769, 3, 0) ------
+              t9 = 64to32(GET:I64(24))
+              t8 = 0x1:I32
+              t7 = Add32(t9,t8)
+              PUT(144) = 0x3:I64
+              PUT(152) = 32Uto64(t9)
+              PUT(160) = 32Uto64(t8)
+              PUT(168) = 0x0:I64
+              PUT(24) = 32Uto64(t7)
+              PUT(184) = 0x40176C:I64
+	0x40176C:  cmpq $1, %rsi
+              ------ IMark(0x40176C, 4, 0) ------
+              t12 = GET:I64(64)
+              t11 = 0x1:I64
+              t10 = Sub64(t12,t11)
+              PUT(144) = 0x8:I64
+              PUT(152) = t12
+              PUT(160) = t11
+              PUT(168) = 0x0:I64
+              PUT(184) = 0x401770:I64
+	0x401770:  je-8 0x401781 
+              ------ IMark(0x401770, 2, 0) ------
+              if (64to1(amd64g_calculate_condition[mcx=0x13]{0x5811bca0}(0x4:I64,GET:I64(144),GET:I64(152),GET:I64(160),GET:I64(168)):I64)) { PUT(184) = 0x401781:I64; exit-Boring } 
+              PUT(184) = 0x401772:I64
+              PUT(184) = GET:I64(184); exit-Boring
+
+$ valgrind --tool=none --trace-flags=00100000 ... ./count 10    # 'show after instrumentation'
+# (IR-NoOp lines and temporary type declarations removed)
+# 23 IR statements (lines containing '=', PUT, STle, DIRTY or 'if (')
+==== SB 888 (evchecks 13142) [tid 1] 0x401760 main+96 /tmp/experiments/valgrind/bin/count+0x401760
+------------------------ After instrumentation ------------------------
+IRSB {
+   ------ IMark(0x401760, 3, 0) ------
+   t13 = GET:I64(32)
+   ------ IMark(0x401763, 3, 0) ------
+   t3 = Shr64(t13,0x1:I8)
+   PUT(64) = t3
+   ------ IMark(0x401766, 3, 0) ------
+   PUT(32) = t3
+   ------ IMark(0x401769, 3, 0) ------
+   t25 = GET:I64(24)
+   t36 = 64to32(t25)
+   t24 = t36
+   t7 = Add32(t24,0x1:I32)
+   t37 = 32Uto64(t7)
+   t28 = t37
+   PUT(24) = t28
+   ------ IMark(0x40176C, 4, 0) ------
+   PUT(144) = 0x8:I64
+   PUT(152) = t3
+   PUT(160) = 0x1:I64
+   PUT(168) = 0x0:I64
+   PUT(184) = 0x401770:I64
+   ------ IMark(0x401770, 2, 0) ------
+   t39 = CmpEQ64(t3,0x1:I64)
+   t38 = 1Uto64(t39)
+   t34 = t38
+   t40 = 64to1(t34)
+   t29 = t40
+   if (t29) { PUT(184) = 0x401781:I64; exit-Boring } 
+   PUT(184) = 0x401772:I64; exit-Boring
+}
+VexExpansionRatio 18 147   81 :10
+
+$ valgrind --tool=lackey --trace-flags=00100000 ... ./count 10    # 'show after instrumentation'
+# (IR-NoOp lines and temporary type declarations removed)
+# 58 IR statements (lines containing '=', PUT, STle, DIRTY or 'if (')
+==== SB 888 (evchecks 13142) [tid 1] 0x401760 main+96 /tmp/experiments/valgrind/bin/count+0x401760
+------------------------ After instrumentation ------------------------
+IRSB {
+   ------ IMark(0x401760, 3, 0) ------
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   t13 = GET:I64(32)
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   DIRTY 1:I1 ::: add_one_guest_instr{0x580010b0}()
+   ------ IMark(0x401763, 3, 0) ------
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   t3 = Shr64(t13,0x1:I8)
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   PUT(64) = t3
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   DIRTY 1:I1 ::: add_one_guest_instr{0x580010b0}()
+   ------ IMark(0x401766, 3, 0) ------
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   PUT(32) = t3
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   DIRTY 1:I1 ::: add_one_guest_instr{0x580010b0}()
+   ------ IMark(0x401769, 3, 0) ------
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   t25 = GET:I64(24)
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   t36 = 64to32(t25)
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   t24 = t36
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   t7 = Add32(t24,0x1:I32)
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   t37 = 32Uto64(t7)
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   t28 = t37
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   PUT(24) = t28
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   DIRTY 1:I1 ::: add_one_guest_instr{0x580010b0}()
+   ------ IMark(0x40176C, 4, 0) ------
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   PUT(144) = 0x8:I64
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   PUT(152) = t3
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+   PUT(160) = 0x1:I64
+   DIRTY 1:I1 ::: add_one_IRStmt{0x580010a0}()
+[... 24 more lines]
+
+$ valgrind --tool=memcheck --trace-flags=00100000 ... ./count 10    # 'show after instrumentation'
+# (IR-NoOp lines and temporary type declarations removed)
+# 74 IR statements (lines containing '=', PUT, STle, DIRTY or 'if (')
+==== SB 884 (evchecks 13139) [tid 1] 0x401760 main+96 /tmp/experiments/valgrind/bin/count+0x401760
+------------------------ After instrumentation ------------------------
+IRSB {
+   ------ IMark(0x401760, 3, 0) ------
+   t41 = GET:I64(960)
+   t13 = GET:I64(32)
+   ------ IMark(0x401763, 3, 0) ------
+   t42 = CmpNEZ8(0x0:I8)
+   t43 = 1Sto64(t42)
+   t44 = Shr64(t41,0x1:I8)
+   t45 = Or64(t44,t43)
+   t46 = t45
+   t47 = t46
+   t3 = Shr64(t13,0x1:I8)
+   PUT(992) = t47
+   PUT(64) = t3
+   ------ IMark(0x401766, 3, 0) ------
+   PUT(960) = t47
+   PUT(32) = t3
+   ------ IMark(0x401769, 3, 0) ------
+   t48 = GET:I64(952)
+   t25 = GET:I64(24)
+   t49 = 64to32(t48)
+   t50 = t49
+   t36 = 64to32(t25)
+   t51 = t50
+   t24 = t36
+   t52 = Not32(t51)
+   t53 = And32(t24,t52)
+   t54 = Not32(0x0:I32)
+   t55 = And32(0x1:I32,t54)
+   t56 = Or32(t24,t51)
+   t57 = Or32(0x1:I32,0x0:I32)
+   t58 = Add32(t56,t57)
+   t59 = Add32(t53,t55)
+   t60 = Xor32(t59,t58)
+   t61 = Or32(t51,0x0:I32)
+   t62 = Or32(t61,t60)
+   t63 = t62
+   t7 = Add32(t24,0x1:I32)
+   t64 = 32Uto64(t63)
+   t65 = t64
+   t37 = 32Uto64(t7)
+   t66 = t65
+   t28 = t37
+[... 40 more lines]
+
+$ valgrind --tool=none --trace-flags=00000001 ... ./count 10    # 'show final assembly' (host code)
+==== SB 888 (evchecks 13142) [tid 1] 0x401760 main+96 /tmp/experiments/valgrind/bin/count+0x401760
+------------------------ Assembly ------------------------
+(evCheck) decl 0x8(%rbp); jns nofail; jmp *(%rbp); nofail:
+FF 4D 08 79 03 FF 65 00 
+movq 0x20(%rbp),%r10
+4C 8B 55 20 
+shrq $1,%r10
+49 C1 EA 01 
+movq %r10,0x40(%rbp)
+4C 89 55 40 
+movq %r10,0x20(%rbp)
+4C 89 55 20 
+movq 0x18(%rbp),%r9
+4C 8B 4D 18 
+addl $0x1,%r9d
+41 83 C1 01 
+movq %r9,0x18(%rbp)
+4C 89 4D 18 
+movq $0x8,0x90(%rbp)
+48 C7 85 90 00 00 00 08 00 00 00 
+movq %r10,0x98(%rbp)
+4C 89 95 98 00 00 00 
+movq $0x1,0xA0(%rbp)
+48 C7 85 A0 00 00 00 01 00 00 00 
+movq $0x0,0xA8(%rbp)
+48 C7 85 A8 00 00 00 00 00 00 00 
+movq $0x401770,0xB8(%rbp)
+48 C7 85 B8 00 00 00 70 17 40 00 
+cmpq $0x1,%r10
+49 83 FA 01 
+(xDirect) if (%rflags.z) { movabsq $0x401781,%r11; movq %r11,0xB8(%rbp); movabsq $disp_cp_chain_me_to_fastEP,%r11; call *%r11 }
+75 1B 49 C7 C3 81 17 40 00 4C 89 9D B8 00 00 00 49 BB FF 18 01 58 00 00 00 00 41 FF D3 
+(xDirect) if (%rflags.ALWAYS) { movabsq $0x401772,%r11; movq %r11,0xB8(%rbp); movabsq $disp_cp_chain_me_to_fastEP,%r11; call *%r11 }
+49 C7 C3 72 17 40 00 4C 89 9D B8 00 00 00 49 BB FF 18 01 58 00 00 00 00 41 FF D3 
+VexExpansionRatio 18 147   81 :10
+# final host code, --tool=lackey: 111 lines (vs 35 for none)
+# final host code, --tool=memcheck: 93 lines (vs 35 for none)

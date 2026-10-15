@@ -1,0 +1,12 @@
+# ns per labs() call (callloop prints total ns / N, timed inside the program)
+# median (min-max) of n runs; slowdown = median / bare median
+# commands: ./callloop N ; strace -o /dev/null ./callloop N ;
+#           LD_PRELOAD=./shim.so ./callloop N ; ltrace -o /dev/null ./callloop N ; ltrace -c -o /dev/null ./callloop N
+#           ltrace -e malloc -o /dev/null ./callloop N   (a filter that does not match labs)
+setup                                 N     runs  ns/call median (min-max)   slowdown
+bare                           10000000        7  1.97 (1.87-2.06)   1.0x
+strace -o /dev/null            10000000        7  1.98 (1.89-2.1)   1.0x
+LD_PRELOAD shim (dlsym)        10000000        7  2.18 (2.1-2.51)   1.1x
+ltrace -o /dev/null               20000        5  51964.4 (51525.7-52336.6)   26377.9x
+ltrace -c -o /dev/null            20000        5  47378.2 (46960.2-47768.4)   24049.8x
+ltrace -e malloc -o /dev/null   10000000        5  2.01 (1.91-2.12)   1.0x

@@ -1,0 +1,7 @@
+# nproc: 16
+$ /usr/bin/time ./threads   (4 threads, each a CPU-bound loop)   wall_s user_s sys_s
+0.12 0.49 0.00
+$ /usr/bin/time valgrind --tool=none ./threads                    wall_s user_s sys_s
+2.73 2.70 0.02
+$ /usr/bin/time valgrind --tool=none --fair-sched=yes ./threads   wall_s user_s sys_s
+2.96 2.91 0.02

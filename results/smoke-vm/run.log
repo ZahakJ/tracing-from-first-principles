@@ -1,0 +1,182 @@
++ uname -a
+Linux tracelab 7.1.8-arch1-3 #1 SMP PREEMPT_DYNAMIC Tue, 11 Aug 2026 09:16:08 +0000 x86_64 GNU/Linux
++ nproc
+4
++ free -m
++ head -2
+               total        used        free      shared  buff/cache   available
+Mem:             951         132         879           0          19         819
++ perf --version
+perf version 6.12.111
++ bpftrace --version
+bpftrace v0.23.2
++ ls /sys/bus/event_source/devices/
+breakpoint
+cpu
+kprobe
+msr
+software
+tracepoint
+uprobe
++ dmesg
++ grep -i -E perf|pmu|ibs|lbr
++ head -20
+[    0.102130] Performance Events: Fam17h+ core perfctr, AMD PMU driver.
++ grep -m1 -E ^flags /proc/cpuinfo
++ tr   \n
++ grep -E perfctr|ibs|lbr|arch_perfmon|pmu|brs
++ tr \n  
+perfctr_core ibrs ibrs_enhanced lbrv + echo
+
++ perf stat -e cycles,instructions,branches,branch-misses,cache-references,cache-misses,task-clock,context-switches,page-faults -- sh -c i=0; while [ $i -lt 200000 ]; do i=$((i+1)); done
+
+ Performance counter stats for 'sh -c i=0; while [ $i -lt 200000 ]; do i=$((i+1)); done':
+
+         618618773      cycles                           #    4.268 GHz                       
+        2263586643      instructions                     #    3.66  insn per cycle            
+         500367863      branches                         #    3.452 G/sec                     
+             57762      branch-misses                    #    0.01% of all branches           
+           1503645      cache-references                 #   10.374 M/sec                     
+                 0      cache-misses                                                          
+            144.94 msec task-clock                       #    0.997 CPUs utilized             
+                 0      context-switches                 #    0.000 /sec                      
+                64      page-faults                      #  441.570 /sec                      
+
+       0.145361452 seconds time elapsed
+
+       0.143927000 seconds user
+       0.001069000 seconds sys
+
+
++ perf list hw cache
++ head -40
+  branch-instructions OR branches                    [Hardware event]
+  branch-misses                                      [Hardware event]
+  cache-misses                                       [Hardware event]
+  cache-references                                   [Hardware event]
+  cpu-cycles OR cycles                               [Hardware event]
+  instructions                                       [Hardware event]
+  ref-cycles                                         [Hardware event]
+  stalled-cycles-frontend OR idle-cycles-frontend    [Hardware event]
+
+cache:
+  L1-dcache-loads OR cpu/L1-dcache-loads/
+  L1-dcache-load-misses OR cpu/L1-dcache-load-misses/
+  L1-dcache-prefetches OR cpu/L1-dcache-prefetches/
+  L1-icache-loads OR cpu/L1-icache-loads/
+  L1-icache-load-misses OR cpu/L1-icache-load-misses/
+  dTLB-loads OR cpu/dTLB-loads/
+  dTLB-load-misses OR cpu/dTLB-load-misses/
+  iTLB-loads OR cpu/iTLB-loads/
+  iTLB-load-misses OR cpu/iTLB-load-misses/
+  branch-loads OR cpu/branch-loads/
+  branch-load-misses OR cpu/branch-load-misses/
++ perf record -o /tmp/p.data -g -- sh -c i=0; while [ $i -lt 200000 ]; do i=$((i+1)); done
++ tail -3
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.044 MB /tmp/p.data (608 samples) ]
++ perf report -i /tmp/p.data --stdio
++ head -30
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 608  of event 'cycles:P'
+# Event count (approx.): 637817376
+#
+# Children      Self  Command  Shared Object         Symbol                             
+# ........  ........  .......  ....................  ...................................
+#
+    22.52%    22.52%  sh       libc.so.6             [.] __strcmp_evex
+            |          
+            |--5.97%--__strcmp_evex
+            |          
+            |--2.06%--0x6e6572617020676e
+            |          0x1
+            |          __strcmp_evex
+            |          
+            |--1.02%--0x2d00742d00732d00
+            |          0xe
+            |          __strcmp_evex
+            |          
+            |--0.85%--0x746e2d00746c2d
+            |          0x1001f
+            |          __strcmp_evex
+            |          
+            |--0.85%--0x2d0065672d00656e
+            |          0x10019
+            |          __strcmp_evex
++ bpftrace -e BEGIN { printf("bpf ok\n"); exit(); }
+Attaching 1 probe...
+bpf ok
+
+
++ bpftrace -e tracepoint:syscalls:sys_enter_openat { @[comm] = count(); } interval:s:1 { exit(); }
+Attaching 2 probes...
+
+
+
++ ls /sys/kernel/tracing
++ head -50
+README
+available_events
+available_filter_functions
+available_filter_functions_addrs
+available_tracers
+buffer_percent
+buffer_size_kb
+buffer_subbuf_size_kb
+buffer_total_size_kb
+current_tracer
+dyn_ftrace_total_info
+dynamic_events
+enabled_functions
+error_log
+events
+free_buffer
+function_profile_enabled
+hwlat_detector
+instances
+kprobe_events
+kprobe_profile
+max_graph_depth
+options
+osnoise
+per_cpu
+printk_formats
+saved_cmdlines
+saved_cmdlines_size
+saved_tgids
+set_event
+set_event_notrace_pid
+set_event_pid
+set_ftrace_filter
+set_ftrace_notrace
+set_ftrace_notrace_pid
+set_ftrace_pid
+set_graph_function
+set_graph_notrace
+show_event_filters
+show_event_triggers
+snapshot
+stack_max_size
+stack_trace
+stack_trace_filter
+synthetic_events
+syscall_user_buf_size
+timestamp_mode
+touched_functions
+trace
+trace_clock
++ cat /sys/kernel/tracing/available_tracers
+timerlat osnoise hwlat blk mmiotrace function_graph wakeup_dl wakeup_rt wakeup function nop
++ ls /sys/kernel/debug/kprobes/
+blacklist
+enabled
+list
++ ls -la /dev/vda /dev/vdb /dev/vdc /dev/vdd
+brw------- 1 root root 254,  0 Oct  6 14:29 /dev/vda
+brw------- 1 root root 254, 16 Oct  6 14:29 /dev/vdb
+brw------- 1 root root 254, 32 Oct  6 14:29 /dev/vdc
+brw------- 1 root root 254, 48 Oct  6 14:29 /dev/vdd

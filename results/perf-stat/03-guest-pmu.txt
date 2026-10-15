@@ -1,0 +1,49 @@
+$ sh -c dmesg | grep -i -E "Performance Events|PMU|perfctr|ibs|NMI watchdog"
+[    0.066190] Performance Events: Fam17h+ core perfctr, AMD PMU driver.
+
+$ ls /sys/bus/event_source/devices/ /sys/bus/event_source/devices/cpu/events /sys/bus/event_source/devices/cpu/format /sys/bus/event_source/devices/cpu/caps
+/sys/bus/event_source/devices/:
+breakpoint
+cpu
+kprobe
+msr
+software
+tracepoint
+uprobe
+
+/sys/bus/event_source/devices/cpu/caps:
+max_precise
+
+/sys/bus/event_source/devices/cpu/events:
+branch-instructions
+branch-misses
+cache-misses
+cache-references
+cpu-cycles
+instructions
+ref-cycles
+stalled-cycles-frontend
+
+/sys/bus/event_source/devices/cpu/format:
+cmask
+edge
+event
+inv
+umask
+
+$ cat /sys/bus/event_source/devices/cpu/rdpmc /sys/bus/event_source/devices/cpu/perf_event_mux_interval_ms /proc/sys/kernel/nmi_watchdog /proc/sys/kernel/perf_event_paranoid
+1
+1
+0
+-1
+
+$ sh -c grep -m1 '^flags' /proc/cpuinfo | tr ' ' '
+' | grep -E 'perfctr|perfmon|ibs|lbr|pmu|hypervisor' | tr '
+' ' '
+hypervisor perfctr_core perfmon_v2 lbrv 
+$ sh -c grep -m4 -E 'cpu family|model|stepping' /proc/cpuinfo
+cpu family	: 25
+model		: 97
+model name	: AMD Ryzen 7 7800X3D 8-Core Processor
+stepping	: 2
+

@@ -1,0 +1,54 @@
+$ perf probe -x ./app handle
+Added new event:
+  probe_app:handle     (on handle in /work/experiments/kprobes-uprobes/app)
+
+You can now use it in all perf tools, such as:
+
+	perf record -e probe_app:handle -aR sleep 1
+
+$ perf probe -x ./app 'handle id'  (app built with -g)
+Added new event:
+  probe_app:handle_id  (on handle in /work/experiments/kprobes-uprobes/app with id)
+
+You can now use it in all perf tools, such as:
+
+	perf record -e probe_app:handle_id -aR sleep 1
+
+$ perf probe -x ./app_nodbg 'handle id'  (no -g)
+The /work/experiments/kprobes-uprobes/app_nodbg file has no debug information.
+Rebuild with -g, or install an appropriate debuginfo package.
+  Error: Failed to add events.
+$ cat uprobe_events
+p:probe_app/handle /work/experiments/kprobes-uprobes/app:0x00000000000012f0
+p:probe_app/handle_id /work/experiments/kprobes-uprobes/app:0x00000000000012f0 id=%di:s32
+$ perf stat -e probe_app:handle ./app bench 100000
+2792.0
+            100000      probe_app:handle                                                      
+$ perf probe -d "probe_app:*"
+Removed event: probe_app:handle
+Removed event: probe_app:handle_id
+$ cat uprobe_events
+
+$ perf probe do_sys_openat2
+Added new event:
+  probe:do_sys_openat2 (on do_sys_openat2)
+
+You can now use it in all perf tools, such as:
+
+	perf record -e probe:do_sys_openat2 -aR sleep 1
+
+$ perf probe 'do_sys_openat2 filename:string'
+Failed to find the path for the kernel: Invalid ELF file
+  Error: Failed to add events.
+$ cat kprobe_events
+p:probe/do_sys_openat2 _text+8072688
+$ perf record -e probe:do_sys_openat2 -a -o p.data -- cat /etc/hostname
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.037 MB p.data (4 samples) ]
+$ perf script -i p.data | head
+            perf     654 [003]    91.856035: probe:do_sys_openat2: (ffffffffbb3b2df0)
+             cat     656 [001]    91.856557: probe:do_sys_openat2: (ffffffffbb3b2df0)
+             cat     656 [001]    91.856566: probe:do_sys_openat2: (ffffffffbb3b2df0)
+             cat     656 [001]    91.856703: probe:do_sys_openat2: (ffffffffbb3b2df0)
+$ perf probe -d "probe:*"
+Removed event: probe:do_sys_openat2

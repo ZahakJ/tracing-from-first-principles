@@ -1,0 +1,24 @@
+$ gcc -g -O0 -fsanitize=address -o leaky-asan leaky.c && ./leaky-asan
+
+=================================================================
+==1236==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 25600 byte(s) in 100 object(s) allocated from:
+    #0 0x7f8a189acc57 in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:69
+    #1 0x5599706a244d in handle src/leaky.c:43
+    #2 0x5599706a279c in main src/leaky.c:67
+    #3 0x7f8a186edca7 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+
+Direct leak of 478 byte(s) in 40 object(s) allocated from:
+    #0 0x7f8a189acc57 in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:69
+    #1 0x5599706a22c0 in xmalloc src/leaky.c:23
+    #2 0x5599706a22ff in xstrdup src/leaky.c:32
+    #3 0x5599706a2410 in handle src/leaky.c:42
+    #4 0x5599706a279c in main src/leaky.c:67
+    #5 0x7f8a186edca7 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+
+SUMMARY: AddressSanitizer: 26078 byte(s) leaked in 140 allocation(s).
+exit status: 1
+
+$ ./leaky-asan 2>&1 | grep SUMMARY
+SUMMARY: AddressSanitizer: 26078 byte(s) leaked in 140 allocation(s).

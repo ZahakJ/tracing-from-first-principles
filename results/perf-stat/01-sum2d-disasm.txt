@@ -1,0 +1,33 @@
+00000000000011a0 <sum_rows>:
+    11a0:	lea    0x8000(%rdi),%rsi
+    11a7:	add    $0x10008000,%rdi
+    11ae:	mov    $0x0,%edx
+    11b3:	lea    -0x8000(%rsi),%rax
+    11ba:	nopw   0x0(%rax,%rax,1)
+    11c0:	movslq (%rax),%rcx
+    11c3:	add    %rcx,%rdx
+    11c6:	add    $0x4,%rax
+    11ca:	cmp    %rsi,%rax
+    11cd:	jne    11c0 <sum_rows+0x20>
+    11cf:	add    $0x8000,%rsi
+    11d6:	cmp    %rdi,%rsi
+    11d9:	jne    11b3 <sum_rows+0x13>
+    11db:	mov    %rdx,%rax
+    11de:	ret
+00000000000011df <sum_cols>:
+    11df:	lea    0x10000000(%rdi),%rsi
+    11e6:	mov    $0x0,%edi
+    11eb:	mov    $0x0,%edx
+    11f0:	lea    -0x10000000(%rsi),%rax
+    11f7:	nopw   0x0(%rax,%rax,1)
+    1200:	movslq (%rax),%rcx
+    1203:	add    %rcx,%rdx
+    1206:	add    $0x8000,%rax
+    120c:	cmp    %rsi,%rax
+    120f:	jne    1200 <sum_cols+0x21>
+    1211:	add    $0x1,%rdi
+    1215:	add    $0x4,%rsi
+    1219:	cmp    $0x2000,%rdi
+    1220:	jne    11f0 <sum_cols+0x11>
+    1222:	mov    %rdx,%rax
+    1225:	ret

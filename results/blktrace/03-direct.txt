@@ -1,0 +1,28 @@
+$ /tmp/bt/writer direct /dev/vdd
+write() took 115.1 us
+
+--- blkparse (trace events):
+254,48   1        1     0.000000000   443  Q  WS 0 + 8 [writer]
+254,48   1        2     0.000003176   443  G  WS 0 + 8 [writer]
+254,48   1        3     0.000004078   443  P   N [writer]
+254,48   1        4     0.000004579   443  U   N [writer] 1
+254,48   1        5     0.000006212   443  D  WS 0 + 8 [writer]
+254,48   1        6     0.000100529     0  C  WS 0 + 8 [0]
+
+--- blkparse summary:
+CPU1 (direct):
+ Reads Queued:           0,        0KiB	 Writes Queued:           1,        4KiB
+ Read Dispatches:        0,        0KiB	 Write Dispatches:        1,        4KiB
+ Reads Requeued:         0		 Writes Requeued:         0
+ Reads Completed:        0,        0KiB	 Writes Completed:        1,        4KiB
+ Read Merges:            0,        0KiB	 Write Merges:            0,        0KiB
+ Read depth:             0        	 Write depth:             1
+ IO unplugs:             1        	 Timer unplugs:           0
+
+Throughput (R/W): 0KiB/s / 0KiB/s
+Events (direct): 6 entries
+Skips: 0 forward (0 -   0.0%)
+Trace started at Tue Oct  6 16:02:08 2026
+
+Input file /tmp/bt/bt/direct.blktrace.1 added
+Input file /tmp/bt/bt/direct.blktrace.3 added

@@ -1,0 +1,37 @@
+ns per getppid() from ./sysloop N (it times its own loop); 5 runs each
+added = median - bare median; factor = median / bare median
+
+bare                                         N=2000000      120.7 (120.6-121.5)  added       0.0  x1.0
+tracefs raw_syscalls:sys_enter+sys_exit on   N=2000000      370.0 (369.4-373.2)  added     249.3  x3.1
+tracefs syscalls:sys_enter_getppid only      N=2000000      258.2 (257.9-259.2)  added     137.5  x2.1
+tracefs sys_enter_openat on (not getppid)    N=2000000      131.0 (130.7-131.4)  added      10.3  x1.1
+perf stat -e raw_syscalls:sys_enter          N=2000000      171.3 (170.9-172.6)  added      50.6  x1.4
+perf record -e raw_syscalls:sys_enter        N=2000000      493.0 (472.4-536)  added     372.3  x4.1
+perf trace -o /dev/null                      N=200000      7885.7 (7837.1-7959.4)  added    7765.0  x65.3
+perf trace -s -o /dev/null                   N=200000      8219.0 (8194-8361.7)  added    8098.3  x68.1
+strace -o /dev/null                          N=20000      16132.1 (15977.9-16269)  added   16011.4  x133.7
+strace -c -o /dev/null                       N=20000      15597.5 (15582.1-15664.5)  added   15476.8  x129.2
+
+$ perf record -e raw_syscalls:sys_enter -o x ./sysloop 2000000
+496.2
+[ perf record: Woken up 911 times to write data ]
+[ perf record: Captured and wrote 232.528 MB /tmp/tp/x (2000100 samples) ]
+$ ls -l x
+243837389 bytes
+$ perf report -i x --stats | grep -i -e 'sample' -e lost
+              SAMPLE events:    2000100  (80.8%)
+              SAMPLE events:    2000100
+$ perf stat -e context-switches -- perf trace -o /dev/null ./sysloop 200000    # switches of perf trace AND sysloop together
+            202358      context-switches                                                      
+       1.764658113 seconds time elapsed
+$ perf stat -e context-switches -- strace -o /dev/null ./sysloop 20000
+             80092      context-switches                                                      
+       0.357632431 seconds time elapsed
+$ perf trace -v -o /dev/null ./sysloop 1000 2>&1 | grep -i -e bpf -e augment | head -5
+$ perf stat -e raw_syscalls:sys_enter ./sysloop 2000000
+169.6
+ Performance counter stats for './sysloop 2000000':
+           2000034      raw_syscalls:sys_enter                                                
+       0.339862764 seconds time elapsed
+       0.069886000 seconds user
+       0.269566000 seconds sys

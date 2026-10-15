@@ -1,0 +1,8 @@
+$ uftrace record -t 1ms ./paths-pg && uftrace report
+(wall 1181 ms; uftrace.data 371110 bytes)
+  Total time   Self time       Calls  Function
+  ==========  ==========  ==========  ====================
+    1.125  s    0.331 us           1  main
+    1.112  s   17.588 us           1  slow_path
+    1.112  s    1.112  s         100  spin
+   12.611 ms   12.611 ms           1  fast_path

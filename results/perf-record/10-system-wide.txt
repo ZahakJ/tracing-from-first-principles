@@ -1,0 +1,31 @@
+$ perf record -a -g -o sys.data -- sleep 1
+[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 0.051 MB sys.data (97 samples) ]
+
+$ perf report --stdio --sort comm,dso -i sys.data 2>/dev/null | head -25
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 97  of event 'cycles:P'
+# Event count (approx.): 7242358
+#
+# Children      Self  Command          Shared Object       
+# ........  ........  ...............  ....................
+#
+    50.53%    50.53%  swapper          [kernel.kallsyms]   
+            |
+            ---common_startup_64
+               |          
+               |--45.11%--start_secondary
+               |          cpu_startup_entry
+               |          |          
+               |          |--37.04%--do_idle
+               |          |          |          
+               |          |          |--30.85%--default_idle_call
+               |          |          |          default_idle
+               |          |          |          pv_native_safe_halt
+               |          |          |          |          
+               |          |          |          |--19.68%--asm_sysvec_apic_timer_interrupt
+

@@ -1,0 +1,21 @@
+  branch-instructions OR branches                    [Hardware event]
+  branch-misses                                      [Hardware event]
+  cache-misses                                       [Hardware event]
+  cache-references                                   [Hardware event]
+  cpu-cycles OR cycles                               [Hardware event]
+  instructions                                       [Hardware event]
+  ref-cycles                                         [Hardware event]
+  stalled-cycles-frontend OR idle-cycles-frontend    [Hardware event]
+
+cache:
+  L1-dcache-loads OR cpu/L1-dcache-loads/
+  L1-dcache-load-misses OR cpu/L1-dcache-load-misses/
+  L1-dcache-prefetches OR cpu/L1-dcache-prefetches/
+  L1-icache-loads OR cpu/L1-icache-loads/
+  L1-icache-load-misses OR cpu/L1-icache-load-misses/
+  dTLB-loads OR cpu/dTLB-loads/
+  dTLB-load-misses OR cpu/dTLB-load-misses/
+  iTLB-loads OR cpu/iTLB-loads/
+  iTLB-load-misses OR cpu/iTLB-load-misses/
+  branch-loads OR cpu/branch-loads/
+  branch-load-misses OR cpu/branch-load-misses/

@@ -1,0 +1,21 @@
+$ uftrace replay | head -20
+# DURATION     TID      FUNCTION
+            [    229] | main() {
+            [    229] |   fast_path() {
+   1.202 us [    229] |     spin();
+   1.152 us [    229] |     spin();
+   1.192 us [    229] |     spin();
+   1.162 us [    229] |     spin();
+   1.162 us [    229] |     spin();
+   1.152 us [    229] |     spin();
+   1.162 us [    229] |     spin();
+   1.162 us [    229] |     spin();
+   1.162 us [    229] |     spin();
+   1.152 us [    229] |     spin();
+   1.152 us [    229] |     spin();
+   1.162 us [    229] |     spin();
+   1.162 us [    229] |     spin();
+   1.162 us [    229] |     spin();
+   1.162 us [    229] |     spin();
+   1.152 us [    229] |     spin();
+   1.162 us [    229] |     spin();

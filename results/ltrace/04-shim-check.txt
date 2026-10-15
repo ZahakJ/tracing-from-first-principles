@@ -1,0 +1,2 @@
+n=1000 sum=499500 total=4950 ns
+shim: labs called 1000 times

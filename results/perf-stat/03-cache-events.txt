@@ -1,0 +1,149 @@
+$ perf list --details: how perf lists the names tried below (event or metric?)
+114:  l2_cache_req_stat.dc_access_in_l2
+341:  ls_dmnd_fills_from_sys.dram_io_near
+2996:  l2_cache_misses_from_l1_dc_miss
+3006:  l3_misses
+3056:  l2_dtlb_misses
+the [section] headers before them:
+22:tool:
+27:cache:
+49:cache:
+52:branch:
+98:cache:
+437:core:
+489:floating point:
+786:memory:
+868:other:
+930:recommended:
+2844:Metric Groups:
+2846:PipelineL1:
+2861:PipelineL2:
+2885:backend_bound_group:
+2893:bad_speculation_group:
+2900:branch_prediction:
+2904:data_fabric:
+2932:decoder:
+2936:frontend_bound_group:
+2945:ic_fetch_miss_ratio:
+
+$ perf stat -e cache-references,cache-misses ./sum2d rows
+34225520640
+
+ Performance counter stats for './sum2d rows':
+
+          64012707      cache-references                                                      
+            257458      cache-misses                     #    0.40% of all cache refs         
+
+       0.097900560 seconds time elapsed
+
+       0.087562000 seconds user
+       0.010052000 seconds sys
+
+
+
+$ perf stat -e cache-references,cache-misses ./sum2d cols
+34225520640
+
+ Performance counter stats for './sum2d cols':
+
+        1024839403      cache-references                                                      
+         196991713      cache-misses                     #   19.22% of all cache refs         
+
+       1.853755384 seconds time elapsed
+
+       1.840670000 seconds user
+       0.009974000 seconds sys
+
+
+
+$ perf stat -e l2_cache_req_stat.dc_access_in_l2,l2_cache_req_stat.dc_hit_in_l2,l2_cache_req_stat.ls_rd_blk_c ./sum2d cols
+34225520640
+
+ Performance counter stats for './sum2d cols':
+
+         444571302      l2_cache_req_stat.dc_access_in_l2                                      
+         234620383      l2_cache_req_stat.dc_hit_in_l2                                        
+         209950919      l2_cache_req_stat.ls_rd_blk_c                                         
+
+       1.977492330 seconds time elapsed
+
+       1.960973000 seconds user
+       0.012943000 seconds sys
+
+
+
+$ perf stat -M l2_cache_misses_from_l1_dc_miss ./sum2d cols
+34225520640
+
+ Performance counter stats for './sum2d cols':
+
+         198053817      l2_cache_req_stat.ls_rd_blk_c    # 198053817.00 l2_cache_misses_from_l1_dc_miss
+
+       1.877973073 seconds time elapsed
+
+       1.864704000 seconds user
+       0.009970000 seconds sys
+
+
+
+$ perf stat -e ls_dmnd_fills_from_sys.local_l2,ls_dmnd_fills_from_sys.local_ccx,ls_dmnd_fills_from_sys.dram_io_near,ls_any_fills_from_sys.dram_io_all ./sum2d cols
+34225520640
+
+ Performance counter stats for './sum2d cols':
+
+         153292165      ls_dmnd_fills_from_sys.local_l2                                       
+         217234316      ls_dmnd_fills_from_sys.local_ccx                                      
+           1855347      ls_dmnd_fills_from_sys.dram_io_near                                      
+           2272111      ls_any_fills_from_sys.dram_io_all                                      
+
+       1.960314964 seconds time elapsed
+
+       1.947832000 seconds user
+       0.008954000 seconds sys
+
+
+
+$ perf stat -e l3_misses ./sum2d cols
+event syntax error: 'l3_misses'
+                     \___ Bad event name
+
+Unable to find event on a PMU of 'l3_misses'
+Run 'perf list' for a list of valid events
+
+ Usage: perf stat [<options>] [<command>]
+
+    -e, --event <event>   event selector. use 'perf list' to list available events
+
+$ perf stat -M l3_misses ./sum2d cols
+event syntax error: '{l3_lookup_state.l3_miss/metric-id=l3_lookup_state.l3_mi..'
+                      \___ Bad event or PMU
+
+Unable to find PMU or event on a PMU of 'l3_lookup_state.l3_miss'
+
+$ perf stat -e ls_l1_d_tlb_miss.all,ls_l1_d_tlb_miss.tlb_reload_4k_l2_miss,ls_l1_d_tlb_miss.tlb_reload_2m_l2_miss ./sum2d cols
+34225520640
+
+ Performance counter stats for './sum2d cols':
+
+          39867961      ls_l1_d_tlb_miss.all                                                  
+          34615216      ls_l1_d_tlb_miss.tlb_reload_4k_l2_miss                                      
+            477739      ls_l1_d_tlb_miss.tlb_reload_2m_l2_miss                                      
+
+       1.850063289 seconds time elapsed
+
+       1.833787000 seconds user
+       0.012966000 seconds sys
+
+
+
+$ perf stat -e amd_l3/event=0x04,umask=0xff/ ./sum2d cols
+event syntax error: 'amd_l3/event=0x04,umask=0xff/'
+                     \___ Bad event or PMU
+
+Unable to find PMU or event on a PMU of 'amd_l3'
+Run 'perf list' for a list of valid events
+
+ Usage: perf stat [<options>] [<command>]
+
+    -e, --event <event>   event selector. use 'perf list' to list available events
+

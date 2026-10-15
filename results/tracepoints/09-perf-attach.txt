@@ -1,0 +1,24 @@
+$ strace -f -e trace=perf_event_open -o st.txt perf stat -e sched:sched_switch true
+ Performance counter stats for 'true':
+                61      sched:sched_switch                                                    
+       0.001414533 seconds time elapsed
+       0.001005000 seconds user
+       0.000000000 seconds sys
+$ grep PERF_TYPE_TRACEPOINT st.txt | head -3   # 1 perf_event_open calls in all
+673   perf_event_open({type=PERF_TYPE_TRACEPOINT, size=0x88 /* PERF_ATTR_SIZE_??? */, config=310, sample_period=0, sample_type=PERF_SAMPLE_IDENTIFIER, read_format=PERF_FORMAT_TOTAL_TIME_ENABLED|PERF_FORMAT_TOTAL_TIME_RUNNING, disabled=1, inherit=1, enable_on_exec=1, precise_ip=0 /* arbitrary skid */, exclude_guest=1, ...}, 674, -1, -1, PERF_FLAG_FD_CLOEXEC) = 3
+$ # what perf trace and perf record ask for: wake the reader after how many events?
+$ strace -f -e trace=perf_event_open -o st2.txt perf trace -o /dev/null true; grep -o -e 'wakeup_events=[0-9]*' -e 'wakeup_watermark=[0-9]*' -e 'watermark=[0-9]' -e 'type=[A-Z_]*' st2.txt | sort | uniq -c
+      3 type=
+      8 type=PERF_SAMPLE_IP
+      2 type=PERF_TYPE_HARDWARE
+      1 type=PERF_TYPE_SOFTWARE
+      8 type=PERF_TYPE_TRACEPOINT
+$ strace -f -e trace=perf_event_open -o st2.txt perf record -e raw_syscalls:sys_enter -o /tmp/tp/y true; grep -o -e 'wakeup_events=[0-9]*' -e 'wakeup_watermark=[0-9]*' -e 'watermark=[0-9]' -e 'type=[A-Z_]*' st2.txt | sort | uniq -c
+      7 type=
+      4 type=PERF_SAMPLE_IP
+      2 type=PERF_TYPE_HARDWARE
+      5 type=PERF_TYPE_SOFTWARE
+      4 type=PERF_TYPE_TRACEPOINT
+      4 watermark=1
+$ cat /sys/kernel/tracing/events/sched/sched_switch/id
+310

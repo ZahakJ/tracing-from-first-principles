@@ -1,0 +1,24 @@
+$ mtrace ./leaky /tmp/m.log
+
+Memory not freed:
+-----------------
+           Address     Size     Caller
+0x0000562f2c2a14a0      0xb  at /tmp/experiments/mtrace/src/leaky.c:23
+0x0000562f2c2a14c0    0x100  at /tmp/experiments/mtrace/src/leaky.c:43
+0x0000562f2c2a15d0    0x100  at /tmp/experiments/mtrace/src/leaky.c:43
+0x0000562f2c2a16e0    0x100  at /tmp/experiments/mtrace/src/leaky.c:43
+0x0000562f2c2a17f0      0xb  at /tmp/experiments/mtrace/src/leaky.c:23
+0x0000562f2c2a1810    0x100  at /tmp/experiments/mtrace/src/leaky.c:43
+0x0000562f2c2a1920    0x100  at /tmp/experiments/mtrace/src/leaky.c:43
+0x0000562f2c2a1a30      0xb  at /tmp/experiments/mtrace/src/leaky.c:23
+[... 132 more lines]
+
+$ mtrace ./leaky /tmp/m.log | awk "/ at /{print \$NF}" | sort | uniq -c
+     40 /tmp/experiments/mtrace/src/leaky.c:23
+    100 /tmp/experiments/mtrace/src/leaky.c:43
+
+$ ... and the sizes: awk "/ at /{print \$2, \$NF}" | sort | uniq -c
+    100 0x100 /tmp/experiments/mtrace/src/leaky.c:43
+      3 0xb /tmp/experiments/mtrace/src/leaky.c:23
+     36 0xc /tmp/experiments/mtrace/src/leaky.c:23
+      1 0xd /tmp/experiments/mtrace/src/leaky.c:23

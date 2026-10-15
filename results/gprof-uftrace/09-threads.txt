@@ -1,0 +1,19 @@
+$ ./threads-pg && gprof -b -p ./threads-pg gmon.out
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 56.09      0.28     0.28                             thread_work
+ 44.07      0.50     0.22        1   220.37   220.37  main_work
+
+$ uftrace record ./threads-pg && uftrace report
+  Total time   Self time       Calls  Function
+  ==========  ==========  ==========  ====================
+  239.534 ms    0.992 us           1  main
+  239.398 ms  239.398 ms           1  thread_work
+  237.445 ms  237.445 ms           1  main_work
+    2.055 ms    2.055 ms           1  pthread_join
+   32.651 us   32.651 us           1  pthread_create
+    0.551 us    0.551 us           1  __monstartup
+    0.330 us    0.330 us           1  __cxa_atexit

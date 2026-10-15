@@ -1,0 +1,9 @@
+$ ltrace -c -e malloc+free ./leaky
+handled 1000 requests, 120 errors
+% time     seconds  usecs/call     calls      function
+------ ----------- ----------- --------- --------------------
+ 51.26    0.105899          35      3000 malloc
+ 48.70    0.100600          35      2860 free
+  0.04    0.000075          75         1 exit_group
+------ ----------- ----------- --------- --------------------
+100.00    0.206574                  5861 total

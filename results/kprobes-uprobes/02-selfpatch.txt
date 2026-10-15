@@ -1,0 +1,110 @@
+# FUNC=__do_sys_getppid
+$ grep -c . /sys/kernel/tracing/available_filter_functions; grep getppid there and in /sys/kernel/debug/kprobes/blacklist
+55412
+__do_sys_getppid
+(getppid not in blacklist)
+ffffffffbaf8c630 t __pfx___do_sys_getppid
+ffffffffbaf8c630 T __pfx___ia32_sys_getppid
+ffffffffbaf8c630 T __pfx___x64_sys_getppid
+ffffffffbaf8c640 t __do_sys_getppid
+ffffffffbaf8c640 T __ia32_sys_getppid
+ffffffffbaf8c640 T __x64_sys_getppid
+ffffffffbd44ee00 t event_exit__getppid
+ffffffffbd44ee80 t event_enter__getppid
+ffffffffbd44ef00 t __syscall_meta__getppid
+ffffffffbdebbe28 d __event_exit__getppid
+ffffffffbdebbe30 d __event_enter__getppid
+ffffffffbdec1530 d __p_syscall_meta__getppid
+ffffffffbdec35c0 d _eil_addr___ia32_sys_getppid
+ffffffffbdec35d0 d _eil_addr___x64_sys_getppid
+
+--- (a) untouched
+__do_sys_getppid = 0xffffffffbaf8c640:  f3 0f 1e fa 0f 1f 44 00 00 53 e8 b1 6e 0c 00 65 48 8b 05 c1 b9 13 03 31 d2 be 01 00 00 00 48 8b
+ffffffffbaf8c640:	f3 0f 1e fa          	endbr64
+ffffffffbaf8c644:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ffffffffbaf8c649:	53                   	push   %rbx
+ffffffffbaf8c64a:	e8 b1 6e 0c 00       	call   0xffffffffbb053500
+ffffffffbaf8c64f:	65 48 8b 05 c1 b9 13 	mov    %gs:0x313b9c1(%rip),%rax        # 0xffffffffbe0c8018
+ffffffffbaf8c656:	03 
+ffffffffbaf8c657:	31 d2                	xor    %edx,%edx
+ffffffffbaf8c659:	be 01 00 00 00       	mov    $0x1,%esi
+ffffffffbaf8c65e:	48                   	rex.W
+ffffffffbaf8c65f:	8b                   	.byte 0x8b
+$ cat /sys/kernel/debug/kprobes/list
+
+$ echo 'p:tl_entry __do_sys_getppid' >> /sys/kernel/tracing/kprobe_events; echo 1 > /sys/kernel/tracing/events/kprobes/tl_entry/enable
+--- (b) kprobe at function entry
+__do_sys_getppid = 0xffffffffbaf8c640:  f3 0f 1e fa e8 b7 39 47 05 53 e8 b1 6e 0c 00 65 48 8b 05 c1 b9 13 03 31 d2 be 01 00 00 00 48 8b
+ffffffffbaf8c640:	f3 0f 1e fa          	endbr64
+ffffffffbaf8c644:	e8 b7 39 47 05       	call   0xffffffffc0400000
+ffffffffbaf8c649:	53                   	push   %rbx
+ffffffffbaf8c64a:	e8 b1 6e 0c 00       	call   0xffffffffbb053500
+ffffffffbaf8c64f:	65 48 8b 05 c1 b9 13 	mov    %gs:0x313b9c1(%rip),%rax        # 0xffffffffbe0c8018
+ffffffffbaf8c656:	03 
+ffffffffbaf8c657:	31 d2                	xor    %edx,%edx
+ffffffffbaf8c659:	be 01 00 00 00       	mov    $0x1,%esi
+ffffffffbaf8c65e:	48                   	rex.W
+ffffffffbaf8c65f:	8b                   	.byte 0x8b
+$ cat /sys/kernel/debug/kprobes/list
+ffffffffbaf8c644  k  __do_sys_getppid+0x4    [FTRACE]
+
+candidate offsets (instruction boundaries 9..47): 9 10 15 22 23 25 30 37 42 44
+$ echo 'p:tl_bad __do_sys_getppid+1' >> kprobe_events   (middle of an instruction)
+./run.sh: 58: echo: echo: I/O error
+  -> write failed, as expected
+[    1.069251] trace_kprobe: error: Probe point is not an instruction boundary
+  Command: p:tl_bad __do_sys_getppid+1
+                    ^
+
+# search with debug.kprobes-optimization=1 (see 09: writing 0 while a probe is optimized hangs)
++9: not optimized: ffffffffbaf8c649  k  __do_sys_getppid+0x9    
++10: not optimized: ffffffffbaf8c64a  k  __do_sys_getppid+0xa    
++15: optimized
+# chosen OFF=15
+
+$ sysctl debug.kprobes-optimization=0   (no probes registered at this moment)
+$ echo 'p:tl_off __do_sys_getppid+15' >> /sys/kernel/tracing/kprobe_events; echo 1 > .../tl_off/enable
+--- (c) kprobe at +15, optimization off
+__do_sys_getppid = 0xffffffffbaf8c640:  f3 0f 1e fa 0f 1f 44 00 00 53 e8 b1 6e 0c 00 cc 48 8b 05 c1 b9 13 03 31 d2 be 01 00 00 00 48 8b
+ffffffffbaf8c640:	f3 0f 1e fa          	endbr64
+ffffffffbaf8c644:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ffffffffbaf8c649:	53                   	push   %rbx
+ffffffffbaf8c64a:	e8 b1 6e 0c 00       	call   0xffffffffbb053500
+ffffffffbaf8c64f:	cc                   	int3
+ffffffffbaf8c650:	48 8b 05 c1 b9 13 03 	mov    0x313b9c1(%rip),%rax        # 0xffffffffbe0c8018
+ffffffffbaf8c657:	31 d2                	xor    %edx,%edx
+ffffffffbaf8c659:	be 01 00 00 00       	mov    $0x1,%esi
+ffffffffbaf8c65e:	48                   	rex.W
+ffffffffbaf8c65f:	8b                   	.byte 0x8b
+$ cat /sys/kernel/debug/kprobes/list
+ffffffffbaf8c64f  k  __do_sys_getppid+0xf    
+
+$ sysctl debug.kprobes-optimization=1; sleep 1
+--- (d) the same, optimization on
+__do_sys_getppid = 0xffffffffbaf8c640:  f3 0f 1e fa 0f 1f 44 00 00 53 e8 b1 6e 0c 00 e9 28 5a 47 05 b9 13 03 31 d2 be 01 00 00 00 48 8b
+ffffffffbaf8c640:	f3 0f 1e fa          	endbr64
+ffffffffbaf8c644:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ffffffffbaf8c649:	53                   	push   %rbx
+ffffffffbaf8c64a:	e8 b1 6e 0c 00       	call   0xffffffffbb053500
+ffffffffbaf8c64f:	e9 28 5a 47 05       	jmp    0xffffffffc040207c
+ffffffffbaf8c654:	b9 13 03 31 d2       	mov    $0xd2310313,%ecx
+ffffffffbaf8c659:	be 01 00 00 00       	mov    $0x1,%esi
+ffffffffbaf8c65e:	48                   	rex.W
+ffffffffbaf8c65f:	8b                   	.byte 0x8b
+$ cat /sys/kernel/debug/kprobes/list
+ffffffffbaf8c64f  k  __do_sys_getppid+0xf    [OPTIMIZED]
+
+--- (e) removed (debug.kprobes-optimization still 1)
+__do_sys_getppid = 0xffffffffbaf8c640:  f3 0f 1e fa 0f 1f 44 00 00 53 e8 b1 6e 0c 00 65 48 8b 05 c1 b9 13 03 31 d2 be 01 00 00 00 48 8b
+ffffffffbaf8c640:	f3 0f 1e fa          	endbr64
+ffffffffbaf8c644:	0f 1f 44 00 00       	nopl   0x0(%rax,%rax,1)
+ffffffffbaf8c649:	53                   	push   %rbx
+ffffffffbaf8c64a:	e8 b1 6e 0c 00       	call   0xffffffffbb053500
+ffffffffbaf8c64f:	65 48 8b 05 c1 b9 13 	mov    %gs:0x313b9c1(%rip),%rax        # 0xffffffffbe0c8018
+ffffffffbaf8c656:	03 
+ffffffffbaf8c657:	31 d2                	xor    %edx,%edx
+ffffffffbaf8c659:	be 01 00 00 00       	mov    $0x1,%esi
+ffffffffbaf8c65e:	48                   	rex.W
+ffffffffbaf8c65f:	8b                   	.byte 0x8b
+$ cat /sys/kernel/debug/kprobes/list
+

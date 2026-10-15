@@ -1,0 +1,22 @@
+$ bpftrace -e 'profile:hz:999 /pid == cpid/ { @[usym(reg("ip"))] = count(); }' -c ./hot
+Attaching 1 probe...
+2069999998500000000
+
+
+@[0x40121b]: 3
+@[0x4011ca]: 8
+@[0x40120a]: 9
+@[0x40119b]: 17
+@[0x401215]: 20
+@[0x4011db]: 21
+@[0x4011d5]: 27
+@[0x40118a]: 32
+@[0x401207]: 42
+@[0x401195]: 50
+@[0x4011c7]: 164
+@[0x401187]: 320
+
+$ (each address through addr2line -f -e hot, samples summed by function)
+big        419  58.8%
+medium     220  30.9%
+small       74  10.4%

@@ -1,0 +1,19 @@
+# sysloop N: N getppid() syscalls, prints ns/call (CLOCK_MONOTONIC around the loop).
+# 5 runs each. columns: config | N | ns/syscall median (min-max) | slowdown vs bare
+bare                                               | 2000000 |    264.9 (264.3-285.9) | x1.0
+strace -o /dev/null                                |  100000 |  13217.1 (13030.1-13290.2) | x49.9
+strace -c -o /dev/null                             |  100000 |  12550.3 (12293.2-12631.9) | x47.4
+strace -o /dev/null -e trace=openat                |  100000 |  11413.8 (11289.1-11503.6) | x43.1
+strace -o /dev/null --seccomp-bpf -e trace=openat  |  100000 |  11486.7 (11409.9-11571.6) | x43.4
+strace -f -o /dev/null --seccomp-bpf -e trace=openat | 2000000 |    261.0 (259.9-262.2) | x1.0
+strace -f -o /dev/null -e trace=openat (no bpf)    |  100000 |  11525.8 (11430.2-11717.2) | x43.5
+./minitrace -q                                     |  100000 |  11392.3 (11349.1-11562.2) | x43.0
+# slowdown = median / bare median (264.9 ns)
+# extra cost per traced syscall = traced median - bare median
+
+# what strace says on stderr for the --seccomp-bpf rows (hidden above):
+$ strace -o /dev/null --seccomp-bpf -e trace=openat ./sysloop 1000
+strace: --seccomp-bpf cannot be used without -f/--follow-forks, disabling
+10816.1
+$ strace -f -o /dev/null --seccomp-bpf -e trace=openat ./sysloop 1000
+330.3

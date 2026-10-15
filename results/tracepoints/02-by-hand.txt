@@ -1,0 +1,63 @@
+# in /sys/kernel/tracing
+# 99999 is no process: until the sh below puts its own pid there, nothing is recorded
+$ echo 99999 > set_event_pid
+$ echo 1 > events/syscalls/sys_enter_openat/enable
+$ echo 1 > events/syscalls/sys_exit_openat/enable
+$ echo > trace
+$ sh -c 'echo $$ > set_event_pid; exec cat /etc/hostname'
+$ echo 0 > events/syscalls/sys_enter_openat/enable
+$ echo 0 > events/syscalls/sys_exit_openat/enable
+$ cat trace
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 7/7   #P:4
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+             cat-185     [003] .....     0.643963: sys_openat -> 0x3
+             cat-185     [003] .....     0.644518: sys_openat(dfd: 4294967196, filename: 140144918221490 "/etc/ld.so.cache", flags: O_RDONLY|O_CLOEXEC)
+             cat-185     [003] .....     0.644521: sys_openat -> 0x3
+             cat-185     [003] .....     0.644529: sys_openat(dfd: 4294967196, filename: 140144918005776 "/lib/x86_64-linux-gnu/libc.so.6", flags: O_RDONLY|O_CLOEXEC)
+             cat-185     [003] .....     0.644531: sys_openat -> 0x3
+             cat-185     [003] .....     0.644692: sys_openat(dfd: 18446744073709551516, filename: 140733258260309 "/etc/hostname", flags: O_RDONLY)
+             cat-185     [003] .....     0.644709: sys_openat -> 0x3
+$ echo > set_event_pid
+
+# in /sys/kernel/tracing
+# 99999 is no process: until the sh below puts its own pid there, nothing is recorded
+$ echo 99999 > set_event_pid
+$ echo 1 > events/syscalls/sys_enter_openat/enable
+$ echo 1 > events/syscalls/sys_exit_openat/enable
+$ echo > trace
+$ sh -c 'echo $$ > set_event_pid; exec cat /etc/no-such-file'
+cat: /etc/no-such-file: No such file or directory
+$ echo 0 > events/syscalls/sys_enter_openat/enable
+$ echo 0 > events/syscalls/sys_exit_openat/enable
+$ cat trace
+# tracer: nop
+#
+# entries-in-buffer/entries-written: 7/7   #P:4
+#
+#                                _-----=> irqs-off/BH-disabled
+#                               / _----=> need-resched
+#                              | / _---=> hardirq/softirq
+#                              || / _--=> preempt-depth
+#                              ||| / _-=> migrate-disable
+#                              |||| /     delay
+#           TASK-PID     CPU#  |||||  TIMESTAMP  FUNCTION
+#              | |         |   |||||     |         |
+             cat-198     [003] .....     0.813947: sys_openat -> 0x3
+             cat-198     [003] .....     0.814346: sys_openat(dfd: 4294967196, filename: 139884500046514 "/etc/ld.so.cache", flags: O_RDONLY|O_CLOEXEC)
+             cat-198     [003] .....     0.814348: sys_openat -> 0x3
+             cat-198     [003] .....     0.814353: sys_openat(dfd: 4294967196, filename: 139884499830800 "/lib/x86_64-linux-gnu/libc.so.6", flags: O_RDONLY|O_CLOEXEC)
+             cat-198     [003] .....     0.814354: sys_openat -> 0x3
+             cat-198     [003] .....     0.814468: sys_openat(dfd: 18446744073709551516, filename: 140734816931665 "/etc/no-such-file", flags: O_RDONLY)
+             cat-198     [003] .....     0.814476: sys_openat -> 0xfffffffffffffffe
+$ echo > set_event_pid
+

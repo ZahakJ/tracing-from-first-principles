@@ -1,0 +1,5 @@
+ns per handle() call (app bench), 7 runs: median min max n
+bare (20M calls)        1.2 1.2 1.2 7
+uprobe (1000000 calls)      2886.4 2873 2939.9 7   added 2885.2
+uretprobe (1000000 calls)   3244.4 3238.8 3252.6 7   added 3243.2
+ptrace bp.c (20000)     19900.5 19796.2 20029.4 7   added 19899.3

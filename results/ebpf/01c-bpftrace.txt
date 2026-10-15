@@ -1,0 +1,25 @@
+$ bpftrace -e 'tracepoint:syscalls:sys_enter_read /pid == cpid/ { @start[tid] = nsecs; } tracepoint:syscalls:sys_exit_read /@start[tid]/ { @ns = hist(nsecs - @start[tid]); delete(@start[tid]); }' -c './reader /tmp/ram/data64'
+Attaching 2 probes...
+1056800 read() calls
+elapsed_ms 955.8
+
+
+@ns:
+[256, 512)       1020506 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@|
+[512, 1K)          35006 |@                                                   |
+[1K, 2K)              97 |                                                    |
+[2K, 4K)             307 |                                                    |
+[4K, 8K)             791 |                                                    |
+[8K, 16K)             18 |                                                    |
+[16K, 32K)             9 |                                                    |
+[32K, 64K)            62 |                                                    |
+[64K, 128K)            4 |                                                    |
+[128K, 256K)           0 |                                                    |
+[256K, 512K)           1 |                                                    |
+
+
+whole bpftrace command (last run, includes compiling and loading): 1237 ms
+reader elapsed ms under bpftrace, median min max n: 729.1 722.4 955.8 5
+files written to disk during the last run: 2
+/tmp/b.out
+/tmp/b.ms

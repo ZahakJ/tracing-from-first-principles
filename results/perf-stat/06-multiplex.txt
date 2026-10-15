@@ -1,0 +1,69 @@
+$ perf stat -e cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses,dTLB-loads,dTLB-load-misses ./sum2d cols
+34225520640
+
+ Performance counter stats for './sum2d cols':
+
+        8036947531      cycles                                                                  (75.00%)
+        1400597285      instructions                     #    0.17  insn per cycle              (74.99%)
+         283928237      branches                                                                (75.00%)
+            536978      branch-misses                    #    0.19% of all branches             (75.00%)
+         425950927      L1-dcache-loads                                                         (75.00%)
+         362639309      L1-dcache-load-misses            #   85.14% of all L1-dcache accesses   (75.00%)
+          29786483      dTLB-loads                                                              (75.01%)
+          26383819      dTLB-load-misses                 #   88.58% of all dTLB cache accesses  (75.01%)
+
+       2.104059974 seconds time elapsed
+
+       1.959294000 seconds user
+       0.010295000 seconds sys
+
+
+
+$ perf stat -e cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses,dTLB-loads,dTLB-load-misses,iTLB-loads,iTLB-load-misses ./sum2d cols
+34225520640
+
+ Performance counter stats for './sum2d cols':
+
+        7679933178      cycles                                                                  (59.93%)
+        1383520805      instructions                     #    0.18  insn per cycle              (59.93%)
+         278538957      branches                                                                (59.94%)
+            426731      branch-misses                    #    0.15% of all branches             (59.99%)
+         403345236      L1-dcache-loads                                                         (60.04%)
+         347266306      L1-dcache-load-misses            #   86.10% of all L1-dcache accesses   (60.09%)
+          29833895      dTLB-loads                                                              (60.10%)
+          25842838      dTLB-load-misses                 #   86.62% of all dTLB cache accesses  (60.04%)
+               818      iTLB-loads                                                              (59.99%)
+               427      iTLB-load-misses                 #   52.20% of all iTLB cache accesses  (59.94%)
+
+       2.006786711 seconds time elapsed
+
+       1.866399000 seconds user
+       0.013019000 seconds sys
+
+
+
+$ perf stat -e cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses,dTLB-loads,dTLB-load-misses,iTLB-loads,iTLB-load-misses,L1-icache-loads,L1-icache-load-misses ./sum2d cols
+34225520640
+
+ Performance counter stats for './sum2d cols':
+
+        8091793536      cycles                                                                  (49.92%)
+        1374455284      instructions                     #    0.17  insn per cycle              (49.92%)
+         280064383      branches                                                                (49.93%)
+            464427      branch-misses                    #    0.17% of all branches             (49.97%)
+         433374501      L1-dcache-loads                                                         (50.02%)
+         365734389      L1-dcache-load-misses            #   84.39% of all L1-dcache accesses   (50.07%)
+          22879480      dTLB-loads                                                              (50.08%)
+          20024886      dTLB-load-misses                 #   87.52% of all dTLB cache accesses  (50.08%)
+              1413      iTLB-loads                                                              (50.07%)
+               591      iTLB-load-misses                 #   41.83% of all iTLB cache accesses  (50.03%)
+          18033204      L1-icache-loads                                                         (49.98%)
+            251350      L1-icache-load-misses            #    1.39% of all L1-icache accesses   (49.93%)
+
+       2.109025737 seconds time elapsed
+
+       1.968120000 seconds user
+       0.011226000 seconds sys
+
+
+

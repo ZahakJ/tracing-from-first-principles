@@ -1,0 +1,13 @@
+$ /tmp/bt/writer direct /mnt/direct.dat
+write() took 98.5 us
+
+--- blkparse events:
+254,48   0        1     0.000000000   786  Q  WS 303104 + 8 [writer]
+254,48   0        2     0.000001443   786  G  WS 303104 + 8 [writer]
+254,48   0        3     0.000002114   786  P   N [writer]
+254,48   0        4     0.000002514   786  U   N [writer] 1
+254,48   0        5     0.000003336   786  D  WS 303104 + 8 [writer]
+254,48   0        6     0.000060824     0  C  WS 303104 + 8 [0]
+
+--- D2C of each request:
+D2C      57.5 us  WS 303104+8 [writer]

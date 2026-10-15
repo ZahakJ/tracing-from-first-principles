@@ -1,0 +1,50 @@
+$ gcc ... app_lttng.c tp.c -llttng-ust -ldl
+no session (20M)   1.1 1.1 1.1 7
+$ lttng-sessiond --daemonize
+$ lttng create tl --output=/tmp/tl-trace
+Session tl created.
+Traces will be output to /tmp/tl-trace
+$ lttng enable-event -u 'tracelab:*'
+ust event tracelab:* created in channel channel0
+$ lttng start
+Tracing started for session tl
+$ lttng stop
+Waiting for data availability.
+Warning: 217722 events were discarded, please refer to the documentation on channel configuration.
+Tracing stopped for session tl
+traced (1M)        66.1 63.4 73.8 7   added 65.0
+$ lttng view | head -n 5
+[15:58:31.661753907] (+?.?????????) tracelab tracelab:request: { cpu_id = 3 }, { id = 0 }
+[15:58:31.661754798] (+0.000000891) tracelab tracelab:request: { cpu_id = 3 }, { id = 1 }
+[15:58:31.661754889] (+0.000000091) tracelab tracelab:request: { cpu_id = 3 }, { id = 2 }
+[15:58:31.661754958] (+0.000000069) tracelab tracelab:request: { cpu_id = 3 }, { id = 3 }
+[15:58:31.661755039] (+0.000000081) tracelab tracelab:request: { cpu_id = 3 }, { id = 4 }
+$ lttng list tl
+Recording session tl: [inactive]
+    Trace output: /tmp/tl-trace
+=== Domain: User space ===
+Buffering scheme: per-user
+Tracked process attributes
+  Virtual process IDs:  all
+  Virtual user IDs:     all
+  Virtual group IDs:    all
+Channels:
+-------------
+- channel0: [enabled]
+    Attributes:
+      Event-loss mode:  discard
+      Sub-buffer size:  524288 bytes
+      Sub-buffer count: 4
+      Switch timer:     inactive
+      Read timer:       inactive
+      Monitor timer:    1000000 us
+      Blocking timeout: 0 us
+      Trace file count: 1 per stream
+      Trace file size:  unlimited
+      Output mode:      mmap
+    Statistics:
+      Discarded events: 217722
+    Recording event rules:
+      tracelab:* (type: tracepoint) [enabled]
+$ du -sh /tmp/tl-trace (7 runs x 1M events were emitted)
+65M	/tmp/tl-trace

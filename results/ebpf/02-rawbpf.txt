@@ -1,0 +1,17 @@
+$ ./rawbpf count
+instructions loaded (11):
+   0: code=0x62 dst=r10 src=r0 off=-4   imm=0
+   1: code=0xbf dst=r2 src=r10 off=0    imm=0
+   2: code=0x07 dst=r2 src=r0 off=0    imm=-4
+   3: code=0x18 dst=r1 src=r1 off=0    imm=3
+   4: code=0x00 dst=r0 src=r0 off=0    imm=0
+   5: code=0x85 dst=r0 src=r0 off=0    imm=1
+   6: code=0x15 dst=r0 src=r0 off=2    imm=0
+   7: code=0xb7 dst=r1 src=r0 off=0    imm=1
+   8: code=0xdb dst=r0 src=r1 off=0    imm=0
+   9: code=0xb7 dst=r0 src=r0 off=0    imm=0
+  10: code=0x95 dst=r0 src=r0 off=0    imm=0
+prog fd 4, prog id 36, map fd 3, tracepoint id 384
+slot 0 before: 2
+slot 0 after the child's 1,000,000 getppid() calls
+  and the parent's own 500,000:  1500006

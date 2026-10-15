@@ -1,0 +1,10 @@
+$ /tmp/bt/writer fsync /dev/vdd
+write() took 6.1 us
+fsync() took 6629.3 us
+
+$ cat /sys/kernel/tracing/trace   (block_rq_issue + block_rq_complete enabled)
+          writer-611     [001] .....    49.208950: block_rq_issue: 254,48 WS 4096 () 0 + 8 be,0,4 [writer]
+          <idle>-0       [001] d.h2.    49.209045: block_rq_complete: 254,48 WS () 0 + 8 be,0,4 [0]
+    kworker/1:1H-177     [001] .....    49.209068: block_rq_issue: 254,48 FF 0 () 0 + 0 none,0,0 [kworker/1:1H]
+          <idle>-0       [001] d.h2.    49.215548: block_rq_complete: 254,48 FF () 18446744073709551615 + 0 none,0,0 [0]
+          <idle>-0       [001] d.h3.    49.215549: block_rq_complete: 254,48 WS () 0 + 0 be,0,4 [0]

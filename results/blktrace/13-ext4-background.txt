@@ -1,0 +1,117 @@
+$ ./writer buffered /mnt/bg.dat   (marker read of sector 524280 just before; data=ordered, default commit)
+write() took 11.9 us
++1s Dirty: 84 kB Writeback: 0 kB  vdd_writes=204076 block=not allocated yet
++2s Dirty: 88 kB Writeback: 0 kB  vdd_writes=204076 block=not allocated yet
++3s Dirty: 88 kB Writeback: 0 kB  vdd_writes=204076 block=not allocated yet
++4s Dirty: 88 kB Writeback: 0 kB  vdd_writes=204076 block=not allocated yet
++5s Dirty: 88 kB Writeback: 0 kB  vdd_writes=204076 block=not allocated yet
++6s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++7s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++8s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++9s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++10s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++11s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++12s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++13s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++14s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++15s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++16s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++17s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++18s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++19s Dirty: 92 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++20s Dirty: 64 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++21s Dirty: 64 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++22s Dirty: 64 kB Writeback: 0 kB  vdd_writes=204078 block=not allocated yet
++23s Dirty: 32 kB Writeback: 0 kB  vdd_writes=204083 block=not allocated yet
++24s Dirty: 36 kB Writeback: 0 kB  vdd_writes=204083 block=not allocated yet
++25s Dirty: 20 kB Writeback: 0 kB  vdd_writes=204083 block=not allocated yet
++26s Dirty: 20 kB Writeback: 0 kB  vdd_writes=204083 block=not allocated yet
++27s Dirty: 20 kB Writeback: 0 kB  vdd_writes=204083 block=not allocated yet
++28s Dirty: 16 kB Writeback: 0 kB  vdd_writes=204084 block=not allocated yet
++29s Dirty: 16 kB Writeback: 0 kB  vdd_writes=204084 block=not allocated yet
++30s Dirty: 20 kB Writeback: 0 kB  vdd_writes=204084 block=not allocated yet
++31s Dirty: 20 kB Writeback: 0 kB  vdd_writes=204084 block=not allocated yet
++32s Dirty: 20 kB Writeback: 0 kB  vdd_writes=204084 block=not allocated yet
++33s Dirty: 28 kB Writeback: 0 kB  vdd_writes=204087 block=37377
++34s Dirty: 28 kB Writeback: 0 kB  vdd_writes=204087 block=37377
++35s Dirty: 24 kB Writeback: 0 kB  vdd_writes=204087 block=37377
+data block 37377 = sector 299016
+--- all events, time in s after the marker read:
+254,48   1        1     0.000000000   827  Q  RS 524280 + 8 [dd]
+254,48   1        2     0.000002785   827  G  RS 524280 + 8 [dd]
+254,48   1        3     0.000003856   827  P   N [dd]
+254,48   1        4     0.000004518   827  U   N [dd] 1
+254,48   1        5     0.000005720   827  D  RS 524280 + 8 [dd]
+254,48   1        6     0.000095579     0  C  RS 524280 + 8 [0]
+254,48   1        7     5.823390378   739  Q WSM 270504 + 8 [jbd2/vdd-8]
+254,48   1        8     5.823393283   739  G WSM 270504 + 8 [jbd2/vdd-8]
+254,48   1        9     5.823394596   739  P   N [jbd2/vdd-8]
+254,48   1       10     5.823395197   739  Q WSM 270512 + 8 [jbd2/vdd-8]
+254,48   1       11     5.823396099   739  M WSM 270512 + 8 [jbd2/vdd-8]
+254,48   1       12     5.823396600   739  Q WSM 270520 + 8 [jbd2/vdd-8]
+254,48   1       13     5.823396770   739  M WSM 270520 + 8 [jbd2/vdd-8]
+254,48   1       14     5.823397090   739  Q WSM 270528 + 8 [jbd2/vdd-8]
+254,48   1       15     5.823397221   739  M WSM 270528 + 8 [jbd2/vdd-8]
+254,48   1       16     5.823397491   739  Q WSM 270536 + 8 [jbd2/vdd-8]
+254,48   1       17     5.823397622   739  M WSM 270536 + 8 [jbd2/vdd-8]
+254,48   1       18     5.823398103   739  Q WSM 270544 + 8 [jbd2/vdd-8]
+254,48   1       19     5.823398232   739  M WSM 270544 + 8 [jbd2/vdd-8]
+254,48   1       20     5.823399014   739  U   N [jbd2/vdd-8] 1
+254,48   1       21     5.823401018   739  D WSM 270504 + 48 [jbd2/vdd-8]
+254,48   1       22     5.823546731     0  C WSM 270504 + 48 [0]
+254,48   1       23     5.823575505   177  D  FN [kworker/1:1H]
+254,48   1       24     5.830060498     0  C  FN 0 [0]
+254,48   1       25     5.830072340   177  I WSM 270552 + 8 [kworker/1:1H]
+254,48   1       26     5.830073672   177  D WSM 270552 + 8 [kworker/1:1H]
+254,48   1       27     5.830131000     0  C WSM 270552 + 8 [0]
+254,48   1       28     5.830136520   177  D  FN [kworker/1:1H]
+254,48   1       29     5.835108125     0  C  FN 0 [0]
+254,48   1       30     5.835109267     0  C WSM 270552 [0]
+254,48   1       31    22.207377082    15  Q  WM 0 + 8 [kworker/u16:1]
+254,48   1       32    22.207380938    15  G  WM 0 + 8 [kworker/u16:1]
+254,48   1       33    22.207382031    15  P   N [kworker/u16:1]
+254,48   1       34    22.207383243    15  Q  WM 8 + 8 [kworker/u16:1]
+254,48   1       35    22.207384245    15  M  WM 8 + 8 [kworker/u16:1]
+254,48   1       36    22.207385888    15  Q  WM 272 + 8 [kworker/u16:1]
+254,48   1       37    22.207386359    15  G  WM 272 + 8 [kworker/u16:1]
+254,48   1       38    22.207387310    15  Q  WM 280 + 8 [kworker/u16:1]
+254,48   1       39    22.207387621    15  M  WM 280 + 8 [kworker/u16:1]
+254,48   1       40    22.207388904    15  Q  WM 296 + 8 [kworker/u16:1]
+254,48   1       41    22.207389695    15  G  WM 296 + 8 [kworker/u16:1]
+254,48   1       42    22.207390857    15  Q  WM 304 + 8 [kworker/u16:1]
+254,48   1       43    22.207391108    15  M  WM 304 + 8 [kworker/u16:1]
+254,48   1       44    22.207392190    15  Q  WM 33064 + 8 [kworker/u16:1]
+254,48   1       45    22.207392620    15  G  WM 33064 + 8 [kworker/u16:1]
+254,48   1       46    22.207393863    15  Q  WM 33112 + 8 [kworker/u16:1]
+254,48   1       47    22.207394283    15  G  WM 33112 + 8 [kworker/u16:1]
+254,48   1       48    22.207401677    15  U   N [kworker/u16:1] 5
+254,48   1       49    22.207403180    15  D  WM 0 + 16 [kworker/u16:1]
+254,48   1       50    22.207403832    15  D  WM 272 + 16 [kworker/u16:1]
+254,48   1       51    22.207404132    15  D  WM 296 + 16 [kworker/u16:1]
+254,48   1       52    22.207404362    15  D  WM 33064 + 8 [kworker/u16:1]
+254,48   1       53    22.207404583    15  D  WM 33112 + 8 [kworker/u16:1]
+254,48   1       54    22.207511964     0  C  WM 296 + 16 [0]
+254,48   1       55    22.207516372     0  C  WM 33112 + 8 [0]
+254,48   1       56    22.207517525     0  C  WM 33064 + 8 [0]
+254,48   1       57    22.207518527     0  C  WM 272 + 16 [0]
+254,48   1       58    22.207519839     0  C  WM 0 + 16 [0]
+254,48   2        1    27.327395032    49  Q   W 307200 + 8 [kworker/u16:2]
+254,48   2        2    27.327398859    49  G   W 307200 + 8 [kworker/u16:2]
+[... 32 more lines]
+--- D2C:
+D2C      89.9 us  RS 524280+8 [dd]
+D2C     145.7 us  WSM 270504+48 [jbd2/vdd-8]
+D2C    6485.0 us  FN       [kworker/1:1H]
+D2C      57.3 us  WSM 270552+8 [kworker/1:1H]
+D2C    4971.6 us  FN       [kworker/1:1H]
+D2C     107.8 us  WM 296+16 [kworker/u16:1]
+D2C     111.8 us  WM 33112+8 [kworker/u16:1]
+D2C     113.2 us  WM 33064+8 [kworker/u16:1]
+D2C     114.7 us  WM 272+16 [kworker/u16:1]
+D2C     116.7 us  WM 0+16  [kworker/u16:1]
+D2C     127.7 us  W 307200+8 [kworker/u16:2]
+D2C     131.1 us  W 299016+8 [kworker/u16:2]
+D2C     113.4 us  WSM 270560+40 [jbd2/vdd-8]
+D2C   15928.9 us  FN       [kworker/0:1H]
+D2C      84.3 us  WSM 270600+8 [kworker/0:1H]
+D2C   14091.9 us  FN       [kworker/0:1H]

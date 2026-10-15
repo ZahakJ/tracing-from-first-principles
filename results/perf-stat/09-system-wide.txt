@@ -1,0 +1,26 @@
+$ perf stat -a -e cycles,instructions sleep 1
+
+ Performance counter stats for 'system wide':
+
+           5976602      cycles                                                                
+           3003331      instructions                     #    0.50  insn per cycle            
+
+       1.001360187 seconds time elapsed
+
+
+$ perf stat -a -A -e cycles,instructions sleep 1
+
+ Performance counter stats for 'system wide':
+
+CPU0               950850      cycles                                                                
+CPU1               564429      cycles                                                                
+CPU2              2985012      cycles                                                                
+CPU3               984888      cycles                                                                
+CPU0               209968      instructions                     #    0.22  insn per cycle            
+CPU1               180680      instructions                     #    0.32  insn per cycle            
+CPU2              2120238      instructions                     #    0.71  insn per cycle            
+CPU3               235061      instructions                     #    0.24  insn per cycle            
+
+       1.001195888 seconds time elapsed
+
+

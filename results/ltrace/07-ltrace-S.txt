@@ -1,0 +1,22 @@
+$ ltrace -S -o tmp ./readline >/dev/null; grep -A40 fopen tmp | head -25   (the dynamic loader startup syscalls before fopen dropped)
+[28 lines before fopen dropped]
+fopen("/etc/debian_version", "r" <unfinished ...>
+getrandom@SYS(0x7f23430b5218, 8, 1, 3)           = 8
+brk@SYS(nil)                                     = 0x55db3abe6000
+brk@SYS(0x55db3ac07000)                          = 0x55db3ac07000
+openat@SYS(AT_FDCWD, "/etc/debian_version", 0, 00) = 3
+<... fopen resumed> )                            = 0x55db3abe62a0
+fgets( <unfinished ...>
+fstat@SYS(3, 0x7fffc57e5520)                     = 0
+read@SYS(3, "13.7\n", 4096)                      = 5
+<... fgets resumed> "13.7\n", 128, 0x55db3abe62a0) = 0x7fffc57e56f0
+fputs("13.7\n", 0x7f23430af5c0 <unfinished ...>
+fstat@SYS(1, 0x7fffc57e5580)                     = 0
+ioctl@SYS(1, 0x5401, 0x7fffc57e54e0, 3)          = -25
+<... fputs resumed> )                            = 1
+fclose(0x55db3abe62a0 <unfinished ...>
+close@SYS(3)                                     = 0
+<... fclose resumed> )                           = 0
+write@SYS(1, "13.7\n", 5)                        = 5
+exit_group@SYS(0 <no return ...>
++++ exited (status 0) +++

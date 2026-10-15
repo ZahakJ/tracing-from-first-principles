@@ -1,0 +1,20 @@
+workload: ./branchy shuffled; wall ms, median min max n (7 runs each)
+bare:                                   731.119 725.188 733.783 7
+perf stat -e cycles,instructions:       745.49 741.063 769.996 7
+bare (again):                           731.355 729.112 738.663 7
+
+$ perf stat -r 5 -e cycles,instructions ./branchy shuffled
+25701424840
+25701424840
+25701424840
+25701424840
+25701424840
+
+ Performance counter stats for './branchy shuffled' (5 runs):
+
+        3574129904      cycles                                                                  ( +-  0.08% )
+        2597906995      instructions                     #    0.73  insn per cycle              ( +-  0.01% )
+
+           0.73754 +- 0.00137 seconds time elapsed  ( +-  0.19% )
+
+

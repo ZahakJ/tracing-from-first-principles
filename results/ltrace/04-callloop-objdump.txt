@@ -1,0 +1,2 @@
+$ objdump -d callloop | grep "call.*labs"
+    11d9:	e8 62 fe ff ff       	call   1040 <labs@plt>

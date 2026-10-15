@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+# kpeek: copy the machine code of one kernel function, as it is in memory
+# right now, into a file.      kpeek FUNCTION OUTFILE
+# The address comes from /proc/kallsyms, the length is the distance to the
+# next symbol. /proc/kcore is an ELF core file: its PT_LOAD segments say
+# which file offset holds which kernel virtual address.
+import struct, sys
+
+name, outfile = sys.argv[1], sys.argv[2]
+addrs = sorted({int(l.split()[0], 16) for l in open("/proc/kallsyms")})
+start = [int(l.split()[0], 16) for l in open("/proc/kallsyms")
+	 if l.split()[2] == name][0]
+end = min(a for a in addrs if a > start)
+
+with open("/proc/kcore", "rb") as f:
+	hdr = f.read(64)
+	phoff, = struct.unpack_from("<Q", hdr, 32)
+	phentsize, phnum = struct.unpack_from("<HH", hdr, 54)
+	for i in range(phnum):
+		f.seek(phoff + i * phentsize)
+		ptype, _, off, vaddr, _, size = struct.unpack("<IIQQQQ", f.read(40))
+		if ptype == 1 and vaddr <= start < vaddr + size:	# PT_LOAD
+			f.seek(off + start - vaddr)
+			open(outfile, "wb").write(f.read(end - start))
+			print("%s at %#x, %d bytes" % (name, start, end - start))
+			break

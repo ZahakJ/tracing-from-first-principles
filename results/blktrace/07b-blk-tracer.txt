@@ -1,0 +1,23 @@
+$ echo 1 > /sys/block/vdd/trace/enable; echo blk > /sys/kernel/tracing/current_tracer
+available_tracers: timerlat osnoise hwlat blk mmiotrace function_graph wakeup_dl wakeup_rt wakeup function nop
+act_mask
+enable
+end_lba
+pid
+start_lba
+$ /tmp/bt/writer fsync /dev/vdd
+write() took 6.3 us
+fsync() took 7186.4 us
+
+$ cat /sys/kernel/tracing/trace
+          writer-618     [000] d....    50.278676: 254,48   Q  WS 0 + 8 [writer]
+          writer-618     [000] d....    50.278679: 254,48   G  WS 0 + 8 [writer]
+          writer-618     [000] d....    50.278680: 254,48   P   N [writer]
+          writer-618     [000] d....    50.278683: 254,48   U   N [writer] 1
+          writer-618     [000] d....    50.278684: 254,48   D  WS 0 + 8 [writer]
+          <idle>-0       [000] d.h2.    50.278780: 254,48   C  WS 0 + 8 [0]
+          writer-618     [000] d....    50.278790: 254,48   Q FWS [writer]
+          writer-618     [000] d....    50.278791: 254,48   G FWS [writer]
+    kworker/0:1H-210     [000] d....    50.278799: 254,48   D  FN [kworker/0:1H]
+          <idle>-0       [000] d.h2.    50.285834: 254,48   C  FN 0 [0]
+          <idle>-0       [000] d.h3.    50.285835: 254,48   C  WS 0 [0]

@@ -1,0 +1,51 @@
+$ gcc -O2 -g -no-pie -finstrument-functions work.c hooks.c -o work_hooked
+$ objdump -d work_hooked --disassemble=store      (work.c is unchanged)
+0000000000401470 <store>:
+  401470:	push   %r13
+  401472:	lea    -0x9(%rip),%r13        # 401470 <store>
+  401479:	push   %r12
+  40147b:	mov    %rdi,%r12
+  40147e:	mov    %r13,%rdi
+  401481:	push   %rbp
+  401482:	push   %rbx
+  401483:	mov    %esi,%ebx
+  401485:	add    $0x1,%ebx
+  401488:	movslq %ebx,%rbx
+  40148b:	sub    $0x8,%rsp
+  40148f:	mov    0x28(%rsp),%rsi
+  401494:	call   4014d0 <__cyg_profile_func_enter>
+  401499:	mov    %rbx,%rdi
+  40149c:	call   401080 <malloc@plt>
+  4014a1:	mov    %rbx,%rdx
+  4014a4:	mov    %r12,%rsi
+  4014a7:	mov    %rax,%rdi
+  4014aa:	mov    %rax,%rbp
+  4014ad:	call   401070 <memcpy@plt>
+  4014b2:	mov    0x28(%rsp),%rsi
+  4014b7:	mov    %r13,%rdi
+  4014ba:	call   401510 <__cyg_profile_func_exit>
+  4014bf:	add    $0x8,%rsp
+  4014c3:	mov    %rbp,%rax
+  4014c6:	pop    %rbx
+  4014c7:	pop    %rbp
+  4014c8:	pop    %r12
+  4014ca:	pop    %r13
+  4014cc:	ret
+
+$ ./work_hooked        (raw: address, calls, total ns)
+3837611256
+0x401340 2000000 129358039
+0x4013d0 2000000 472912233
+0x401470 200000 8027332
+0x401100 1 695250739
+
+the same, with addresses turned into names by addr2line:
+function            calls     total_ms    ns/call
+make_record       2000000        129.4         65
+checksum          2000000        472.9        236
+store              200000          8.0         40
+main                    1        695.3  695250739
+
+wall time, ms (median min max runs):
+work         547.919 546.706 550.381 5
+work_hooked  699.386 698.15 700.538 5

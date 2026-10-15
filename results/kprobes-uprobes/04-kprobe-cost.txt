@@ -1,0 +1,9 @@
+ns per getppid() call (sysloop 1000000), 7 runs: median min max n;  added = median - bare median
+bare                         119.4 114.4 133 7
+kprobe entry (ftrace)        263.4 261.1 266.7 7   added 144.0   [k  __do_sys_getppid+0x4    [FTRACE] ]
+kprobe +15, int3              477.9 476.8 482.8 7   added 358.5   [k  __do_sys_getppid+0xf     ]
+kprobe +15, optimized (jmp)  255.2 252.9 258.3 7   added 135.8   [k  __do_sys_getppid+0xf    [OPTIMIZED] ]
+kretprobe                    350.5 348.4 353.3 7   added 231.1   [r  __do_sys_getppid+0x4    [FTRACE] ]
+
+ring buffer did take the events (one run, entry kprobe): 
+  events/kprobes/tl_e entries: 72052 (buffer overwrites; per-cpu size 1410 kb)

@@ -1,0 +1,29 @@
+### built with -no-pie only (Debian gcc still emits -fPIE code)
+$ readelf -r selfpeek-fpie | grep puts
+000000403fd8  000400000006 R_X86_64_GLOB_DAT 0000000000000000 puts@GLIBC_2.2.5 + 0
+$ ltrace ./selfpeek-fpie
+printf("puts stub at %p: %02x %02x %02x "..., 0x7f222d5082c0, 0x41, 0x56, 0x41) = 41
+printf("puts stub at %p: %02x %02x %02x "..., 0x7f222d5082c0, 0x41, 0x56, 0x41) = 41
+calling puts once
+puts stub at 0x7f222d5082c0: 41 56 41 55
+calling puts again
+puts stub at 0x7f222d5082c0: 41 56 41 55
++++ exited (status 0) +++
+
+### built -fno-pie -no-pie -fcf-protection=full -Wl,-z,ibtplt (.plt.sec)
+$ objdump -d -j .plt.sec selfpeek-ibt | grep -A4 "<puts@plt>:"
+0000000000401050 <puts@plt>:
+  401050:	f3 0f 1e fa          	endbr64
+  401054:	ff 25 a6 2f 00 00    	jmp    *0x2fa6(%rip)        # 404000 <puts@GLIBC_2.2.5>
+  40105a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+
+$ ltrace ./selfpeek-ibt
+puts("calling puts once")                        = 18
+printf("puts stub at %p: %02x %02x %02x "..., 0x401050, 0xcc, 0xf, 0x1e) = 35
+puts("calling puts again")                       = 19
+printf("puts stub at %p: %02x %02x %02x "..., 0x401050, 0xcc, 0xf, 0x1e) = 35
+calling puts once
+puts stub at 0x401050: cc 0f 1e fa
+calling puts again
+puts stub at 0x401050: cc 0f 1e fa
++++ exited (status 0) +++

@@ -1,0 +1,95 @@
+$ ltrace  ./usegreet 2>&1 | head -14
+greet(0x55de1cae3004, 0x7ffc42ba52e8, 0x7ffc42ba52f8, 0x55de1cae4db8) = 5
+qsort(0x7ffc42ba51c0, 4, 4, 0x55de1cae2149)      = <void>
+hello, world
++++ exited (status 0) +++
+
+$ ltrace -e '*' ./usegreet 2>&1 | head -40
+libc.so.6->_dl_audit_preinit(0x7f308dd155f0, 0, 0x7ffda2602018, 0x561a2a8d0db8) = 0
+usegreet->greet(0x561a2a8cf004, 0x7ffda2602008, 0x7ffda2602018, 0x561a2a8d0db8 <unfinished ...>
+libgreet.so->strlen("world")                     = 5
+libgreet.so->printf("hello, %s\n", "world" <unfinished ...>
+libc.so.6->strchrnul(0x7f308dcd1000, 37, 0x7ffda2601dd0, 0) = 0x7f308dcd1007
+libc.so.6->memcpy(0x7ffda2601d00, "hello, ", 7)  = 0x7ffda2601d00
+libc.so.6->strlen("world")                       = 5
+libc.so.6->memcpy(0x7ffda2601d07, "world", 5)    = 0x7ffda2601d07
+libc.so.6->strchrnul(0x7f308dcd1009, 37, 1, 0x6c726f77) = 0x7f308dcd100a
+libc.so.6->memcpy(0x7ffda2601d0c, "\n", 1)       = 0x7ffda2601d0c
+libc.so.6->__tunable_get_val(30, 0x7ffda2601ab0, 0x7f308db73080, 0x7f308dcbab20) = 510
+libc.so.6->__tunable_get_val(26, 0x7ffda2601ab0, 0x7f308db730a0, 0x7f308dd12320) = 442
+libc.so.6->__tunable_get_val(24, 0x7ffda2601ab0, 0x7f308db73040, 0x7f308dd12320) = 408
+libc.so.6->__tunable_get_val(31, 0x7ffda2601ab0, 0x7f308db730b0, 0x7f308dd12320) = 527
+libc.so.6->__tunable_get_val(23, 0x7ffda2601ab0, 0x7f308db73060, 0x7f308dd12320) = 391
+libc.so.6->__tunable_get_val(19, 0x7ffda2601ab0, 0x7f308db730d0, 0x7f308dd12320) = 323
+libc.so.6->__tunable_get_val(20, 0x7ffda2601ab0, 0x7f308db730e0, 0x7f308dd12320) = 340
+libc.so.6->__tunable_get_val(28, 0x7ffda2601ab0, 0x7f308db730f0, 0x7f308dd12320) = 476
+libc.so.6->__tunable_get_val(27, 0x7ffda2601ab0, 0x7f308db73130, 0x7f308dd12320) = 459
+libc.so.6->__tunable_get_val(29, 0x7ffda2601ab0, 0x7f308db73150, 0x7f308dd12320) = 493
+libc.so.6->__tunable_get_val(25, 0x7ffda2601ab0, 0x7f308db73160, 0x7f308dd12320) = 425
+libc.so.6->__tunable_get_val(22, 0x7ffda2601ab0, 0x7f308db73480, 0x7f308dd12320) = 374
+<... printf resumed> )                           = 13
+<... greet resumed> )                            = 5
+usegreet->qsort(0x7ffda2601ee0, 4, 4, 0x561a2a8ce149 <unfinished ...>
+libc.so.6->memcpy(0x7ffda2601a94, "\003\0\0\0", 4) = 0x7ffda2601a94
+libc.so.6->memcpy(0x7ffda2601ee0, "\001\0\0\0\003\0\0\0", 8) = 0x7ffda2601ee0
+libc.so.6->memcpy(0x7ffda2601a94, "\004\0\0\0", 4) = 0x7ffda2601a94
+libc.so.6->memcpy(0x7ffda2601ee8, "\001\0\0\0\004\0\0\0", 8) = 0x7ffda2601ee8
+libc.so.6->memcpy(0x7ffda2601ee0, "\001\0\0\0\001\0\0\0\003\0\0\0", 12) = 0x7ffda2601ee0
+<... qsort resumed> )                            = <void>
+hello, world
++++ exited (status 0) +++
+
+$ ltrace -e @libgreet.so ./usegreet 2>&1 | head -14
+libgreet.so->strlen("world")                     = 5
+libgreet.so->printf("hello, %s\n", "world")      = 13
+hello, world
++++ exited (status 0) +++
+
+$ ltrace -e strlen ./usegreet 2>&1 | head -14
+libgreet.so->strlen("world")                     = 5
+libc.so.6->strlen("world")                       = 5
+hello, world
++++ exited (status 0) +++
+
+$ ltrace -l libgreet.so ./usegreet 2>&1 | head -14
+usegreet->greet(0x55d4264d0004, 0x7ffea134c7f8, 0x7ffea134c808, 0x55d4264d1db8) = 5
+hello, world
++++ exited (status 0) +++
+
+$ ltrace -e write ./usegreet 2>&1 | head -14
+hello, world
++++ exited (status 0) +++
+
+$ ltrace -e write@* ./usegreet 2>&1 | head -14
+hello, world
++++ exited (status 0) +++
+
+$ ltrace -l libc.so.6 ./usegreet 2>&1 | head -14
+libgreet.so->strlen("world")                     = 5
+libgreet.so->printf("hello, %s\n", "world" <unfinished ...>
+libc.so.6->strchrnul(0x7ff02a960000, 37, 0x7ffc4a1ef360, 0) = 0x7ff02a960007
+libc.so.6->memcpy(0x7ffc4a1ef290, "hello, ", 7)  = 0x7ffc4a1ef290
+libc.so.6->strlen("world")                       = 5
+libc.so.6->memcpy(0x7ffc4a1ef297, "world", 5)    = 0x7ffc4a1ef297
+libc.so.6->strchrnul(0x7ff02a960009, 37, 1, 0x6c726f77) = 0x7ff02a96000a
+libc.so.6->memcpy(0x7ffc4a1ef29c, "\n", 1)       = 0x7ffc4a1ef29c
+<... printf resumed> )                           = 13
+usegreet->qsort(0x7ffc4a1ef470, 4, 4, 0x562fe2e24149 <unfinished ...>
+libc.so.6->memcpy(0x7ffc4a1ef024, "\003\0\0\0", 4) = 0x7ffc4a1ef024
+libc.so.6->memcpy(0x7ffc4a1ef470, "\001\0\0\0\003\0\0\0", 8) = 0x7ffc4a1ef470
+libc.so.6->memcpy(0x7ffc4a1ef024, "\004\0\0\0", 4) = 0x7ffc4a1ef024
+libc.so.6->memcpy(0x7ffc4a1ef478, "\001\0\0\0\004\0\0\0", 8) = 0x7ffc4a1ef478
+[... 4 more lines]
+
+$ ltrace -x cmp ./usegreet 2>&1 | head -14
+greet(0x5638254af004, 0x7fff1a995918, 0x7fff1a995928, 0x5638254b0db8) = 5
+qsort(0x7fff1a9957f0, 4, 4, 0x5638254ae149 <unfinished ...>
+cmp(0x7fff1a9957f0, 0x7fff1a9957f4, 0, 0)        = 2
+cmp(0x7fff1a9957f8, 0x7fff1a9957fc, 0, 0)        = 3
+cmp(0x7fff1a9957f0, 0x7fff1a9957f8, 0, 0)        = 0
+cmp(0x7fff1a9957f4, 0x7fff1a9957f8, 0, 0)        = 2
+cmp(0x7fff1a9957f4, 0x7fff1a9957fc, 0, 0)        = 0xffffffff
+<... qsort resumed> )                            = <void>
+hello, world
++++ exited (status 0) +++
+

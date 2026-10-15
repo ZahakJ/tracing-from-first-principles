@@ -1,0 +1,22 @@
+$ objdump -d branchy | sum_big   (gcc -O1 -fno-if-conversion -fno-tree-vectorize)
+00000000000011a0 <sum_big>:
+    11a0:	mov    %rdi,%r8
+    11a3:	mov    $0x8,%edi
+    11a8:	mov    $0x0,%esi
+    11ad:	lea    0x2000000(%r8),%rcx
+    11b4:	jmp    11d3 <sum_big+0x33>
+    11b6:	movzbl %dl,%edx
+    11b9:	add    %rdx,%rsi
+    11bc:	add    $0x1,%rax
+    11c0:	cmp    %rcx,%rax
+    11c3:	je     11ce <sum_big+0x2e>
+    11c5:	movzbl (%rax),%edx
+    11c8:	test   %dl,%dl
+    11ca:	jns    11bc <sum_big+0x1c>
+    11cc:	jmp    11b6 <sum_big+0x16>
+    11ce:	sub    $0x1,%edi
+    11d1:	je     11d8 <sum_big+0x38>
+    11d3:	mov    %r8,%rax
+    11d6:	jmp    11c5 <sum_big+0x25>
+    11d8:	mov    %rsi,%rax
+    11db:	ret

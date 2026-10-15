@@ -1,0 +1,5 @@
+$ bpftrace -e 'kprobe:vfs_read { @[comm] = count(); } interval:s:1 { exit(); }'   (while reader runs)
+Attaching 2 probes...
+
+
+@[reader]: 1056803

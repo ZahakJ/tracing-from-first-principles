@@ -1,0 +1,36 @@
+$ /usr/bin/time -f "%e %U %S" ./ingest --batch     (5 runs)
+  run 1: real 0.33  user 0.31  sys 0.00
+  run 2: real 0.33  user 0.31  sys 0.00
+  run 3: real 0.33  user 0.32  sys 0.00
+  run 4: real 0.33  user 0.32  sys 0.00
+  run 5: real 0.33  user 0.32  sys 0.00
+  real  median 0.33  min 0.33  max 0.33  (n=5)
+  user  median 0.32  min 0.31  max 0.32
+  sys   median 0  min 0  max 0
+  real / (user+sys) = 0.33 / 0.32 = 1.0x  (medians)
+  ./ingest median real 3.42 s  ->  ./ingest --batch 0.33 s  (10x faster)
+
+$ strace -c -w ./ingest --batch
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 73.34    0.012236       12235         1           fdatasync
+ 24.26    0.004048          13       300           write
+  0.58    0.000097          97         1           execve
+  0.45    0.000075           9         8           mmap
+  0.26    0.000044          14         3           openat
+  0.17    0.000029           9         3           close
+  0.16    0.000027           9         3           mprotect
+  0.14    0.000023           7         3           brk
+  0.09    0.000015           7         2           fstat
+  0.09    0.000015           7         2           pread64
+  0.07    0.000012          11         1           munmap
+  0.05    0.000008           8         1         1 access
+  0.05    0.000008           7         1           read
+  0.05    0.000008           7         1           prlimit64
+  0.05    0.000008           7         1           getrandom
+  0.04    0.000007           7         1           arch_prctl
+  0.04    0.000007           7         1           rseq
+  0.04    0.000007           7         1           set_tid_address
+  0.04    0.000007           7         1           set_robust_list
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.016683          49       335         1 total

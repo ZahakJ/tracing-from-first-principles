@@ -1,0 +1,2 @@
+paths-pg ran in 1124 ms, gmon.out 2553 bytes
+paths-pg-nopie ran in 1113 ms, gmon.out 2537 bytes

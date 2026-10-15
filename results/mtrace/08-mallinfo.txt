@@ -1,0 +1,30 @@
+$ MALLINFO=1 ./leaky
+mallinfo2: arena 135168  in use 33280  free 101888
+Arena 0:
+system bytes     =     135168
+in use bytes     =      33280
+Total (incl. mmap):
+system bytes     =     135168
+in use bytes     =      33280
+max mmap regions =          0
+max mmap bytes   =          0
+<malloc version="1">
+<heap nr="0">
+<sizes>
+</sizes>
+<total type="fast" count="0" size="0"/>
+<total type="rest" count="1" size="101888"/>
+<system type="current" size="135168"/>
+<system type="max" size="135168"/>
+<aspace type="total" size="135168"/>
+<aspace type="mprotect" size="135168"/>
+</heap>
+<total type="fast" count="0" size="0"/>
+<total type="rest" count="1" size="101888"/>
+<total type="mmap" count="0" size="0"/>
+<system type="current" size="135168"/>
+<system type="max" size="135168"/>
+<aspace type="total" size="135168"/>
+<aspace type="mprotect" size="135168"/>
+</malloc>
+handled 1000 requests, 120 errors

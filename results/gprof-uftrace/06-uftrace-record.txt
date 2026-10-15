@@ -1,0 +1,19 @@
+$ uftrace record ./paths-pg
+(wall 1178 ms; uftrace.data 687896 bytes)
+total 704
+-rw-r--r-- 1 1000 984 320096 Oct  6 15:41 229.dat
+-rw-r--r-- 1 1000 984      0 Oct  6 15:41 default.opts
+-rw-r--r-- 1 1000 984    954 Oct  6 15:41 info
+-rw-r--r-- 1 1000 984  24185 Oct  6 15:41 ld-linux-x86-64.so.2.sym
+-rw-r--r-- 1 1000 984   3413 Oct  6 15:41 libbz2.so.1.0.4.sym
+-rw-r--r-- 1 1000 984 221132 Oct  6 15:41 libc.so.6.sym
+-rw-r--r-- 1 1000 984   1693 Oct  6 15:41 libcapstone.so.5.sym
+-rw-r--r-- 1 1000 984  18373 Oct  6 15:41 libdw-0.192.so.sym
+-rw-r--r-- 1 1000 984   7008 Oct  6 15:41 libelf-0.192.so.sym
+-rw-r--r-- 1 1000 984   9783 Oct  6 15:41 libgcc_s.so.1.sym
+-rw-r--r-- 1 1000 984   9813 Oct  6 15:41 liblzma.so.5.8.1.sym
+[... 6 more lines]
+
+wall ms, 5 runs each (median min max n):
+./paths-pg                  1118.77 1113.81 1124.57 5
+uftrace record ./paths-pg   1175.81 1166.37 1179.49 5

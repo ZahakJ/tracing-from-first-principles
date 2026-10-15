@@ -1,0 +1,7 @@
+$ ./work
+3837611256
+
+wall time of ./work, ms: median min max runs
+548.37 547.243 549.964 5
+wall time of ./work 200000, ms:
+54.243 53.629 54.747 5

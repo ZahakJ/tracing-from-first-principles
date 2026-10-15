@@ -1,0 +1,18 @@
+$ gcc ... -fsanitize=address -fsanitize-recover=address; ASAN_OPTIONS=halt_on_error=0 ./uaf-asan-recover | grep ERROR/first frame
+==1225==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x502000000020 at pc 0x55f4da5b1263 bp 0x7ffd0c480b10 sp 0x7ffd0c480b08
+    #0 0x55f4da5b1262 in main /tmp/experiments/mtrace/src/uaf.c:23
+    #1 0x7fc1906a6ca7 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+    #0 0x7fc190965c57 in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:69
+    #1 0x55f4da5b120a in main /tmp/experiments/mtrace/src/uaf.c:21
+SUMMARY: AddressSanitizer: heap-buffer-overflow /tmp/experiments/mtrace/src/uaf.c:23 in main
+==1225==ERROR: AddressSanitizer: heap-use-after-free on address 0x503000000054 at pc 0x55f4da5b1329 bp 0x7ffd0c480b10 sp 0x7ffd0c480b08
+    #0 0x55f4da5b1328 in main /tmp/experiments/mtrace/src/uaf.c:30
+    #1 0x7fc1906a6ca7 in __libc_start_call_main ../sysdeps/nptl/libc_start_call_main.h:58
+    #0 0x7fc1909648f8 in free ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:52
+    #1 0x55f4da5b12ea in main /tmp/experiments/mtrace/src/uaf.c:29
+    #0 0x7fc190965c57 in malloc ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:69
+    #1 0x55f4da5b1296 in main /tmp/experiments/mtrace/src/uaf.c:27
+SUMMARY: AddressSanitizer: heap-use-after-free /tmp/experiments/mtrace/src/uaf.c:30 in main
+buf = aaaaaaaaaaaaaaaa
+after free, p[5] = 42
+exit status: 0

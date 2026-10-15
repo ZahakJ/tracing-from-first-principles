@@ -1,0 +1,9 @@
+$ /tmp/bt/seqwrite buffered 200 /mnt/batch.dat
+200 writes: 13158 us total, 65.79 us per write
+
+--- D events by RWBS and process (200 x 4 KiB writes, one fsync at the end):
+FN       [kworker/0:1H]       n=   2  mean D2C   6049.3 us
+WS       [seqwrite]           n=   1  mean D2C    273.2 us
+WSM      [jbd2/vdd-8]         n=   1  mean D2C     58.9 us
+WSM      [kworker/0:1H]       n=   1  mean D2C     43.7 us
+write requests 3, 851968 bytes for 819200 bytes of payload

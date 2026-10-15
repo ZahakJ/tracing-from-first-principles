@@ -1,0 +1,43 @@
+$ sh -c 'P=$$; echo "prev_pid==$P || next_pid==$P" > /sys/kernel/tracing/events/sched/sched_switch/filter; echo "pid==$P" > /sys/kernel/tracing/events/sched/sched_wakeup/filter; echo "pid==$P" > /sys/kernel/tracing/events/sched/sched_waking/filter; echo 1 > /sys/kernel/tracing/events/sched/sched_switch/enable; echo 1 > /sys/kernel/tracing/events/sched/sched_wakeup/enable; echo 1 > /sys/kernel/tracing/events/sched/sched_waking/enable; exec ./sleepy'
+real 1.885752 s  cpu 0.085279 s  real-cpu 1.800471 s
+
+$ grep -v '^#' trace     # pid 310, 23 lines
+          sleepy-310     [002] d..2.     4.403915: sched_switch: prev_comm=sleepy prev_pid=310 prev_prio=120 prev_state=R ==> next_comm=kworker/2:1 next_pid=72 next_prio=120
+     kworker/2:1-72      [002] d..2.     4.403920: sched_switch: prev_comm=kworker/2:1 prev_pid=72 prev_prio=120 prev_state=D ==> next_comm=sleepy next_pid=310 next_prio=120
+          sleepy-310     [002] d..2.     4.409942: sched_switch: prev_comm=sleepy prev_pid=310 prev_prio=120 prev_state=R+ ==> next_comm=kworker/2:1 next_pid=72 next_prio=120
+     kworker/2:1-72      [002] d..2.     4.409947: sched_switch: prev_comm=kworker/2:1 prev_pid=72 prev_prio=120 prev_state=D ==> next_comm=sleepy next_pid=310 next_prio=120
+          sleepy-310     [002] d..2.     4.413928: sched_switch: prev_comm=sleepy prev_pid=310 prev_prio=120 prev_state=R+ ==> next_comm=kworker/2:1 next_pid=72 next_prio=120
+     kworker/2:1-72      [002] d..2.     4.413933: sched_switch: prev_comm=kworker/2:1 prev_pid=72 prev_prio=120 prev_state=D ==> next_comm=sleepy next_pid=310 next_prio=120
+          sleepy-310     [002] d..2.     4.417920: sched_switch: prev_comm=sleepy prev_pid=310 prev_prio=120 prev_state=R+ ==> next_comm=kworker/2:1 next_pid=72 next_prio=120
+     kworker/2:1-72      [002] d..2.     4.417924: sched_switch: prev_comm=kworker/2:1 prev_pid=72 prev_prio=120 prev_state=D ==> next_comm=sleepy next_pid=310 next_prio=120
+          sleepy-310     [002] d..2.     4.421927: sched_switch: prev_comm=sleepy prev_pid=310 prev_prio=120 prev_state=R+ ==> next_comm=kworker/2:1 next_pid=72 next_prio=120
+     kworker/2:1-72      [002] d..2.     4.421929: sched_switch: prev_comm=kworker/2:1 prev_pid=72 prev_prio=120 prev_state=I ==> next_comm=sleepy next_pid=310 next_prio=120
+          sleepy-310     [002] d..2.     4.487226: sched_switch: prev_comm=sleepy prev_pid=310 prev_prio=120 prev_state=S ==> next_comm=swapper/2 next_pid=0 next_prio=120
+          <idle>-0       [002] d.h3.     5.487299: sched_waking: comm=sleepy pid=310 prio=120 target_cpu=002
+          <idle>-0       [002] dNh4.     5.487309: sched_wakeup: comm=sleepy pid=310 prio=120 target_cpu=002
+          <idle>-0       [002] d..2.     5.487322: sched_switch: prev_comm=swapper/2 prev_pid=0 prev_prio=120 prev_state=R ==> next_comm=sleepy next_pid=310 next_prio=120
+          sleepy-310     [002] d..2.     5.487479: sched_switch: prev_comm=sleepy prev_pid=310 prev_prio=120 prev_state=S ==> next_comm=swapper/2 next_pid=0 next_prio=120
+          sleepy-311     [003] d..3.     6.287602: sched_waking: comm=sleepy pid=310 prio=120 target_cpu=002
+          <idle>-0       [002] dNh2.     6.287623: sched_wakeup: comm=sleepy pid=310 prio=120 target_cpu=002
+          <idle>-0       [002] d..2.     6.287629: sched_switch: prev_comm=swapper/2 prev_pid=0 prev_prio=120 prev_state=R ==> next_comm=sleepy next_pid=310 next_prio=120
+          sleepy-310     [002] d..2.     6.287641: sched_switch: prev_comm=sleepy prev_pid=310 prev_prio=120 prev_state=S ==> next_comm=swapper/2 next_pid=0 next_prio=120
+          sleepy-311     [003] d..5.     6.287665: sched_waking: comm=sleepy pid=310 prio=120 target_cpu=002
+          <idle>-0       [002] dNh2.     6.287674: sched_wakeup: comm=sleepy pid=310 prio=120 target_cpu=002
+          <idle>-0       [002] d..2.     6.287675: sched_switch: prev_comm=swapper/2 prev_pid=0 prev_prio=120 prev_state=R ==> next_comm=sleepy next_pid=310 next_prio=120
+          sleepy-310     [002] d..2.     6.287845: sched_switch: prev_comm=sleepy prev_pid=310 prev_prio=120 prev_state=Z ==> next_comm=swapper/2 next_pid=0 next_prio=120
+
+$ ./switches.py 310 < trace
+switched out state off-CPU ms wake->run us
+4.403915     R          0.005            -
+4.409942     R+         0.005            -
+4.413928     R+         0.005            -
+4.417920     R+         0.004            -
+4.421927     R+         0.002            -
+4.487226     S       1000.096         13.0
+5.487479     S        800.150          6.0
+6.287641     S          0.034          1.0
+total off-CPU with prev_state=R: 0.000005 s
+total off-CPU with prev_state=R+: 0.000016 s
+total off-CPU with prev_state=S: 1.800280 s
+total off-CPU: 1.800301 s
+  (one row per switch-out; rows after the first 30 are omitted, totals are over all)

@@ -1,0 +1,30 @@
+$ echo 'p:tl_try do_sys_openat2 dfd=%di filename=+0(%si):ustring' >> kprobe_events
+  accepted
+$ echo 'p:tl_try do_sys_openat2 dfd=$arg1 filename=$arg2:ustring' >> kprobe_events
+./run.sh: 99: echo: echo: I/O error
+  rejected:
+[    5.942394] trace_kprobe: error: String accepts only memory argument
+  Command: p:tl_try do_sys_openat2 dfd=$arg1 filename=$arg2:ustring
+                                                            ^
+$ echo 'p:tl_try do_sys_openat2 dfd filename:ustring' >> kprobe_events
+  accepted
+
+$ echo 'p:tl_open do_sys_openat2 dfd=%di filename=+0(%si):ustring' >> kprobe_events
+$ echo 'r:tl_open_ret do_sys_openat2 ret=$retval' >> kprobe_events
+p:kprobes/tl_open do_sys_openat2 dfd=%di filename=+0(%si):ustring
+r10:kprobes/tl_open_ret do_sys_openat2 ret=$retval
+$ cat /etc/hostname; cat /etc/nonexistent.conf
+cat: /etc/nonexistent.conf: No such file or directory
+$ grep cat- trace
+             cat-239     [001] .....     5.960404: tl_open: (do_sys_openat2+0x0/0xe0) dfd=0xffffff9c filename="/etc/ld.so.cache"
+             cat-239     [001] .....     5.960407: tl_open_ret: (__x64_sys_openat+0x61/0xa0 <- do_sys_openat2) ret=3
+             cat-239     [001] .....     5.960412: tl_open: (do_sys_openat2+0x0/0xe0) dfd=0xffffff9c filename="/lib/x86_64-linux-gnu/libc.so.6"
+             cat-239     [001] .....     5.960414: tl_open_ret: (__x64_sys_openat+0x61/0xa0 <- do_sys_openat2) ret=3
+             cat-239     [001] .....     5.960522: tl_open: (do_sys_openat2+0x0/0xe0) dfd=0xffffff9c filename="/etc/hostname"
+             cat-239     [001] .....     5.960531: tl_open_ret: (__x64_sys_openat+0x61/0xa0 <- do_sys_openat2) ret=3
+             cat-240     [002] .....     5.960753: tl_open: (do_sys_openat2+0x0/0xe0) dfd=0xffffff9c filename="/etc/ld.so.cache"
+             cat-240     [002] .....     5.960756: tl_open_ret: (__x64_sys_openat+0x61/0xa0 <- do_sys_openat2) ret=3
+             cat-240     [002] .....     5.960761: tl_open: (do_sys_openat2+0x0/0xe0) dfd=0xffffff9c filename="/lib/x86_64-linux-gnu/libc.so.6"
+             cat-240     [002] .....     5.960762: tl_open_ret: (__x64_sys_openat+0x61/0xa0 <- do_sys_openat2) ret=3
+             cat-240     [002] .....     5.960875: tl_open: (do_sys_openat2+0x0/0xe0) dfd=0xffffff9c filename="/etc/nonexistent.conf"
+             cat-240     [002] .....     5.960881: tl_open_ret: (__x64_sys_openat+0x61/0xa0 <- do_sys_openat2) ret=-2

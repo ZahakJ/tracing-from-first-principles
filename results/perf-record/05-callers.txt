@@ -1,0 +1,125 @@
+bare wall ms (median min max n):
+  callers-nofp 1079.65 1072.89 1080.74 3
+  callers-fp   1047.83 1044.44 1062.14 3
+  perf record -o junk.data true (perf's own start/stop cost) 1154.62 1141.72 1155.61 3
+gcc's defaults for frame pointers (gcc -Q --help=target -O2 | grep frame-pointer):
+  -momit-leaf-frame-pointer   		[disabled]
+and with -fno-omit-frame-pointer, does checksum() (a leaf) set up a frame?
+  callers-fp: 0 'push %rbp' in checksum, 1 in render
+  callers-fpleaf: 0 'push %rbp' in checksum, 1 in render
+
+=== ./callers-nofp under perf record -g
+$ perf record -g -o callers_nofp_g.data ./callers-nofp
+[ perf record: Woken up 2 times to write data ]
+[ perf record: Captured and wrote 0.317 MB callers_nofp_g.data (4552 samples) ]
+exit status: 0
+perf.data size: 0.32 MB (338536 bytes)
+recorded wall ms (median min max n): 2137.22 2137.04 2137.93 3
+first-to-last sample ms (median min max n): 1123.9 1114.5 1150.5 3
+$ perf report --stdio --no-children -S checksum,cmp -i callers_nofp_g.data   (comments and blank lines dropped)
+    75.80%  callers-nofp  callers-nofp   [.] checksum
+            |
+            ---checksum
+               0xc9c2bbb4ada69f98
+    19.56%  callers-nofp  callers-nofp   [.] cmp
+            |
+            ---cmp
+
+=== ./callers-fp under perf record --call-graph=fp
+$ perf record --call-graph=fp -o callers_fp__call_graph_fp.data ./callers-fp
+[ perf record: Woken up 2 times to write data ]
+[ perf record: Captured and wrote 0.342 MB callers_fp__call_graph_fp.data (4528 samples) ]
+exit status: 0
+perf.data size: 0.35 MB (365016 bytes)
+recorded wall ms (median min max n): 2138.23 2137.53 2151.78 3
+first-to-last sample ms (median min max n): 1115.9 1114.7 1140 3
+$ perf report --stdio --no-children -S checksum,cmp -i callers_fp__call_graph_fp.data   (comments and blank lines dropped)
+    75.57%  callers-fp  callers-fp     [.] checksum
+            |
+            ---checksum
+               main
+               __libc_start_call_main
+    20.35%  callers-fp  callers-fp     [.] cmp
+            |
+            ---cmp
+
+=== ./callers-fpleaf under perf record --call-graph=fp
+$ perf record --call-graph=fp -o callers_fpleaf__call_graph_fp.data ./callers-fpleaf
+[ perf record: Woken up 2 times to write data ]
+[ perf record: Captured and wrote 0.350 MB callers_fpleaf__call_graph_fp.data (4662 samples) ]
+exit status: 0
+perf.data size: 0.36 MB (373108 bytes)
+recorded wall ms (median min max n): 2137.76 2137.13 2140.82 3
+first-to-last sample ms (median min max n): 1112.5 1109.9 1119.8 3
+$ perf report --stdio --no-children -S checksum,cmp -i callers_fpleaf__call_graph_fp.data   (comments and blank lines dropped)
+    76.54%  callers-fpleaf  callers-fpleaf  [.] checksum
+            |
+            ---checksum
+               main
+               __libc_start_call_main
+    20.28%  callers-fpleaf  callers-fpleaf  [.] cmp
+            |
+            ---cmp
+
+=== ./callers-nofp under perf record --call-graph=dwarf
+$ perf record --call-graph=dwarf -o callers_nofp__call_graph_dwarf.data ./callers-nofp
+[ perf record: Woken up 146 times to write data ]
+[ perf record: Captured and wrote 36.260 MB callers_nofp__call_graph_dwarf.data (4504 samples) ]
+exit status: 0
+perf.data size: 36.27 MB (38026792 bytes)
+recorded wall ms (median min max n): 2139.07 2138.45 2147.59 3
+first-to-last sample ms (median min max n): 1120.4 1115.4 1121.7 3
+$ perf report --stdio --no-children -S checksum,cmp -i callers_nofp__call_graph_dwarf.data   (comments and blank lines dropped)
+    77.00%  callers-nofp  callers-nofp   [.] checksum
+            |
+            ---checksum
+               |          
+               |--58.11%--render
+               |          main
+               |          __libc_start_call_main
+               |          __libc_start_main_impl (inlined)
+               |          _start
+               |          
+                --18.89%--compress
+                          main
+                          __libc_start_call_main
+                          __libc_start_main_impl (inlined)
+                          _start
+    19.78%  callers-nofp  callers-nofp   [.] cmp
+            |          
+            |--18.34%--slow_key (inlined)
+            |          cmp
+            |          msort_with_tmp (inlined)
+            |          msort_with_tmp (inlined)
+            |          |          
+            |          |--16.88%--msort_with_tmp (inlined)
+            |          |          msort_with_tmp (inlined)
+            |          |          |          
+            |          |          |--15.55%--msort_with_tmp (inlined)
+            |          |          |          msort_with_tmp (inlined)
+            |          |          |          |          
+            |          |          |          |--14.09%--msort_with_tmp (inlined)
+            |          |          |          |          msort_with_tmp (inlined)
+            |          |          |          |          |          
+            |          |          |          |          |--12.86%--msort_with_tmp (inlined)
+            |          |          |          |          |          msort_with_tmp (inlined)
+            |          |          |          |          |          |          
+            |          |          |          |          |          |--11.45%--msort_with_tmp (inlined)
+            |          |          |          |          |          |          msort_with_tmp (inlined)
+            |          |          |          |          |          |          |          
+            |          |          |          |          |          |          |--9.73%--msort_with_tmp (inlined)
+            |          |          |          |          |          |          |          msort_with_tmp (inlined)
+            |          |          |          |          |          |          |          |          
+            |          |          |          |          |          |          |          |--8.21%--msort_with_tmp (inlined)
+            |          |          |          |          |          |          |          |          msort_with_tmp (inlined)
+            |          |          |          |          |          |          |          |          |          
+            |          |          |          |          |          |          |          |          |--6.96%--msort_with_tmp (inlined)
+            |          |          |          |          |          |          |          |          |          msort_with_tmp (inlined)
+[... 135 more lines]
+
+=== ./callers-fp under perf record --call-graph=lbr
+$ perf record --call-graph=lbr -o callers_fp__call_graph_lbr.data ./callers-fp
+Error:
+cycles:PH: PMU Hardware or event type doesn't support branch stack sampling.
+exit status: 255
+

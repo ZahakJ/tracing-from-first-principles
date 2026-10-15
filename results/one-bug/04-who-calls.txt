@@ -1,0 +1,44 @@
+$ strace -k -e trace=fdatasync ./ingest 2>&1 | head -20
+fdatasync(3)                            = 0
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__internal_syscall_cancel+0x67) [0x8f3a7]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__syscall_cancel+0xd) [0x8f3cd]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__GI_fdatasync+0x1a) [0x10654a]
+ > /work/experiments/one-bug/work/ingest(audit_log+0x68) [0x15b8]
+ > /work/experiments/one-bug/work/ingest(main+0x13e) [0x128e]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_call_main+0x78) [0x29ca8]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main_alias_2+0x85) [0x29d65]
+ > /work/experiments/one-bug/work/ingest(_start+0x21) [0x1381]
+fdatasync(3)                            = 0
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__internal_syscall_cancel+0x67) [0x8f3a7]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__syscall_cancel+0xd) [0x8f3cd]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__GI_fdatasync+0x1a) [0x10654a]
+ > /work/experiments/one-bug/work/ingest(audit_log+0x68) [0x15b8]
+ > /work/experiments/one-bug/work/ingest(main+0x13e) [0x128e]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_call_main+0x78) [0x29ca8]
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main_alias_2+0x85) [0x29d65]
+ > /work/experiments/one-bug/work/ingest(_start+0x21) [0x1381]
+fdatasync(3)                            = 0
+ > /usr/lib/x86_64-linux-gnu/libc.so.6(__internal_syscall_cancel+0x67) [0x8f3a7]
+
+$ bpftrace -e 'tracepoint:syscalls:sys_enter_fdatasync /pid == cpid/ { @[ustack] = count(); }' -c ./ingest
+[run with ASLR off (randomize_va_space=0) so the addresses can be resolved afterwards; '<-' annotations added by run.sh, not bpftrace]
+Attaching 1 probe...
+@[
+        0x7ffff7e523a7    <- libc.so.6+0x8f3a7
+        0x55555555528e    <- ./ingest+0x128e main
+        0x7ffff7decca8    <- libc.so.6+0x29ca8
+]: 300
+
+$ ltrace -c ./ingest
+% time     seconds  usecs/call     calls      function
+------ ----------- ----------- --------- --------------------
+ 98.77    3.109362       10364       300 fdatasync
+  0.64    0.020188          67       300 write
+  0.58    0.018205          60       300 snprintf
+  0.00    0.000108         108         1 exit_group
+  0.00    0.000104         104         1 malloc
+  0.00    0.000088          88         1 close
+  0.00    0.000078          78         1 free
+  0.00    0.000073          73         1 open
+------ ----------- ----------- --------- --------------------
+100.00    3.148206                   905 total

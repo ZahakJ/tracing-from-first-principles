@@ -1,0 +1,19 @@
+$ LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libc_malloc_debug.so.0 MALLOC_TRACE=/tmp/m.log ./leaky
+$ head -12 /tmp/m.log; tail -2 /tmp/m.log; wc -l
+= Start
+@ ./leaky:[0x1284] + 0x562f2c2a12a0 0x18
+@ ./leaky:[0x1221] + 0x562f2c2a14a0 0xa
+@ ./leaky:[0x12d1] + 0x562f2c2a14c0 0x100
+@ ./leaky:[0x1403] - 0x562f2c2a14c0
+@ ./leaky:[0x1413] - 0x562f2c2a14a0
+@ ./leaky:[0x141f] - 0x562f2c2a12a0
+@ ./leaky:[0x1284] + 0x562f2c2a12a0 0x18
+@ ./leaky:[0x1221] + 0x562f2c2a14a0 0xa
+@ ./leaky:[0x12d1] + 0x562f2c2a14c0 0x100
+@ ./leaky:[0x1403] - 0x562f2c2a14c0
+@ ./leaky:[0x1413] - 0x562f2c2a14a0
+[...]
+@ /lib/x86_64-linux-gnu/libc.so.6:(_IO_file_doallocate+83)[0x7dad3] + 0x562f2c2a83e0 0x1000
+@ /lib/x86_64-linux-gnu/libc.so.6:[0x8d6ec] - 0x562f2c2a83e0
+total lines: 5863  (+ lines: 3001, - lines: 2861)
+size: 226121 bytes

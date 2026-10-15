@@ -1,0 +1,11 @@
+$ bpftrace -l | wc -l
+109562
+
+$ bpftrace -l | cut -d: -f1 | sort | uniq -c | sort -rn
+  54293 kprobe
+  52163 fentry
+   1898 tracepoint
+   1164 rawtracepoint
+     18 iter
+     14 software
+     12 hardware

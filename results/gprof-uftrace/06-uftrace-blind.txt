@@ -1,0 +1,52 @@
+$ uftrace record ./blind-pg && uftrace report && uftrace replay
+truth: sleeper 1.000 s
+truth: in_libc 0.976 s
+truth: compute 0.293 s (x=844999999350000000)
+  Total time   Self time       Calls  Function
+  ==========  ==========  ==========  ====================
+    2.270  s    4.357 us           1  main
+    1.000  s    1.583 us           1  sleeper
+    1.000  s    1.000  s           1  nanosleep
+  975.858 ms  365.252 us           1  in_libc
+  975.492 ms  975.492 ms        1600  memset
+  293.218 ms  293.218 ms           1  compute
+  915.818 us  915.818 us           1  free
+   55.784 us   55.784 us           3  fprintf
+    4.689 us    4.689 us           1  malloc
+    4.570 us    3.758 us           6  now
+    0.812 us    0.812 us           6  clock_gettime
+    0.481 us    0.481 us           1  __monstartup
+    0.350 us    0.350 us           1  __cxa_atexit
+
+$ uftrace replay | head -30
+# DURATION     TID      FUNCTION
+   0.481 us [    374] | __monstartup();
+   0.350 us [    374] | __cxa_atexit();
+            [    374] | main() {
+   4.689 us [    374] |   malloc();
+            [    374] |   now() {
+   0.331 us [    374] |     clock_gettime();
+   1.463 us [    374] |   } /* now */
+            [    374] |   sleeper() {
+   1.000  s [    374] |     nanosleep();
+   1.000  s [    374] |   } /* sleeper */
+            [    374] |   now() {
+   0.111 us [    374] |     clock_gettime();
+   0.832 us [    374] |   } /* now */
+  19.567 us [    374] |   fprintf();
+            [    374] |   now() {
+   0.070 us [    374] |     clock_gettime();
+   0.211 us [    374] |   } /* now */
+            [    374] |   in_libc() {
+   3.017 ms [    374] |     memset();
+ 829.646 us [    374] |     memset();
+ 623.680 us [    374] |     memset();
+ 596.759 us [    374] |     memset();
+ 586.450 us [    374] |     memset();
+ 602.420 us [    374] |     memset();
+ 635.141 us [    374] |     memset();
+ 593.914 us [    374] |     memset();
+ 569.047 us [    374] |     memset();
+ 608.732 us [    374] |     memset();
+ 628.329 us [    374] |     memset();
+[... 1604 more lines]

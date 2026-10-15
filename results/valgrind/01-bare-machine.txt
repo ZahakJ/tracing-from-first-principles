@@ -1,0 +1,57 @@
+$ ./count
+2864311
+
+$ valgrind --tool=none ./count
+==76== Nulgrind, the minimal Valgrind tool
+==76== Command: ./count
+2864311
+
+$ valgrind --tool=lackey ./count
+==79== Lackey, an example Valgrind tool
+==79== Command: ./count
+2864311
+==79== Counted 1 call to main()
+==79== Jccs:
+==79==   total:         4,865,395
+==79==   taken:         1,980,324 (41%)
+==79== Executed:
+==79==   SBs entered:   4,869,597
+==79==   SBs completed: 2,918,084
+==79==   guest instrs:  20,480,553
+==79==   IRStmts:       123,663,254
+==79== Ratios:
+==79==   guest instrs : SB entered  = 42 : 10
+==79==        IRStmts : SB entered  = 253 : 10
+==79==        IRStmts : guest instr = 60 : 10
+==79== Exit code:       0
+
+$ valgrind --tool=callgrind --callgrind-out-file=cg.N ./count   (3 times)
+==82== Collected : 20480256
+==82== I   refs:      20,480,256
+  cg.1: summary: 20480256 totals: 20480256 
+==87== Collected : 20480256
+==87== I   refs:      20,480,256
+  cg.2: summary: 20480256 totals: 20480256 
+==92== Collected : 20480256
+==92== I   refs:      20,480,256
+  cg.3: summary: 20480256 totals: 20480256 
+
+$ callgrind_annotate cg.1 | head (the program total and top functions)
+Ir                  
+--------------------------------------------------------------------------------
+20,480,256 (100.0%)  PROGRAM TOTALS
+--------------------------------------------------------------------------------
+Ir                   file:function
+--------------------------------------------------------------------------------
+20,335,568 (99.29%)  ???:main [/tmp/experiments/valgrind/bin/count]
+
+# the same binary, the same argument, a different environment (startup code walks envp):
+$ env -i valgrind --tool=callgrind ./count
+==102== Collected : 20478589
+$ env -i A=<3000 x characters> valgrind --tool=callgrind ./count
+==104== Collected : 20478790
+# main alone (callgrind_annotate): 20,335,568 with env -i, 20,335,568 with the normal environment
+
+# native wall time of ./count, 5 runs (ms):
+3.214 3.159 3.091 3.379 3.306 
+# median 3.214 ms, min 3.091, max 3.379, n 5

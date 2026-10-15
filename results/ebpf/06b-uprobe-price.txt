@@ -1,0 +1,4 @@
+$ ./churn 1000000   (1,000,000 malloc/free pairs; ns per pair; 5 runs)
+bare: median min max n: 16.5 16.4 17.5 5
+$ bpftrace -e 'uprobe:/lib/x86_64-linux-gnu/libc.so.6:malloc { @ = hist(arg0); }' &   (all processes)
+traced: median min max n: 406.9 398.4 412.7 5

@@ -1,0 +1,18 @@
+Parts 2-9 use the raw disk /dev/vdd (no filesystem): a write at byte offset 0 is sector 0.
+Parts 10-14 put ext4 on the same disk afterwards.
+
+/sys/block/vdd/queue/scheduler: [none] mq-deadline kyber bfq 
+/sys/block/vdd/queue/max_sectors_kb: 4096
+/sys/block/vdd/queue/max_hw_sectors_kb: 2147483647
+/sys/block/vdd/queue/max_segments: 254
+/sys/block/vdd/queue/nr_requests: 256
+/sys/block/vdd/queue/rotational: 1
+/sys/block/vdd/queue/write_cache: write back
+/sys/block/vdd/queue/logical_block_size: 512
+
+$ sysctl vm.dirty_expire_centisecs vm.dirty_writeback_centisecs vm.dirty_background_ratio vm.dirty_ratio
+vm.dirty_expire_centisecs = 3000
+vm.dirty_writeback_centisecs = 500
+vm.dirty_background_ratio = 10
+vm.dirty_ratio = 20
+

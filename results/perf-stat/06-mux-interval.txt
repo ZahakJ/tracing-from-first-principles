@@ -1,0 +1,11 @@
+workload ./branchy shuffled; 12 events (no groups) vs instructions alone; scaled value as printed by perf
+truth: instructions 2587475490, cycles 3554030851 (both :u, alone)
+columns: mux_interval_ms  instructions:u (running%)  cycles:u (running%)
+1 2082136150 (49.00%) 2966315586 (49.00%) 
+4 2305869442 (48.00%) 2971567994 (48.00%) 
+16 1820418337 (48.00%) 2949904324 (48.00%) 
+100 1940191929 (18.00%) 3478247480 (18.00%) 
+1 2088807455 (49.00%) 2945532492 (49.00%) 
+4 2223910190 (48.00%) 2968081319 (48.00%) 
+16 1777776623 (48.00%) 2915675278 (48.00%) 
+100 3089396347 (18.00%) 3482465588 (20.00%) 

@@ -1,0 +1,27 @@
+$ readelf -S shout | grep plt
+  [10] .rela.plt         RELA             00000000000006b8  000006b8
+  [12] .plt              PROGBITS         0000000000001020  00001020
+  [13] .plt.got          PROGBITS         0000000000001090  00001090
+  [24] .got.plt          PROGBITS         0000000000003fe8  00002fe8
+
+$ objdump -d -j .plt -j .plt.sec shout   (trimmed: first stub PLT0 and strlen@plt)
+
+    1020:	ff 35 ca 2f 00 00    	push   0x2fca(%rip)        # 3ff0 <_GLOBAL_OFFSET_TABLE_+0x8>
+    1026:	ff 25 cc 2f 00 00    	jmp    *0x2fcc(%rip)        # 3ff8 <_GLOBAL_OFFSET_TABLE_+0x10>
+    102c:	0f 1f 40 00          	nopl   0x0(%rax)
+
+    1050:	ff 25 ba 2f 00 00    	jmp    *0x2fba(%rip)        # 4010 <strlen@GLIBC_2.2.5>
+    1056:	68 02 00 00 00       	push   $0x2
+    105b:	e9 c0 ff ff ff       	jmp    1020 <_init+0x20>
+
+$ objdump -d shout | grep -B3 -A1 "call.*strlen@plt"   (the call sites in main)
+    1277:	48 83 45 f8 01       	addq   $0x1,-0x8(%rbp)
+    127c:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+    1280:	48 89 c7             	mov    %rax,%rdi
+    1283:	e8 c8 fd ff ff       	call   1050 <strlen@plt>
+    1288:	48 39 45 f8          	cmp    %rax,-0x8(%rbp)
+
+$ readelf -r shout | grep -E "Offset|strlen"
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+000000004010  000500000007 R_X86_64_JUMP_SLO 0000000000000000 strlen@GLIBC_2.2.5 + 0

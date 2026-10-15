@@ -1,0 +1,22 @@
+getenv("POSIXLY_CORRECT")                        = nil
+strrchr("/bin/echo", '/')                        = "/echo"
+setlocale(LC_ALL, "")                            = "C"
+bindtextdomain("coreutils", "/usr/share/locale") = "/usr/share/locale"
+textdomain("coreutils")                          = "coreutils"
+__cxa_atexit(0x5581433e4320, 0, 0x5581433ec008, 0) = 0
+strcmp("hi", "--help")                           = 59
+strcmp("hi", "--version")                        = 59
+fputs_unlocked("hi", 0x7fa4772fe5c0)             = 1
+__fpending(0x7fa4772fe5c0)                       = 3
+fileno(0x7fa4772fe5c0)                           = 1
+__freading(0x7fa4772fe5c0, 0, 1, 0)              = 0
+__freading(0x7fa4772fe5c0, 0, 0, 0)              = 0
+fflush(0x7fa4772fe5c0)                           = 0
+fclose(0x7fa4772fe5c0)                           = 0
+__fpending(0x7fa4772fe4e0)                       = 0
+fileno(0x7fa4772fe4e0)                           = 2
+__freading(0x7fa4772fe4e0, 0, 0x7fa4772fbe00, 0x5581593ae2f0) = 0
+__freading(0x7fa4772fe4e0, 0, 0, 0x5581593ae2f0) = 0
+fflush(0x7fa4772fe4e0)                           = 0
+fclose(0x7fa4772fe4e0)                           = 0
++++ exited (status 0) +++

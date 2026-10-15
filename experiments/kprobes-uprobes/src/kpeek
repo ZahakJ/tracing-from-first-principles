@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+# kpeek: show the machine code the kernel is running right now.
+#   kpeek SYMBOL[+OFF] [NBYTES] [--raw]
+# Looks the symbol up in /proc/kallsyms, reads the bytes at that address out
+# of /proc/kcore (an ELF core file whose segments map kernel virtual
+# addresses), prints them in hex and disassembles them with objdump.
+import re, struct, subprocess, sys, tempfile
+
+def kallsyms(name):
+	for line in open("/proc/kallsyms"):
+		addr, _, sym = line.split()[:3]
+		if sym == name:
+			return int(addr, 16)
+	sys.exit("kpeek: no symbol " + name)
+
+def kread(addr, n):
+	with open("/proc/kcore", "rb") as f:
+		ehdr = f.read(64)
+		phoff, = struct.unpack_from("<Q", ehdr, 32)
+		phentsize, phnum = struct.unpack_from("<HH", ehdr, 54)
+		for i in range(phnum):
+			f.seek(phoff + i * phentsize)
+			ptype, _, off, vaddr, _, filesz = struct.unpack("<IIQQQQ", f.read(40))
+			if ptype == 1 and vaddr <= addr < vaddr + filesz:   # PT_LOAD
+				f.seek(off + addr - vaddr)
+				return f.read(n)
+	sys.exit("kpeek: address %#x not in /proc/kcore" % addr)
+
+sym, _, off = sys.argv[1].partition("+")
+addr = kallsyms(sym) + (int(off, 0) if off else 0)
+code = kread(addr, int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2] != "--raw" else 32)
+if "--raw" in sys.argv:
+	sys.stdout.buffer.write(code)
+	sys.exit()
+print("%s = %#x:  %s" % (sys.argv[1], addr, code.hex(" ")))
+with tempfile.NamedTemporaryFile() as t:
+	t.write(code); t.flush()
+	out = subprocess.run(["objdump", "-D", "-b", "binary", "-m", "i386:x86-64",
+			      "--adjust-vma=%#x" % addr, t.name],
+			     capture_output=True, text=True).stdout
+print("\n".join(l for l in out.splitlines() if re.match(r"\s*[0-9a-f]+:\t", l)))

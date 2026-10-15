@@ -1,0 +1,20 @@
+$ echo 'p:tl_off __do_sys_getppid+15' >> kprobe_events; enable; sleep 1.2
+ffffffffbaf8c64f  k  __do_sys_getppid+0xf    [OPTIMIZED]
+$ echo 0 > /proc/sys/debug/kprobes-optimization &   (then wait 5 s)
+writer pid 779 state: State:	D (disk sleep)
+$ cat /proc/779/stack
+[<0>] wait_for_kprobe_optimizer_locked+0x7b/0xd0
+[<0>] proc_kprobes_optimization_handler+0x125/0x150
+[<0>] proc_sys_call_handler+0x1c9/0x2e0
+[<0>] vfs_write+0x281/0x570
+[<0>] ksys_write+0x7b/0x110
+[<0>] do_syscall_64+0xaa/0x660
+[<0>] entry_SYSCALL_64_after_hwframe+0x76/0x7e
+$ cat /sys/kernel/debug/kprobes/list
+ffffffffbaf8c64f  k  __do_sys_getppid+0xf    
+$ grep kprobe /proc/*/stack (other tasks waiting on the optimizer)
+kprobe-optimizer State:	S (sleeping)
+[<0>] kprobe_optimizer_thread+0x36c/0x4e0
+sh State:	D (disk sleep)
+[<0>] wait_for_kprobe_optimizer_locked+0x7b/0xd0
+[<0>] proc_kprobes_optimization_handler+0x125/0x150

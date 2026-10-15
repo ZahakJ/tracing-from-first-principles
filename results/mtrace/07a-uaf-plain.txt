@@ -1,0 +1,4 @@
+$ ./uaf
+buf = aaaaaaaaaaaaaaaa
+after free, p[5] = 42
+exit status: 0
